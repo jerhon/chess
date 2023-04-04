@@ -9,9 +9,8 @@ public class SquareNameTests {
     [InlineData("g8", 'g', 8)]
     public void Parse_ReturnsProperValue(string value, char file, int rank) {
 
-        bool result = SquareName.TryParse(value, out var squareName);
+        var squareName = SquareName.Parse(value, null);
         
-        Assert.True(result);
         Assert.Equal(file, squareName.File.Name);
         Assert.Equal(rank, squareName.Rank.Number);
     }

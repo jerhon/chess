@@ -60,7 +60,7 @@ public class ChessBoardTests {
     
     
     private void AssertPiece(ChessBoard chessBoard, string position, PieceType type, PieceColor color) {
-        if (SquareName.TryParse(position, out var squareName)) {
+        if (SquareName.TryParse(position, null, out var squareName)) {
             Square square = chessBoard.GetSquare(squareName);
             Assert.Equal(type, square.Piece.Type);
             Assert.Equal(color, square.Piece.Color);
