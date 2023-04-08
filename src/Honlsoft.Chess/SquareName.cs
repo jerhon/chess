@@ -33,7 +33,7 @@ public record SquareName(File File, Rank Rank) : IParsable<SquareName> {
             return false;
         }
 
-        if (rankChar is < '1' or > '9') {
+        if (rankChar is < '1' or > '8') {
             return false;
         }
 
