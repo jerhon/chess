@@ -20,4 +20,18 @@ public class PieceTests {
         var result = piece.ToString();
         Assert.Equal(expected, result);
     }
+
+
+
+    [Fact]
+    public void IsOpponent_True_WhenColorDoesntMatch() {
+        var piece = new Piece(PieceType.Bishop, PieceColor.Black);
+        Assert.True(piece.IsOpponent(PieceColor.White));
+    }
+    
+    [Fact]
+    public void IsOpponent_False_WhenColorMatches() {
+        var piece = new Piece(PieceType.Bishop, PieceColor.Black);
+        Assert.False(piece.IsOpponent(PieceColor.Black));
+    }
 }

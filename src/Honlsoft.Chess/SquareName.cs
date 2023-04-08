@@ -44,4 +44,17 @@ public record SquareName(File File, Rank Rank) : IParsable<SquareName> {
         result = new SquareName(new File(fileChar), new Rank(rank));
         return true;
     }
+
+
+    public SquareName? Add(int file, int rank) {
+        var newFile = File.Add(file);
+        var newRank = Rank.Add(rank);
+
+        if (newFile == null || newRank == null) {
+            return null;
+        }
+
+        return new SquareName(newFile, newRank);
+    }
+
 }

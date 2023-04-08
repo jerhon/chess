@@ -64,6 +64,28 @@ public class ChessBoard : IEnumerable<Square> {
 
         return this._spaces[fileIdx, rankIdx];
     }
+
+    /// <summary>
+    /// Returns whether a square has a piece.
+    /// </summary>
+    /// <param name="squareName">The square to check.</param>
+    /// <returns>true if the square has the value</returns>
+    public bool HasPiece(SquareName squareName) {
+        var square = GetSquare(squareName);
+        return square is { Piece: not null };
+    }
+
+    /// <summary>
+    /// Returns whether a square has an opponent piece.
+    /// </summary>
+    /// <param name="squareName">The square to check.</param>
+    /// <param name="color">The color to check for an opponent.</param>
+    /// <returns>True if the square has an opposing piece</returns>
+    public bool HasOpponentPiece(SquareName squareName, PieceColor color) {
+        var square = GetSquare(squareName);
+        var squareColor = square?.Piece?.Color;
+        return squareColor != null && squareColor != color;
+    }
     
     /// <summary>
     /// Sets a piece at a particular position on the board.
@@ -87,7 +109,37 @@ public class ChessBoard : IEnumerable<Square> {
             }
         }
     }
+    
+    /// <summary>
+    /// Creates a new game with the chess pieces in their standard positions.
+    /// </summary>
+    /// <returns></returns>
+    public static ChessBoard NewStandardGame() {
+        var gameState = new ChessBoard();
+        foreach (var position in gameState) {
+            var color = GetInitialColor(position.Name);
+            var piece = GetPieceType(position.Name);
 
+            if (piece != null && color != null) {
+                gameState.SetSquare(new Square(position.Name, new Piece(piece.Value, color.Value)));
+            }
+        }
+        return gameState;
+    }
+
+    /// <summary>
+    /// Removes a piece from the board.
+    /// </summary>
+    /// <param name="squareName">The square to remove the piece from.</param>
+    /// <returns>A new chess board with the piece removed.</returns>
+    public ChessBoard RemovePiece(SquareName squareName) {
+        var (fileIdx, rankIdx) = GetIndex(squareName);
+        var chessBoard = this.Clone();
+        chessBoard.SetPiece(squareName, null);
+        return chessBoard;
+    }
+
+    
     IEnumerator IEnumerable.GetEnumerator() {
         return GetEnumerator();
     }
@@ -109,26 +161,6 @@ public class ChessBoard : IEnumerable<Square> {
         return (GetFileIndex(squareName.File), GetRankIndex(squareName.Rank));
     }
     
-
-    public static ChessBoard NewStandardGame() {
-        var gameState = new ChessBoard();
-        foreach (var position in gameState) {
-            var color = GetInitialColor(position.Name);
-            var piece = GetPieceType(position.Name);
-
-            if (piece != null && color != null) {
-                gameState.SetSquare(new Square(position.Name, new Piece(piece.Value, color.Value)));
-            }
-        }
-        return gameState;
-    }
-
-    public ChessBoard RemovePiece(SquareName squareName) {
-        var (fileIdx, rankIdx) = GetIndex(squareName);
-        var chessBoard = this.Clone();
-        chessBoard.SetPiece(squareName, null);
-        return chessBoard;
-    }
 
     private static PieceType? GetPieceType(SquareName position) =>
         (position.File.Name, position.Rank.Number) switch {

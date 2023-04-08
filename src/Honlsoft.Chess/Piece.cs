@@ -40,4 +40,7 @@ public record Piece(PieceType Type, PieceColor Color) {
     }
 
 
+    public bool IsOpponent(PieceColor color) {
+        return this.Color != color;
+    }
 }
