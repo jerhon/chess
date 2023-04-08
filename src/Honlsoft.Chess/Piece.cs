@@ -43,4 +43,26 @@ public record Piece(PieceType Type, PieceColor Color) {
     public bool IsOpponent(PieceColor color) {
         return this.Color != color;
     }
+
+    public static Piece Parse(string value) {
+        if (value.Length < 1) {
+            throw new FormatException("String must have at least one character.");
+        }
+
+        char pieceChar = value[0];
+        PieceColor pieceColor = Char.IsUpper(pieceChar) ? PieceColor.White : PieceColor.Black;
+        pieceChar = Char.ToLower(pieceChar);
+
+        var pieceType = pieceChar switch {
+            'p' => PieceType.Pawn,
+            'b' => PieceType.Bishop,
+            'k' => PieceType.King,
+            'n' => PieceType.Knight,
+            'q' => PieceType.Queen,
+            'r' => PieceType.Rook,
+            _ => throw new FormatException("Unrecognized piece type.")
+        };
+
+        return new Piece(pieceType, pieceColor);
+    }
 }
