@@ -24,4 +24,18 @@ public class SquareNameTests {
         
         Assert.Equal(result, squareName.ToString());
     }
+
+    [Theory]
+    [InlineData("a0")]
+    [InlineData("a9")]
+    [InlineData("i3")]
+    [InlineData("$2")]
+    [InlineData("z9")]
+    [InlineData("a30")]
+    public void Parse_Invalid_ThrowsException(string invalidSquareName) {
+        Assert.Throws<FormatException>(() => {
+            SquareName.Parse(invalidSquareName);
+        });
+    }
+    
 }
