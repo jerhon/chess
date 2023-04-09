@@ -31,5 +31,8 @@ public class SimpleSerializerTests {
         Assert.NotNull(square.Piece);
         Assert.Equal(PieceType.Bishop, square.Piece.Type);
         Assert.Equal(PieceColor.Black, square.Piece.Color);
+
+        // we only have 4 squares with pieces in it.
+        Assert.Equal(4, chessBoard.Count((s) => s.Piece != null));
     }
 }
