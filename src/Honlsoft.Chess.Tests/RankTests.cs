@@ -9,7 +9,6 @@ public class RankTests {
         var objUnderTest = new Rank(rank);
         Assert.Equal(result, objUnderTest.ToString());
     }
-
     
     [Fact]
     public void Add_AddsValueCorrectly() {
