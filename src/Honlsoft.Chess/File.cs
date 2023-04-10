@@ -48,4 +48,27 @@ public record File(char Name) {
     public override string ToString() {
         return Name.ToString();
     }
+
+    public IEnumerable<File> ToEnd(bool inclusive = false) {
+        return ToRange(8, inclusive);
+    }
+
+
+    public IEnumerable<File> ToStart(bool inclusive = false) {
+        return ToRange(-8, inclusive);
+    }
+
+    public IEnumerable<File> ToRange(int limit, bool inclusive = false) {
+        int i = 0;
+        File? file = this;
+        int step = Math.Sign(limit);
+        int absLimit = Math.Abs(limit);
+        while (file != null && i < absLimit) {
+            if ((file == this && inclusive) || file != this) {
+                yield return file;
+                i++;
+            }
+            file = file?.Add(step);
+        }
+    }
 }

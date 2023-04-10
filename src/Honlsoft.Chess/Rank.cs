@@ -18,7 +18,7 @@ public record Rank(int Number)
     /// <summary>
     /// All the Ranks.
     /// </summary>
-    public static Rank[] AllRanks = { Rank8, Rank7, Rank6, Rank5, Rank4, Rank3, Rank2, Rank1 };
+    public static Rank[] AllRanks = { Rank1, Rank2, Rank3, Rank4, Rank5, Rank6, Rank7, Rank8 };
     
     /// <summary>
     /// Add to the rank. 
@@ -49,5 +49,27 @@ public record Rank(int Number)
     /// <returns>Returns the number as a string.</returns>
     public override string ToString() {
         return Number.ToString();
+    }
+
+    public IEnumerable<Rank> ToEnd(bool inclusive = false) {
+        return ToRange(8, inclusive);
+    }
+
+    public IEnumerable<Rank> ToStart(bool inclusive = false) {
+        return ToRange(-8, inclusive);
+    }
+    
+    
+    public IEnumerable<Rank> ToRange(int limit, bool inclusive = false) {
+        int i = 0;
+        int absLimit = Math.Abs(limit);
+        Rank? rank = this;
+        while (rank != null && i < absLimit) {
+            if ((rank == this && inclusive) || (rank != this)) {
+                yield return rank;
+                i++;
+            }
+            rank = rank?.Add(Math.Sign(limit));
+        }
     }
 }

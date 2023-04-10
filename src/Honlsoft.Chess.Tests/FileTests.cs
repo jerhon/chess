@@ -48,4 +48,16 @@ public class FileTests {
         var offBoard2 = objUnderTest.Add(-1);
         Assert.Null(offBoard2);
     }
+
+    [Fact]
+    public void ToRange_TwoValues_AfgerC() {
+        var files = File.c.ToRange(2, false).ToArray();
+        Assert.Equal(new[] { File.d, File.e }, files);
+    }
+
+    [Fact]
+    public void ToRange_TwoValues_BeforeE() {
+        var files = File.e.ToRange(-2, false).ToArray();
+        Assert.Equal(new [] { File.d, File.c }, files);
+    }
 }

@@ -32,4 +32,42 @@ public class RankTests {
         var newObj = objUnderTest.Add(-1);
         Assert.Null(newObj);
     }
+
+    [Fact]
+    public void ToRange_Positive_TwoNumbers() {
+        var range = Rank.Rank4.ToRange(2).ToArray();
+        Assert.Equal(new[] { Rank.Rank5, Rank.Rank6 }, range);
+    }
+
+    [Fact]
+    public void ToRange_Negative_TwoNumbers() {
+        var range = Rank.Rank4.ToRange(-2).ToArray();
+        Assert.Equal(new[] { Rank.Rank3, Rank.Rank2 }, range);
+    }
+
+    [Fact]
+    public void ToEnd_FromFour() {
+        var range = Rank.Rank4.ToEnd();
+        Assert.Equal(new[] { Rank.Rank5, Rank.Rank6, Rank.Rank7, Rank.Rank8 }, range);
+    }
+
+    
+    [Fact]
+    public void ToStart_FromFour() {
+        var range = Rank.Rank4.ToStart();
+        Assert.Equal(new[] { Rank.Rank3, Rank.Rank2, Rank.Rank1 }, range);
+    }
+
+    [Fact]
+    public void ToEnd_AllToEnd() {
+        var range = Rank.Rank1.ToEnd(true);
+        Assert.Equal(Rank.AllRanks, range);
+    }
+
+    [Fact]
+    public void ToStart_AllFromEnd() {
+        var range = Rank.Rank8.ToStart(true);
+        Assert.Equal(Rank.AllRanks.Reverse(), range);
+    }
+    
 }
