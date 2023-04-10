@@ -25,4 +25,11 @@ public class FileAndRankMoveRuleTests {
         result = rule.IsApplicable(chessBoard, SquareName.Parse("d4"));
         Assert.True(result);
     }
+
+
+    [Theory]
+    [InlineData("Rd4", "d4", "d1:d2:d3:d5:d6:d7:d8:a4:b4:c4:e4:f4:g4:h4")]
+    public void GetCandidateMoves_Theories(string boardSetup, string position, string candidateSquares) {
+        RuleTest.TestRuleCandidates(boardSetup, position, candidateSquares, new FileAndRankMoveRule());
+    }
 }

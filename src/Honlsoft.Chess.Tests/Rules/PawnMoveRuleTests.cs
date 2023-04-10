@@ -12,19 +12,8 @@ public class PawnMoveRuleTests {
     [InlineData("Pb8", "b8", "")]
     public void GetPossibleMoves_MatchesExpectedMoves(string boardSetup, string positionToEvaluate, string expectedMoves) {
         
-        SimpleSerializer serializer = new SimpleSerializer();
-        var chessBoard = serializer.Deserialize(boardSetup);
+        RuleTest.TestRuleCandidates(boardSetup, positionToEvaluate, expectedMoves, new PawnMoveRule());
         
-        PawnMoveRule rule = new PawnMoveRule();
-        var actualMoves = rule.GetPossibleMoves(chessBoard, SquareName.Parse(positionToEvaluate));
-
-        SquareName[] expectedMovesArray = Array.Empty<SquareName>();
-        if (!string.IsNullOrEmpty(expectedMoves)) {
-            expectedMovesArray = expectedMoves.Split(":").Select((m) => SquareName.Parse(m)).ToArray();
-        }
-        
-        Assert.Equal(expectedMovesArray.Length, actualMoves.Length);
-        Assert.Equal(expectedMovesArray, actualMoves);
     }
 
     [Fact]
