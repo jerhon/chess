@@ -53,7 +53,7 @@ public class FileAndRankMoveRule : IMoveRule {
             return (true, true);
         } else {
             if (candidateSquare.Piece.IsOpponent(currentColor)) {
-                return (true, false);
+                return (false, true);
             }
 
             return (false, false);
