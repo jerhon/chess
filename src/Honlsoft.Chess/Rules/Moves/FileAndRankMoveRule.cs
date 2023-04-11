@@ -5,7 +5,7 @@
 /// </summary>
 public class FileAndRankMoveRule : IMoveRule {
 
-    public bool IsApplicable(ChessBoard chessBoard, SquareName from) {
+    public bool IsApplicable(IChessBoard chessBoard, SquareName from) {
         var square = chessBoard.GetSquare(from);
 
         // Both bishops and rooks can move over ranks and files.
@@ -16,7 +16,7 @@ public class FileAndRankMoveRule : IMoveRule {
         };
     }
     
-    public SquareName[] GetPossibleMoves(ChessBoard chessBoard, SquareName from) {
+    public SquareName[] GetPossibleMoves(IChessBoard chessBoard, SquareName from) {
 
         List<SquareName> squares = new List<SquareName>();
 
@@ -46,7 +46,7 @@ public class FileAndRankMoveRule : IMoveRule {
     
     
 
-    private (bool Continue, bool Add) CheckSquare(ChessBoard chessBoard, PieceColor currentColor, SquareName candidateSquareName) {
+    private (bool Continue, bool Add) CheckSquare(IChessBoard chessBoard, PieceColor currentColor, SquareName candidateSquareName) {
         
         var candidateSquare = chessBoard.GetSquare(candidateSquareName);
         if (candidateSquare?.Piece == null) {

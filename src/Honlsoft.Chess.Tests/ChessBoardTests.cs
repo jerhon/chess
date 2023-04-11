@@ -19,12 +19,12 @@ public class ChessBoardTests {
     {
         var chessBoard = ChessBoard.NewStandardGame();
         foreach (var file in File.AllFiles) {
-            Square square = chessBoard.GetSquare(file, Rank.Rank7);
+            Square square = chessBoard.GetSquare(new SquareName(file, Rank.Rank7));
             Assert.Equal(PieceType.Pawn, square.Piece.Type);
             Assert.Equal(PieceColor.Black, square.Piece.Color);
             
             
-            square = chessBoard.GetSquare(file, Rank.Rank2);
+            square = chessBoard.GetSquare(new SquareName(file, Rank.Rank2));
             Assert.Equal(PieceType.Pawn, square.Piece.Type);
             Assert.Equal(PieceColor.White, square.Piece.Color);
         }
@@ -57,70 +57,7 @@ public class ChessBoardTests {
             }
         }
     }
-
-
-    [Fact]
-    public void HasPiece_TrueWhenHasPiece() {
-        var game = ChessBoard.NewStandardGame();
-
-        foreach (var rank in new[] { Rank.Rank1, Rank.Rank2, Rank.Rank8, Rank.Rank7 }) {
-            foreach (var file in File.AllFiles) {
-                bool hasPiece = game.HasPiece(new SquareName(file, rank));
-                Assert.True(hasPiece);
-            }
-        }
-    }
     
-    
-    [Fact]
-    public void HasPiece_FalseWhenDoesntHavePiece() {
-        var game = ChessBoard.NewStandardGame();
-
-        foreach (var rank in new[] { Rank.Rank3, Rank.Rank4, Rank.Rank5, Rank.Rank6 }) {
-            foreach (var file in File.AllFiles) {
-                bool hasPiece = game.HasPiece(new SquareName(file, rank));
-                Assert.False(hasPiece);
-            }
-        }
-    }
-    
-    
-    [Fact]
-    public void HasOpponentPiece_FalseWhenHasNoPiece() {
-        var game = ChessBoard.NewStandardGame();
-
-        foreach (var rank in new[] { Rank.Rank3, Rank.Rank4, Rank.Rank5, Rank.Rank6 }) {
-            foreach (var file in File.AllFiles) {
-                bool hasPiece = game.HasPiece(new SquareName(file, rank));
-                Assert.False(hasPiece);
-            }
-        }
-    }
-
-    [Fact]
-    public void HasOpponentPiece_FalseWhenSameColor() {
-        var game = ChessBoard.NewStandardGame();
-
-        foreach (var rank in new[] { Rank.Rank1, Rank.Rank2 }) {
-            foreach (var file in File.AllFiles) {
-                bool hasPiece = game.HasOpponentPiece(new SquareName(file, rank), PieceColor.White);
-                Assert.False(hasPiece);
-            }
-        }
-    }
-    
-    
-    [Fact]
-    public void HasOpponentPiece_TrueWhenDifferentColor() {
-        var game = ChessBoard.NewStandardGame();
-
-        foreach (var rank in new[] { Rank.Rank1, Rank.Rank2 }) {
-            foreach (var file in File.AllFiles) {
-                bool hasPiece = game.HasOpponentPiece(new SquareName(file, rank), PieceColor.Black);
-                Assert.True(hasPiece);
-            }
-        }
-    }
     
     private void AssertPiece(ChessBoard chessBoard, string position, PieceType type, PieceColor color) {
         if (SquareName.TryParse(position, null, out var squareName)) {

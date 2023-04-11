@@ -9,7 +9,7 @@ public class FenSerializer {
         foreach (var rank in Rank.Rank1.ToEnd(true).Reverse()) {
             int emptySpaces = 0;
             foreach (var file in File.a.ToEnd(true)) {
-                var square = chessBoard.GetSquare(file, rank);
+                var square = chessBoard.GetSquare(new SquareName(file, rank));
                 if (square.Piece != null) {
                     if (emptySpaces > 0) {
                         builder.Append(emptySpaces.ToString());

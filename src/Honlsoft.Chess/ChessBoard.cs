@@ -6,7 +6,7 @@ namespace Honlsoft.Chess;
 /// <summary>
 /// Provides the state of the chess game at the current point.
 /// </summary>
-public class ChessBoard : IEnumerable<Square> {
+public class ChessBoard : IEnumerable<Square>, IChessBoard {
 
     private static readonly int MaxRanks = File.AllFiles.Length;
     private static readonly int MaxFiles = Rank.AllRanks.Length;
@@ -58,34 +58,6 @@ public class ChessBoard : IEnumerable<Square> {
         return this._spaces[file, rank];
     }
 
-    public Square GetSquare(File file, Rank rank) {
-        var fileIdx = GetFileIndex(file);
-        var rankIdx = GetRankIndex(rank);
-
-        return this._spaces[fileIdx, rankIdx];
-    }
-
-    /// <summary>
-    /// Returns whether a square has a piece.
-    /// </summary>
-    /// <param name="squareName">The square to check.</param>
-    /// <returns>true if the square has the value</returns>
-    public bool HasPiece(SquareName squareName) {
-        var square = GetSquare(squareName);
-        return square is { Piece: not null };
-    }
-
-    /// <summary>
-    /// Returns whether a square has an opponent piece.
-    /// </summary>
-    /// <param name="squareName">The square to check.</param>
-    /// <param name="color">The color to check for an opponent.</param>
-    /// <returns>True if the square has an opposing piece</returns>
-    public bool HasOpponentPiece(SquareName squareName, PieceColor color) {
-        var square = GetSquare(squareName);
-        var squareColor = square?.Piece?.Color;
-        return squareColor != null && squareColor != color;
-    }
     
     /// <summary>
     /// Sets a piece at a particular position on the board.

@@ -11,7 +11,7 @@ public class PawnMoveRule : IMoveRule {
     /// <param name="chessBoard">The chess board.</param>
     /// <param name="from">The piece where the chess board is from.</param>
     /// <returns>True if the piece is valid for the move.</returns>
-    public bool IsApplicable(ChessBoard chessBoard, SquareName from) {
+    public bool IsApplicable(IChessBoard chessBoard, SquareName from) {
         var square = chessBoard.GetSquare(from);
         return square is { Piece: { Type: PieceType.Pawn } };
     }
@@ -24,39 +24,42 @@ public class PawnMoveRule : IMoveRule {
     /// <param name="from"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public SquareName[] GetPossibleMoves(ChessBoard chessBoard, SquareName from) {
+    public SquareName[] GetPossibleMoves(IChessBoard chessBoard, SquareName from) {
         if (!IsApplicable(chessBoard, from)) {
             return Array.Empty<SquareName>();
         }
 
         List<SquareName> squares = new List<SquareName>();
         var square = chessBoard.GetSquare(from);
-        var pieceColor = square.Piece.Color;
+        var pieceColor = square!.Piece!.Color;
         bool startingRank = IsInStartingPosition(square);
         int direction = square.Piece.Color == PieceColor.Black ? -1 : 1;
         int maxSpaces = startingRank ? 2 : 1;
         for (int i = 1; i < maxSpaces + 1; i++) {
             int move = i * direction;
-            var newSquare = from.Add(0, move);
-            if (newSquare == null) {
+            var newSquareName = from.Add(0, move);
+            if (newSquareName == null) {
                 break;
             }
-            if (chessBoard.HasPiece(newSquare)) {
+            var newSquare = chessBoard.GetSquare(newSquareName);
+            if (newSquare.HasPiece) {
                 break;
             }
-            squares.Add(newSquare);
+            squares.Add(newSquareName);
         }
         
         var leftCapture = from.Add(-1, direction);
         if (leftCapture != null) {
-            if (chessBoard.HasOpponentPiece(leftCapture, pieceColor)) {
+            var leftSquare = chessBoard.GetSquare(leftCapture);
+            if (leftSquare?.Piece?.IsOpponent(pieceColor) ?? false) {
                 squares.Add(leftCapture);
             }
         }
 
         var rightCapture = from.Add(1, direction);
         if (rightCapture != null) {
-            if (chessBoard.HasOpponentPiece(rightCapture, pieceColor)) {
+            var rightSquare = chessBoard.GetSquare(rightCapture);
+            if (rightSquare?.Piece?.IsOpponent(pieceColor) ?? false) {
                 squares.Add(rightCapture);
             }
         }
