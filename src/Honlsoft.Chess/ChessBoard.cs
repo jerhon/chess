@@ -10,7 +10,6 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
 
     private static readonly int MaxRanks = File.AllFiles.Length;
     private static readonly int MaxFiles = Rank.AllRanks.Length;
-
     private readonly Square[,] _spaces = new Square[MaxFiles, MaxRanks];
 
     /// <summary>
@@ -26,6 +25,29 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
                 SetSquare(square);
             }
         }
+    }
+
+    public ChessBoard(IEnumerable<Square> squares) {
+        
+        foreach (var square in squares) {
+            SetSquare(square);
+        }
+        
+        // TODO: could optimize by empty squares for all positions.
+        foreach (var file in File.AllFiles) {
+            foreach (var rank in Rank.AllRanks) {
+                var squareName = new SquareName(file, rank);
+                var fileIndex = GetFileIndex(file);
+                var rankIndex = GetRankIndex(rank);
+
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                if (_spaces[fileIndex, rankIndex] == null) {
+                    var square = new Square(squareName, null);
+                    SetSquare(square);
+                }
+            }
+        }
+
     }
 
     /// <summary>
@@ -64,7 +86,7 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
     /// </summary>
     /// <param name="squareName">The name of the square.</param>
     /// <param name="piece">The piece to place on the square.</param>
-    public ChessBoard SetPiece(SquareName squareName, Piece piece) {
+    private ChessBoard SetPiece(SquareName squareName, Piece piece) {
         var chessBoard = this.Clone();
         chessBoard.SetSquare(new Square(squareName, piece));
         return chessBoard;
@@ -105,9 +127,7 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
     /// <param name="squareName">The square to remove the piece from.</param>
     /// <returns>A new chess board with the piece removed.</returns>
     public ChessBoard RemovePiece(SquareName squareName) {
-        var (fileIdx, rankIdx) = GetIndex(squareName);
-        var chessBoard = this.Clone();
-        chessBoard.SetPiece(squareName, null);
+        var chessBoard = new ChessBoard(this.Where((s) => s.Name != squareName));
         return chessBoard;
     }
 

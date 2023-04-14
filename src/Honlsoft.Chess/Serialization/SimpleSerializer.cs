@@ -29,14 +29,12 @@ public class SimpleSerializer {
     }
 
     public ChessBoard Deserialize(string serializedChessBoard) {
-
-        var chessBoard = new ChessBoard();
+        var chessBoardBuilder = new ChessBoardBuilder();
         var squareStrings = serializedChessBoard.Split(DividerCharacter);
         foreach (var squareString in squareStrings) {
-            var piece = Piece.Parse(squareString);
-            var squareName = SquareName.Parse(squareString.Substring(1));
-            chessBoard = chessBoard.SetPiece(squareName, piece);
+            var square = Square.Parse(squareString);
+            chessBoardBuilder.WithSquare(square);
         }
-        return chessBoard;
+        return chessBoardBuilder.Build();
     }
 }
