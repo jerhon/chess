@@ -15,11 +15,12 @@ public class KnightMoveRule : IMoveRule {
             throw new ArgumentNullException(nameof(from));
         }
 
-        var square = chessBoard.GetSquare(from);
-        if (square.Piece == null) {
+        if (!IsApplicable(chessBoard, from)) {
             return Array.Empty<SquareName>();
         }
-        
+
+        var square = chessBoard.GetSquare(from);
+
         var possibleSquares = new[] {
             from.Add(2, 1),
             from.Add(2, -1),
@@ -31,7 +32,7 @@ public class KnightMoveRule : IMoveRule {
             from.Add(-1, -2)
         };
 
-        var squares = possibleSquares.Where((squareName) => CanMove(chessBoard, squareName, square.Piece.Color));
+        var squares = possibleSquares.Where((squareName) => CanMove(chessBoard, squareName, square!.Piece!.Color));
         return squares.Where((s) => s != null).ToArray()!;
     }
 
