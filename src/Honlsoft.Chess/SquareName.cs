@@ -1,6 +1,8 @@
-﻿namespace Honlsoft.Chess; 
+﻿using System.Diagnostics.CodeAnalysis;
 
-public record SquareName(File File, Rank Rank) : IParsable<SquareName> {
+namespace Honlsoft.Chess; 
+
+public record SquareName(File File, Rank Rank) : IParsable<SquareName?> {
     
     public override string ToString() {
         return $"{File}{Rank}";
@@ -8,13 +10,13 @@ public record SquareName(File File, Rank Rank) : IParsable<SquareName> {
 
     public static SquareName Parse(string s, IFormatProvider? provider = null) {
         if (TryParse(s, null, out var squareName)) {
-            return squareName;
+            return squareName!;
         } else {
             throw new FormatException("Must be a algebraic chess number for example: a1, g8, etc...");
         }
     }
     
-    public static bool TryParse(string? s, IFormatProvider? provider, out SquareName result) {
+    public static bool TryParse(string? s, IFormatProvider? provider, [NotNullWhen(true)]out SquareName? result) {
         
         result = default;
         

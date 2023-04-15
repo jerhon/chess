@@ -27,6 +27,10 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
         }
     }
 
+    /// <summary>
+    /// Creates a chess board with the given squares.  All others will be empty.
+    /// </summary>
+    /// <param name="squares">The squares to set on the chess board.</param>
     public ChessBoard(IEnumerable<Square> squares) {
         
         foreach (var square in squares) {

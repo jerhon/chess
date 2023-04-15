@@ -16,7 +16,7 @@ public class RankTests {
 
         var newObj = objUnderTest.Add(3);
         Assert.NotEqual(objUnderTest, newObj);
-        Assert.Equal(5, newObj.Number);
+        Assert.Equal(5, newObj!.Number);
     }
 
     [Fact]

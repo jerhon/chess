@@ -20,6 +20,10 @@ public class FileAndRankMoveRule : IMoveRule {
 
         List<SquareName> squares = new List<SquareName>();
 
+        if (!IsApplicable(chessBoard, from)) {
+            return Array.Empty<SquareName>();
+        }
+
         var originalSquare = chessBoard.GetSquare(from);
         
         
@@ -31,7 +35,7 @@ public class FileAndRankMoveRule : IMoveRule {
         
         foreach (var squareEnum in new [] { leftSquares, rightSquares, topSquares, bottomSquares }) {
             foreach (var square in squareEnum) {
-                var (cont, add) = CheckSquare(chessBoard, originalSquare.Piece.Color, square);
+                var (cont, add) = CheckSquare(chessBoard, originalSquare!.Piece!.Color, square);
                 if (add) {
                     squares.Add(square);
                 }

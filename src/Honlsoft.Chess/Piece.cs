@@ -29,7 +29,8 @@ public record Piece(PieceType Type, PieceColor Color) {
             PieceType.King => "k",
             PieceType.Knight => "n",
             PieceType.Queen => "q",
-            PieceType.Rook => "r"
+            PieceType.Rook => "r",
+            _ => throw new NotImplementedException("Does not implement piece type.")
         };
 
         if (Color == PieceColor.White) {

@@ -20,13 +20,13 @@ public class ChessBoardTests {
         var chessBoard = ChessBoard.NewStandardGame();
         foreach (var file in File.AllFiles) {
             Square square = chessBoard.GetSquare(new SquareName(file, Rank.Rank7));
-            Assert.Equal(PieceType.Pawn, square.Piece.Type);
-            Assert.Equal(PieceColor.Black, square.Piece.Color);
+            Assert.Equal(PieceType.Pawn, square!.Piece!.Type);
+            Assert.Equal(PieceColor.Black, square!.Piece!.Color);
             
             
             square = chessBoard.GetSquare(new SquareName(file, Rank.Rank2));
-            Assert.Equal(PieceType.Pawn, square.Piece.Type);
-            Assert.Equal(PieceColor.White, square.Piece.Color);
+            Assert.Equal(PieceType.Pawn, square!.Piece!.Type);
+            Assert.Equal(PieceColor.White, square!.Piece!.Color);
         }
     
         AssertPiece(chessBoard, "a1", PieceType.Rook, PieceColor.White);
@@ -61,9 +61,9 @@ public class ChessBoardTests {
     
     private void AssertPiece(ChessBoard chessBoard, string position, PieceType type, PieceColor color) {
         if (SquareName.TryParse(position, null, out var squareName)) {
-            Square square = chessBoard.GetSquare(squareName);
-            Assert.Equal(type, square.Piece.Type);
-            Assert.Equal(color, square.Piece.Color);
+            Square square = chessBoard.GetSquare(squareName!);
+            Assert.Equal(type, square!.Piece!.Type);
+            Assert.Equal(color, square!.Piece!.Color);
         } else {
             Assert.Fail("Invalid chess position");
         }
