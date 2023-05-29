@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Honlsoft.Chess; 
 
@@ -57,6 +58,10 @@ public record SquareName(File File, Rank Rank) : IParsable<SquareName?> {
         }
 
         return new SquareName(newFile, newRank);
+    }
+
+    public static IEnumerable<SquareName> AllSquares() {
+        return Chess.Rank.AllRanks.SelectMany((rank) => Chess.File.AllFiles.Select((file) => new SquareName(file, rank)));
     }
 
 }

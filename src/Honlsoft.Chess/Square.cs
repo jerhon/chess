@@ -1,4 +1,6 @@
-﻿namespace Honlsoft.Chess;
+﻿using System.Collections;
+
+namespace Honlsoft.Chess;
 
 public record Square(SquareName Name, Piece? Piece) {
     
@@ -19,5 +21,4 @@ public record Square(SquareName Name, Piece? Piece) {
         
         throw new FormatException("Must be an piece abbreviation followed by the square's algebraic notation.  An example is Pd4.");
     }
-    
 }

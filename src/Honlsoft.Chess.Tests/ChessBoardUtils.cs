@@ -1,4 +1,5 @@
-﻿using Honlsoft.Chess.Serialization;
+﻿using Honlsoft.Chess.Rules;
+using Honlsoft.Chess.Serialization;
 
 namespace Honlsoft.Chess.Tests; 
 
@@ -10,4 +11,9 @@ public static class ChessBoardUtils {
 
     }
 
+
+    public static IMoveRule[] GetAllMoveRules() {
+        return new IMoveRule[] { new PawnMoveRule(), new KnightMoveRule(), new DiagonalMoveRule(), new FileAndRankMoveRule() };
+    }
+    
 }

@@ -7,7 +7,7 @@ public class KnightMoveRuleTests {
 
     [Fact]
     public void GetPossibleMoves_CenterSquare_ReturnsAllPositions() {
-        FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPiece("Ne4");
+        FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPieces("Ne4");
         KnightMoveRule rule = new KnightMoveRule();
         var moves = rule.GetPossibleMoves(fakeChessBoard, SquareName.Parse("e4"));
 
@@ -29,7 +29,7 @@ public class KnightMoveRuleTests {
     
     [Fact]
     public void GetPossibleMoves_WrongPiece_NoMoves() {
-        FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPiece("Qe4");
+        FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPieces("Qe4");
         var rule = new KnightMoveRule();
         var moves = rule.GetPossibleMoves(fakeChessBoard, SquareName.Parse("e4"));
         moves.Should().HaveCount(0);
@@ -37,7 +37,7 @@ public class KnightMoveRuleTests {
 
     [Fact]
     public void IsApplicable_Knight_True() {
-        FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPiece("Na1");
+        FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPieces("Na1");
         var rule = new KnightMoveRule();
         var result = rule.IsApplicable(fakeChessBoard, SquareName.Parse("a1"));
         result.Should().BeTrue();

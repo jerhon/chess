@@ -4,7 +4,7 @@ public class FakeChessBoard : IChessBoard {
 
     private readonly IDictionary<string, Square> _squares = new Dictionary<string, Square>();
     
-    public FakeChessBoard AddPiece(params string[] squareNotations) 
+    public FakeChessBoard AddPieces(params string[] squareNotations) 
     {
         foreach (var squareNotation in squareNotations) {
             var square = Square.Parse(squareNotation);

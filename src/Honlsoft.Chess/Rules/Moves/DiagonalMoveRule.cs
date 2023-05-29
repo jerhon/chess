@@ -20,7 +20,7 @@ public class DiagonalMoveRule : IMoveRule {
         List<SquareName> squares = new List<SquareName>();
 
         var originalSquare = chessBoard.GetSquare(from);
-        if (originalSquare.Piece == null) {
+        if (!IsApplicable(chessBoard, from)) {
             return Array.Empty<SquareName>();
         }
 
