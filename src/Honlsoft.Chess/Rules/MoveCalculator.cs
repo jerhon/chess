@@ -1,13 +1,14 @@
-﻿using Honlsoft.Chess.Rules;
+﻿using System.Data.SqlTypes;
+using Honlsoft.Chess.Rules;
 
 namespace Honlsoft.Chess; 
 
 /// <summary>
 /// Calculates the  number of moves on the board for a particular color. Helpful for determining if we're in checkmate, or stalemate.
 /// </summary>
-public class MoveCounter {
+public class MoveCalculator {
 
-    public MoveCounter(IChessBoard chessBoard, IEnumerable<IMoveRule> moveRules, PieceColor color) {
+    public MoveCalculator(IChessBoard chessBoard, IEnumerable<IMoveRule> moveRules, PieceColor color) {
         _chessBoard = chessBoard;
         _moveRules = moveRules;
         _color = color;
@@ -19,6 +20,7 @@ public class MoveCounter {
     private readonly Dictionary<SquareName, int> _moveCounts = new Dictionary<SquareName, int>();
     private int _totalMoves = 0;
     private bool _calculated = false;
+    private Square _kingSquare;
     
     /// <summary>
     /// Get the threat count associated with the square.
@@ -41,6 +43,13 @@ public class MoveCounter {
         return _totalMoves;
     }
 
+
+    public Square GetKingSquare() {
+        CalculateMoves();
+
+        return _kingSquare;
+    }
+
     private void CalculateMoves() {
         if (_calculated) {
             return;
@@ -49,6 +58,11 @@ public class MoveCounter {
         foreach (var squareName in SquareName.AllSquares()) {
             var square = _chessBoard.GetSquare(squareName);
             if (square?.Piece?.Color == _color) {
+
+                if (square is { Piece: { Type: PieceType.King } }) {
+                    _kingSquare = square;
+                }
+                
                 // find squares we are moving off of
                 foreach (var moveRule in _moveRules) {
                     var moves = moveRule.GetPossibleMoves(_chessBoard, square.Name);

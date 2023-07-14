@@ -15,7 +15,7 @@ public class FakeChessBoard : IChessBoard {
     
     public Square GetSquare(SquareName squareName) {
         if (_squares.TryGetValue(squareName.ToString(), out var square)) {
-            return _squares[squareName.ToString()];
+            return square;
         } else {
             return new Square(squareName, null);
         }
