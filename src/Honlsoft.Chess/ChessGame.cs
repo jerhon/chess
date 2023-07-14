@@ -15,8 +15,8 @@ public class ChessGame {
     private readonly List<ChessGameMove> _gameMoves;
     private readonly GameRulesEngine _rulesEngine;
 
-    public ChessGame(ChessGameState initialCurrentState, GameRulesEngine rulesEngine) {
-        CurrentState = initialCurrentState;
+    public ChessGame(ChessGameState initialGameState, GameRulesEngine rulesEngine) {
+        GameState = initialGameState;
         _rulesEngine = rulesEngine;
         _gameMoves = new List<ChessGameMove>();
         Moves = new ReadOnlyCollection<ChessGameMove>(_gameMoves);
@@ -30,7 +30,7 @@ public class ChessGame {
     /// <summary>
     /// The current state of the game.
     /// </summary>
-    public ChessGameState CurrentState { get; private set; }
+    public ChessGameState GameState { get; private set; }
     
     /// <summary>
     /// Trys to move a piece in the game.
@@ -40,28 +40,28 @@ public class ChessGame {
     /// <returns></returns>
     public (bool CanMove, string? Reason) MovePiece(SquareName from, SquareName to) {
         
-        var (isValid, reason) = _rulesEngine.IsValidMove(CurrentState, from, to);
+        var (isValid, reason) = _rulesEngine.IsValidMove(GameState, from, to);
         if (!isValid) {
             return (isValid, reason);
         }
         
         // Make the move
-        var newBoard = CurrentState.Board.Move(from, to);
+        var nextBoard = GameState.Board.Move(from, to);
         
         // Change the color
-        var newColor = NextColor();
+        var nextColor = NextColor();
 
-        var nextGameState = new ChessGameState(newBoard, newColor);
+        var nextGameState = new ChessGameState(nextBoard, nextColor);
 
-        _gameMoves.Add(new ChessGameMove(CurrentState, nextGameState, from, to));
+        _gameMoves.Add(new ChessGameMove(GameState, nextGameState, from, to));
         
-        CurrentState = nextGameState;
+        GameState = nextGameState;
         
         return (true, null);
     }
     
     private PieceColor NextColor() {
-        if (CurrentState.CurrentColor == PieceColor.Black) {
+        if (GameState.CurrentColor == PieceColor.Black) {
             return PieceColor.White;
         } else {
             return PieceColor.Black;
