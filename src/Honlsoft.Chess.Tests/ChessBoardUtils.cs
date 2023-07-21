@@ -11,6 +11,10 @@ public static class ChessBoardUtils {
 
     }
 
+    public static CandidateMove[] GetCandidateMoves(params string[] squareRepresentation) {
+        return GetSquares(squareRepresentation).Select((s) => new CandidateMove(s)).ToArray();
+    }
+
 
     public static IMoveRule[] GetAllMoveRules() {
         return new IMoveRule[] { new PawnMoveRule(), new KnightMoveRule(), new DiagonalMoveRule(), new FileAndRankMoveRule() };

@@ -18,7 +18,7 @@ public class DiagonalMoveRuleTests {
         FakeChessBoard fakeBoard = new FakeChessBoard().AddPieces(setup.Split(":"));
         DiagonalMoveRule moveRule = new DiagonalMoveRule();
         var moves = moveRule.GetPossibleMoves(fakeBoard, SquareName.Parse(position));
-        var expected = ChessBoardUtils.GetSquares(expectedMoves.Split(":"));
+        var expected = ChessBoardUtils.GetCandidateMoves(expectedMoves.Split(":"));
         moves.Should().HaveCount(expected.Length).And.BeEquivalentTo(expected);
     }
 }

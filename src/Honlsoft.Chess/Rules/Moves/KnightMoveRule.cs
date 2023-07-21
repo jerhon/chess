@@ -6,7 +6,7 @@ public class KnightMoveRule : IMoveRule {
         var square = chessBoard.GetSquare(from);
         return square is { Piece: { Type: PieceType.Knight } };
     }
-    public SquareName[] GetPossibleMoves(IChessBoard chessBoard, SquareName from) {
+    public CandidateMove[] GetPossibleMoves(IChessBoard chessBoard, SquareName from) {
 
         if (chessBoard == null) {
             throw new ArgumentNullException(nameof(chessBoard));
@@ -16,7 +16,7 @@ public class KnightMoveRule : IMoveRule {
         }
 
         if (!IsApplicable(chessBoard, from)) {
-            return Array.Empty<SquareName>();
+            return Array.Empty<CandidateMove>();
         }
 
         var square = chessBoard.GetSquare(from);
@@ -33,7 +33,7 @@ public class KnightMoveRule : IMoveRule {
         };
 
         var squares = possibleSquares.Where((squareName) => CanMove(chessBoard, squareName, square!.Piece!.Color));
-        return squares.Where((s) => s != null).ToArray()!;
+        return squares.Where((s) => s != null).Select((s) => new CandidateMove(s)).ToArray()!;
     }
 
     private bool CanMove(IChessBoard chessBoard, SquareName? squareName, PieceColor color) {

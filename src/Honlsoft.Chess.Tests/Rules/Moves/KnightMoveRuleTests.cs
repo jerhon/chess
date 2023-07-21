@@ -11,7 +11,7 @@ public class KnightMoveRuleTests {
         KnightMoveRule rule = new KnightMoveRule();
         var moves = rule.GetPossibleMoves(fakeChessBoard, SquareName.Parse("e4"));
 
-        var expected = ChessBoardUtils.GetSquares("c3", "c5", "d6", "d2", "f2", "f6", "g3", "g5");
+        var expected = ChessBoardUtils.GetCandidateMoves("c3", "c5", "d6", "d2", "f2", "f6", "g3", "g5");
         
         moves.Should().HaveCount(8).And.BeEquivalentTo(expected);
 

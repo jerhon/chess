@@ -24,9 +24,9 @@ public class PawnMoveRule : IMoveRule {
     /// <param name="from"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public SquareName[] GetPossibleMoves(IChessBoard chessBoard, SquareName from) {
+    public CandidateMove[] GetPossibleMoves(IChessBoard chessBoard, SquareName from) {
         if (!IsApplicable(chessBoard, from)) {
-            return Array.Empty<SquareName>();
+            return Array.Empty<CandidateMove>();
         }
 
         List<SquareName> squares = new List<SquareName>();
@@ -64,7 +64,7 @@ public class PawnMoveRule : IMoveRule {
             }
         }
         
-        return squares.ToArray();
+        return squares.Select((s) => new CandidateMove(s)).ToArray();
     }
 
     private bool IsInStartingPosition(Square square)

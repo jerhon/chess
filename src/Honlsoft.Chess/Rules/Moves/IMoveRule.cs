@@ -16,6 +16,6 @@ public interface IMoveRule {
     /// <param name="chessBoard">The chess board to evaluate.</param>
     /// <param name="from">The position to move from.</param>
     /// <returns>The array of squares for possible moves.</returns>
-    SquareName[] GetPossibleMoves(IChessBoard chessBoard, SquareName from);
+    CandidateMove[] GetPossibleMoves(IChessBoard chessBoard, SquareName from);
     
 }

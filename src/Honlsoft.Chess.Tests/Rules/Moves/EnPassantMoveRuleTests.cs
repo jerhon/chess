@@ -56,7 +56,7 @@ public class EnPassantMoveRuleTests {
 
         var candidateMoves = rule.GetPossibleMoves(chessBoard, SquareName.Parse(pawnNotation.Substring(1)));
         candidateMoves.Should().BeEquivalentTo(new[] {
-            chessBoard.EnPassant
+            new CandidateMove(chessBoard.EnPassant, true)
         });
 
     }

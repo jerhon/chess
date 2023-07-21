@@ -7,10 +7,10 @@ public class EnPassantRule : IMoveRule {
         return currentSquare is { Piece: { Type: PieceType.Pawn } } && chessBoard.EnPassant is not null;
     }
     
-    public SquareName[] GetPossibleMoves(IChessBoard chessBoard, SquareName from) {
+    public CandidateMove[] GetPossibleMoves(IChessBoard chessBoard, SquareName from) {
 
         if (!IsApplicable(chessBoard, from)) {
-            return Array.Empty<SquareName>();
+            return Array.Empty<CandidateMove>();
         }
 
         var currentSquare = chessBoard.GetSquare(from);
@@ -18,9 +18,9 @@ public class EnPassantRule : IMoveRule {
 
         if (currentSquare.Name.Add( 1, direction) == chessBoard.EnPassant
             || currentSquare.Name.Add(-1, direction) == chessBoard.EnPassant) {
-            return new[] { chessBoard.EnPassant! };
+            return new[] { new CandidateMove( chessBoard!.EnPassant, true ) };
         }
 
-        return Array.Empty<SquareName>();
+        return Array.Empty<CandidateMove>();
     }
 }

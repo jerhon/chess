@@ -17,7 +17,7 @@ public class MoveCalculator {
     private readonly IChessBoard _chessBoard;
     private readonly IEnumerable<IMoveRule> _moveRules;
     private readonly PieceColor _color;
-    private readonly Dictionary<SquareName, int> _moveCounts = new Dictionary<SquareName, int>();
+    private readonly Dictionary<SquareName, int> _moveCounts = new();
     private int _totalMoves = 0;
     private bool _calculated = false;
     private Square _kingSquare;
@@ -67,10 +67,10 @@ public class MoveCalculator {
                 foreach (var moveRule in _moveRules) {
                     var moves = moveRule.GetPossibleMoves(_chessBoard, square.Name);
                     foreach (var move in moves) {
-                        if (move == squareName)
+                        if (move.Square == squareName)
                             continue;
                         
-                        IncreaseSquareMoves(move);
+                        IncreaseSquareMoves(move.Square);
                     }
                 }
             }
