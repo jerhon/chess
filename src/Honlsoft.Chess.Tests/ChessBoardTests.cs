@@ -12,6 +12,8 @@ public class ChessBoardTests {
         foreach (var square in chessBoard) {
             Assert.Null(square.Piece);
         }
+        
+        Assert.Null(chessBoard.EnPassant);
     }
 
     [Fact]
@@ -46,6 +48,8 @@ public class ChessBoardTests {
         AssertPiece(chessBoard, "f8", PieceType.Bishop, PieceColor.Black);
         AssertPiece(chessBoard, "g8", PieceType.Knight, PieceColor.Black);
         AssertPiece(chessBoard, "h8", PieceType.Rook, PieceColor.Black);
+        
+        Assert.Null(chessBoard.EnPassant);
         
         // Check all the pieces in the middle
 

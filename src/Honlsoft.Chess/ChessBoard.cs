@@ -64,6 +64,9 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
     /// <returns>The chess board with the new piece positions.</returns>
     public ChessBoard Move(SquareName from, SquareName to) {
         var fromSquare = GetSquare(from);
+        if (fromSquare.Piece.Type == PieceType.Pawn) {
+            
+        }
         var toSquare = GetSquare(to);
         var newBoard = Clone();
         var newFromSpace = new Square(from, null);
@@ -83,8 +86,10 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
         var (file, rank) = GetIndex(squareName);
         return this._spaces[file, rank];
     }
-
     
+    public SquareName? EnPassant { get; private set; }
+
+
     /// <summary>
     /// Sets a piece at a particular position on the board.
     /// </summary>
