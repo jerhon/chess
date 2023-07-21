@@ -26,13 +26,18 @@ public class GameRulesEngine {
     }
 
     /// <summary>
-    /// Determines if the current player can move to a square.
+    /// Determines if the a piece can move from one square to another.
     /// </summary>
-    /// <param name="from"></param>
-    /// <param name="to"></param>
+    /// <param name="chessBoard">The chess board.</param>
+    /// <param name="from">The square to move from.</param>
+    /// <param name="to">The square to move to.</param>
     /// <returns></returns>
     public bool CanMove(IChessBoard chessBoard, SquareName from, SquareName to) => GetAllMoves(chessBoard, from).Any((m) => m == to);
-    
+
+
+    public bool CanEnPassant(IChessBoard chessBoard, SquareName from, SquareName to) {
+        return false;
+    }
     
     /// <summary>
     /// Validates a move in a chess game.

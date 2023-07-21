@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Drawing;
 
 namespace Honlsoft.Chess;
 
@@ -64,16 +63,17 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
     /// <returns>The chess board with the new piece positions.</returns>
     public ChessBoard Move(SquareName from, SquareName to) {
         var fromSquare = GetSquare(from);
-        if (fromSquare.Piece.Type == PieceType.Pawn) {
-            
+        SquareName? enPassant = null;
+        if (IsEnPassant(from, to)) {
+            enPassant = GetEnPassantSquare(from);
         }
-        var toSquare = GetSquare(to);
         var newBoard = Clone();
         var newFromSpace = new Square(from, null);
         var newToSpace = new Square(to, fromSquare.Piece);
 
         newBoard.SetSquare(newFromSpace);
         newBoard.SetSquare(newToSpace);
+        newBoard.EnPassant = enPassant;
         return newBoard;
     }
     
@@ -146,6 +146,26 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
     }
 
 
+    private bool IsEnPassant(SquareName from, SquareName to) {
+        var square = this.GetSquare(from);
+        if (square is { Piece: { Type: PieceType.Pawn } }) {
+            return from.Rank.Distance(to.Rank) is 2 or -2;
+        }
+        return false;
+    }
+
+    private SquareName? GetEnPassantSquare(SquareName from) {
+        var square = this.GetSquare(from);
+        if (square is not { Piece: { Type: PieceType.Pawn } }) {
+            return null;
+        }
+        var distance = square.Piece.Color == PieceColor.White ? 1 : -1;
+        var newRank = from.Rank.Add(distance);
+        if (newRank is not null) {
+            return new SquareName(from.File, newRank);
+        }
+        return null;
+    }
 
     private void SetSquare(Square space) {
         var (file, rank) = GetIndex(space.Name);
@@ -192,5 +212,5 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
     /// <summary>
     /// Returns a chessboard set up for a classical game of chess.
     /// </summary>
-    public static ChessBoard StandardGame = NewStandardGame();
+    public static readonly ChessBoard StandardGame = NewStandardGame();
 }
