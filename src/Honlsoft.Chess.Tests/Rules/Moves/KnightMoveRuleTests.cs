@@ -1,6 +1,6 @@
 ﻿using Honlsoft.Chess.Rules;
 
-namespace Honlsoft.Chess.Tests.Rules; 
+namespace Honlsoft.Chess.Tests.Rules.Moves; 
 
 public class KnightMoveRuleTests {
 

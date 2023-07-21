@@ -1,7 +1,7 @@
 ﻿using Honlsoft.Chess.Rules;
 using Honlsoft.Chess.Serialization;
 
-namespace Honlsoft.Chess.Tests.Rules; 
+namespace Honlsoft.Chess.Tests.Rules.Moves; 
 
 public class FileAndRankMoveRuleTests {
     

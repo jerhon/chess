@@ -1,4 +1,4 @@
-﻿namespace Honlsoft.Chess.Tests; 
+﻿namespace Honlsoft.Chess.Tests.Rules; 
 
 public class GameRulesEngineTests {
     
