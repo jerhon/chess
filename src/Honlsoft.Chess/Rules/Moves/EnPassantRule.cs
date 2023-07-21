@@ -16,8 +16,8 @@ public class EnPassantRule : IMoveRule {
         var currentSquare = chessBoard.GetSquare(from);
         var direction = currentSquare!.Piece!.Color == PieceColor.White ? 1 : -1;
 
-        if (currentSquare.Name.Add(direction, 1) == chessBoard.EnPassant
-            || currentSquare.Name.Add(direction, -1) == chessBoard.EnPassant) {
+        if (currentSquare.Name.Add( 1, direction) == chessBoard.EnPassant
+            || currentSquare.Name.Add(-1, direction) == chessBoard.EnPassant) {
             return new[] { chessBoard.EnPassant! };
         }
 
