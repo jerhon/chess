@@ -20,4 +20,6 @@ public class FakeChessBoard : IChessBoard {
             return new Square(squareName, null);
         }
     }
+    
+    public SquareName? EnPassant { get; set; }
 }
