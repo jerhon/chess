@@ -1,5 +1,5 @@
 ﻿namespace Honlsoft.Chess.Tests; 
 
-public class ChessGameEngineTests {
+public class GameRulesEngineTests {
     
 }
