@@ -32,6 +32,16 @@ public record Rank(int Number)
         return new Rank(newRank);
     }
 
+    
+    /// <summary>
+    /// Returns the distance between two files.
+    /// </summary>
+    /// <param name="other">The other rank to compare to.</param>
+    /// <returns>The distance between the files.  If the rank is vertically up the board, it will be positive.  If the file is downward, it will be negative.</returns>
+    public int Distance(Rank other) {
+        return other.Number - this.Number;
+    }
+    
 
     /// <summary>
     /// This the first file.

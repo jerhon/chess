@@ -69,5 +69,18 @@ public class RankTests {
         var range = Rank.Rank8.ToStart(true);
         Assert.Equal(Rank.AllRanks.Reverse(), range);
     }
-    
+
+    [Theory]
+    [InlineData(1, 2, 1)]
+    [InlineData(1, 8, 7)]
+    [InlineData(1, 1, 0)]
+    [InlineData(4, 3, -1)]
+    [InlineData(8, 1, -7)]
+    public void Distance_CalculatesProperly(int rank1, int rank2, int expectedDistance) {
+        var rank = new Rank(rank1);
+        var other = new Rank(rank2);
+        var result = rank.Distance(other);
+        
+        result.Should().Be(expectedDistance);
+    }
 }
