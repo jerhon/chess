@@ -3,8 +3,7 @@
 namespace Honlsoft.Chess.Tests.Rules.Moves; 
 
 public class KnightMoveRuleTests {
-
-
+    
     [Fact]
     public void GetPossibleMoves_CenterSquare_ReturnsAllPositions() {
         FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPieces("Ne4");
@@ -26,7 +25,6 @@ public class KnightMoveRuleTests {
     }
     
     
-    
     [Fact]
     public void GetPossibleMoves_WrongPiece_NoMoves() {
         FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPieces("Qe4");
@@ -42,5 +40,29 @@ public class KnightMoveRuleTests {
         var result = rule.IsApplicable(fakeChessBoard, SquareName.Parse("a1"));
         result.Should().BeTrue();
     }
-
+    
+    [Fact]
+    public void GetPossibleMoves_BlockedBySameColor_NoMovesToBlockedLocation() {
+        FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPieces("Ne4", "Ng5");
+        var rule = new KnightMoveRule();
+        var moves = rule.GetPossibleMoves(fakeChessBoard, SquareName.Parse("e4"));
+        moves.Select((m) => m.Square).Should().NotContain(SquareName.Parse("g5"));
+    }
+    
+    [Fact]
+    public void GetPossibleMoves_CanCaptureEnemy_PossibleMoveToEnemyLocation() {
+        FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPieces("Ne4", "ng5");
+        var rule = new KnightMoveRule();
+        var moves = rule.GetPossibleMoves(fakeChessBoard, SquareName.Parse("e4"));
+        moves.Select((m) => m.Square).Should().Contain(SquareName.Parse("g5"));
+    }
+    
+    [Fact]
+    public void GetPossibleMoves_KnightAtEdge_FewerMoves() {
+        FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPieces("Nh8");
+        var rule = new KnightMoveRule();
+        var moves = rule.GetPossibleMoves(fakeChessBoard, SquareName.Parse("h8"));
+        var expected = ChessBoardUtils.GetSquares("g6", "f7");
+        moves.Select((m) => m.Square).Should().HaveCount(2).And.BeEquivalentTo(expected);
+    }
 }
