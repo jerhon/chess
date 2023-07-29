@@ -53,30 +53,7 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
 
     }
 
-    /// <summary>
-    /// Transitions the game state by moving a piece from one position to another.
-    /// This does not validate or ensure the moves are valid.
-    /// It only creates the new board in the new state.
-    /// </summary>
-    /// <param name="from"></param>
-    /// <param name="to"></param>
-    /// <returns>The chess board with the new piece positions.</returns>
-    public ChessBoard Move(SquareName from, SquareName to) {
-        var fromSquare = GetSquare(from);
-        SquareName? enPassant = null;
-        if (IsEnPassant(from, to)) {
-            enPassant = GetEnPassantSquare(from);
-        }
-        var newBoard = Clone();
-        var newFromSpace = new Square(from, null);
-        var newToSpace = new Square(to, fromSquare.Piece);
 
-        newBoard.SetSquare(newFromSpace);
-        newBoard.SetSquare(newToSpace);
-        newBoard.EnPassantTarget = enPassant;
-        return newBoard;
-    }
-    
     /// <summary>
     /// Returns a square for name of the square.
     /// </summary>
@@ -87,7 +64,7 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
         return this._spaces[file, rank];
     }
     
-    public SquareName? EnPassantTarget { get; private set; }
+    public SquareName? EnPassantTarget { get; set; }
 
 
     /// <summary>
@@ -145,27 +122,6 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
         return GetEnumerator();
     }
 
-
-    private bool IsEnPassant(SquareName from, SquareName to) {
-        var square = this.GetSquare(from);
-        if (square is { Piece: { Type: PieceType.Pawn } }) {
-            return from.Rank.Distance(to.Rank) is 2 or -2;
-        }
-        return false;
-    }
-
-    private SquareName? GetEnPassantSquare(SquareName from) {
-        var square = this.GetSquare(from);
-        if (square is not { Piece: { Type: PieceType.Pawn } }) {
-            return null;
-        }
-        var distance = square.Piece.Color == PieceColor.White ? 1 : -1;
-        var newRank = from.Rank.Add(distance);
-        if (newRank is not null) {
-            return new SquareName(from.File, newRank);
-        }
-        return null;
-    }
 
     private void SetSquare(Square space) {
         var (file, rank) = GetIndex(space.Name);

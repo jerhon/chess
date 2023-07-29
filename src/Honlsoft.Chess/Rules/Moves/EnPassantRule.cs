@@ -21,7 +21,12 @@ public class EnPassantRule : IMoveRule {
 
             var enPassantCapture = new SquareName(chessBoard.EnPassantTarget.File, from.Rank);
             
-            return new[] { new ChessMove(from, chessBoard!.EnPassantTarget, enPassantCapture) };
+            return new[] {
+                new ChessMove(from, chessBoard!.EnPassantTarget)
+                {
+                    EnPassantCapture = enPassantCapture
+                }
+            };
         }
 
         return Array.Empty<ChessMove>();

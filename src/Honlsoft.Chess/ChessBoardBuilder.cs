@@ -8,6 +8,8 @@ namespace Honlsoft.Chess;
 public class ChessBoardBuilder : IChessBoard {
 
     private readonly Dictionary<SquareName, Square> _squares = new();
+    
+    public SquareName? EnPassantTarget { get; private set; }
 
     public ChessBoardBuilder WithSquare(Square square) {
         _squares[square.Name] = square;
@@ -47,6 +49,7 @@ public class ChessBoardBuilder : IChessBoard {
         if (move.EnPassantCapture != null) {
             RemovePiece(move.EnPassantCapture);
         }
+        WithEnPassantTarget(move.EnPassantTarget);
         return this;
     }
 
@@ -56,9 +59,14 @@ public class ChessBoardBuilder : IChessBoard {
         }
         return this;
     }
+
+    public ChessBoardBuilder WithEnPassantTarget(SquareName? squareName) {
+        EnPassantTarget = squareName;
+        return this;
+    }
     
     public ChessBoard Build() {
-        return new ChessBoard(_squares.Values.ToArray());
+        return new ChessBoard(_squares.Values.ToArray()) {  };
     }
     public Square GetSquare(SquareName squareName) {
         if (_squares.TryGetValue(squareName, out var square)) {
@@ -66,5 +74,4 @@ public class ChessBoardBuilder : IChessBoard {
         }
         return new Square(squareName, null);
     }
-    public SquareName? EnPassantTarget { get; }
 }

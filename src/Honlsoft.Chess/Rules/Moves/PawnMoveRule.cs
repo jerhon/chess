@@ -15,8 +15,7 @@ public class PawnMoveRule : IMoveRule {
         var square = chessBoard.GetSquare(from);
         return square is { Piece: { Type: PieceType.Pawn } };
     }
-
-
+    
     /// <summary>
     /// Returns possible moves for a pawn at the given position on the board.
     /// </summary>
@@ -64,7 +63,20 @@ public class PawnMoveRule : IMoveRule {
             }
         }
         
-        return squares.Select((s) => new ChessMove(from, s)).ToArray();
+        return squares.Select((to) => new ChessMove(from, to)
+        {
+            EnPassantTarget = GetEnPassantTarget(from, to)
+        }).ToArray();
+    }
+
+    private SquareName? GetEnPassantTarget(SquareName from, SquareName to) {
+        if (from.Rank.Distance(to.Rank) > 1) {
+            return new SquareName(from.File, from.Rank.Add(1));
+        }
+        if (from.Rank.Distance(to.Rank) > 1) {
+            return new SquareName(from.File, from.Rank.Add(-1));
+        }
+        return null;
     }
 
     private bool IsInStartingPosition(Square square)

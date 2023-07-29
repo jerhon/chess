@@ -59,9 +59,11 @@ public class EnPassantMoveRuleTests {
         candidateMoves.Should().BeEquivalentTo(new[] {
             new ChessMove(
                 FromSquare: fromSquare,
-                ToSquare: SquareName.Parse(toSquareNotation),
-                EnPassantCapture: SquareName.Parse(enPassantCaptureNotation)
+                ToSquare: SquareName.Parse(toSquareNotation)
             )
+            {
+                EnPassantCapture = SquareName.Parse(enPassantCaptureNotation) 
+            }
         });
 
     }
