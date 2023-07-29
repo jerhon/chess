@@ -74,4 +74,40 @@ public class ChessBoardBuilder : IChessBoard {
         }
         return new Square(squareName, null);
     }
+    
+    
+    /// <summary>
+    /// Creates a new game with the chess pieces in their standard positions.
+    /// </summary>
+    /// <returns></returns>
+    public ChessBoardBuilder AddStandardGamePieces() {
+        foreach (var position in SquareName.AllSquares()) {
+            var color = GetInitialColor(position);
+            var piece = GetInitialPieceType(position);
+
+            if (piece != null && color != null) {
+                WithSquare(position, piece.Value, color.Value);
+            }
+        }
+        return this;
+    }
+    
+    
+    private static PieceType? GetInitialPieceType(SquareName position) =>
+        (position.File.Name, position.Rank.Number) switch {
+            ('a' or 'h', 1 or 8) => PieceType.Rook,
+            ('b' or 'g', 1 or 8) => PieceType.Knight,
+            ('c' or 'f', 1 or 8) => PieceType.Bishop,
+            ('d', 1 or 8) => PieceType.Queen,
+            ('e', 1 or 8) => PieceType.King,
+            (_, 7 or 2) => PieceType.Pawn,
+            _ => null
+        };
+
+    private static PieceColor? GetInitialColor(SquareName position) =>
+        position.Rank.Number switch {
+            1 or 2 => PieceColor.White,
+            7 or 8 => PieceColor.Black,
+            _ => null
+        };
 }

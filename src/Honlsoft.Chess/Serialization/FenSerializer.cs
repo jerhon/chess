@@ -4,7 +4,7 @@ namespace Honlsoft.Chess.Serialization;
 
 public class FenSerializer {
     
-    public string Serialize(ChessBoard chessBoard) {
+    public string Serialize(IChessBoard chessBoard) {
         StringBuilder builder = new StringBuilder();
         foreach (var rank in Rank.Rank1.ToEnd(true).Reverse()) {
             int emptySpaces = 0;
