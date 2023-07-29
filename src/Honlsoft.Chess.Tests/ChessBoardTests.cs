@@ -13,7 +13,7 @@ public class ChessBoardTests {
             Assert.Null(square.Piece);
         }
         
-        Assert.Null(chessBoard.EnPassant);
+        Assert.Null(chessBoard.EnPassantTarget);
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class ChessBoardTests {
         AssertPiece(chessBoard, "g8", PieceType.Knight, PieceColor.Black);
         AssertPiece(chessBoard, "h8", PieceType.Rook, PieceColor.Black);
         
-        Assert.Null(chessBoard.EnPassant);
+        Assert.Null(chessBoard.EnPassantTarget);
         
         // Check all the pieces in the middle
 

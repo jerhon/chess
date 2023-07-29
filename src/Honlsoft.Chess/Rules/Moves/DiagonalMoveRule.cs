@@ -16,12 +16,12 @@ public class DiagonalMoveRule : IMoveRule {
         return square is { Piece: { Type: PieceType.Bishop or PieceType.Queen } };
     }
     
-    public CandidateMove[] GetPossibleMoves(IChessBoard chessBoard, SquareName from) {
+    public ChessMove[] GetCandidateMoves(IChessBoard chessBoard, SquareName from) {
         List<SquareName> squares = new List<SquareName>();
 
         var originalSquare = chessBoard.GetSquare(from);
         if (!IsApplicable(chessBoard, from)) {
-            return Array.Empty<CandidateMove>();
+            return Array.Empty<ChessMove>();
         }
 
         var topRightSquares = EnumerateDiagonal(from, 1, 1);
@@ -41,7 +41,7 @@ public class DiagonalMoveRule : IMoveRule {
             }
         }
 
-        return squares.Select((s) => new CandidateMove(s)).ToArray();
+        return squares.Select((s) => new ChessMove(from, s)).ToArray();
     }
 
 

@@ -9,7 +9,7 @@ public class EnPassantMoveRuleTests {
         var rule = new EnPassantRule();
 
         var chessBoard = new FakeChessBoard();
-        chessBoard.EnPassant = SquareName.Parse("b6");
+        chessBoard.EnPassantTarget = SquareName.Parse("b6");
         chessBoard.AddPieces("Pc5");
 
         var result = rule.IsApplicable(chessBoard, SquareName.Parse("c5"));
@@ -22,7 +22,7 @@ public class EnPassantMoveRuleTests {
         var rule = new EnPassantRule();
 
         var chessBoard = new FakeChessBoard();
-        chessBoard.EnPassant = SquareName.Parse("b6");
+        chessBoard.EnPassantTarget = SquareName.Parse("b6");
         chessBoard.AddPieces("Nc5");
 
         var result = rule.IsApplicable(chessBoard, SquareName.Parse("c5"));
@@ -43,20 +43,25 @@ public class EnPassantMoveRuleTests {
     }
 
     [Theory]
-    [InlineData("b5", "Pc4")]
-    [InlineData("b5", "Pa4")]
-    [InlineData("b5", "pa6")]
-    [InlineData("b5", "pc6")]
-    public void GetPossibleMoves_ReturnsEnpassantSquare(string enPassantSquareName, string pawnNotation) {
+    [InlineData("Pc4", "b5", "b4")]
+    [InlineData("Pa4", "b5", "b4")]
+    [InlineData("pa6", "b5", "b6")]
+    [InlineData("pc6", "b5", "b6")]
+    public void GetPossibleMoves_ReturnsEnpassantSquare(string fromSquareNotation, string toSquareNotation, string enPassantCaptureNotation) {
         var rule = new EnPassantRule();
 
         var chessBoard = new FakeChessBoard();
-        chessBoard.AddPieces(pawnNotation);
-        chessBoard.EnPassant = SquareName.Parse(enPassantSquareName);
+        chessBoard.AddPieces(fromSquareNotation);
+        chessBoard.EnPassantTarget = SquareName.Parse(toSquareNotation);
 
-        var candidateMoves = rule.GetPossibleMoves(chessBoard, SquareName.Parse(pawnNotation.Substring(1)));
+        var fromSquare = SquareName.Parse(fromSquareNotation.Substring(1));
+        var candidateMoves = rule.GetCandidateMoves(chessBoard, fromSquare);
         candidateMoves.Should().BeEquivalentTo(new[] {
-            new CandidateMove(chessBoard.EnPassant, true)
+            new ChessMove(
+                FromSquare: fromSquare,
+                ToSquare: SquareName.Parse(toSquareNotation),
+                EnPassantCapture: SquareName.Parse(enPassantCaptureNotation)
+            )
         });
 
     }

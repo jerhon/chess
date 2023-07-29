@@ -11,8 +11,8 @@ public static class ChessBoardUtils {
 
     }
 
-    public static CandidateMove[] GetCandidateMoves(params string[] squareRepresentation) {
-        return GetSquares(squareRepresentation).Select((s) => new CandidateMove(s)).ToArray();
+    public static ChessMove[] CreateCandidateMoves(string fromSquare, params string[] squareRepresentation) {
+        return GetSquares(squareRepresentation).Select((s) => new ChessMove(SquareName.Parse(fromSquare), s)).ToArray();
     }
 
 

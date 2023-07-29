@@ -16,12 +16,12 @@ public class FileAndRankMoveRule : IMoveRule {
         };
     }
     
-    public CandidateMove[] GetPossibleMoves(IChessBoard chessBoard, SquareName from) {
+    public ChessMove[] GetCandidateMoves(IChessBoard chessBoard, SquareName from) {
 
         List<SquareName> squares = new List<SquareName>();
 
         if (!IsApplicable(chessBoard, from)) {
-            return Array.Empty<CandidateMove>();
+            return Array.Empty<ChessMove>();
         }
 
         var originalSquare = chessBoard.GetSquare(from);
@@ -45,7 +45,7 @@ public class FileAndRankMoveRule : IMoveRule {
             }
         }
 
-        return squares.Select((s) => new CandidateMove(s)).ToArray();
+        return squares.Select((s) => new ChessMove(from, s)).ToArray();
     }
     
     

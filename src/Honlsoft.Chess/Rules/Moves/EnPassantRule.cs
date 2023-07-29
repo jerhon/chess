@@ -4,23 +4,26 @@ public class EnPassantRule : IMoveRule {
 
     public bool IsApplicable(IChessBoard chessBoard, SquareName from) {
         var currentSquare = chessBoard.GetSquare(from);
-        return currentSquare is { Piece: { Type: PieceType.Pawn } } && chessBoard.EnPassant is not null;
+        return currentSquare is { Piece: { Type: PieceType.Pawn } } && chessBoard.EnPassantTarget is not null;
     }
     
-    public CandidateMove[] GetPossibleMoves(IChessBoard chessBoard, SquareName from) {
+    public ChessMove[] GetCandidateMoves(IChessBoard chessBoard, SquareName from) {
 
         if (!IsApplicable(chessBoard, from)) {
-            return Array.Empty<CandidateMove>();
+            return Array.Empty<ChessMove>();
         }
 
         var currentSquare = chessBoard.GetSquare(from);
         var direction = currentSquare!.Piece!.Color == PieceColor.White ? 1 : -1;
 
-        if (currentSquare.Name.Add( 1, direction) == chessBoard.EnPassant
-            || currentSquare.Name.Add(-1, direction) == chessBoard.EnPassant) {
-            return new[] { new CandidateMove( chessBoard!.EnPassant, true ) };
+        if (currentSquare.Name.Add( 1, direction) == chessBoard.EnPassantTarget
+            || currentSquare.Name.Add(-1, direction) == chessBoard.EnPassantTarget) {
+
+            var enPassantCapture = new SquareName(chessBoard.EnPassantTarget.File, from.Rank);
+            
+            return new[] { new ChessMove(from, chessBoard!.EnPassantTarget, enPassantCapture) };
         }
 
-        return Array.Empty<CandidateMove>();
+        return Array.Empty<ChessMove>();
     }
 }

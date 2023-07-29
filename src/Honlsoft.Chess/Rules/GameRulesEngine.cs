@@ -32,7 +32,7 @@ public class GameRulesEngine {
     /// <param name="from">The square to move from.</param>
     /// <param name="to">The square to move to.</param>
     /// <returns></returns>
-    public bool CanMove(IChessBoard chessBoard, SquareName from, SquareName to) => GetAllMoves(chessBoard, from).Any((m) => m.Square == to);
+    public bool CanMove(IChessBoard chessBoard, SquareName from, SquareName to) => GetAllMoves(chessBoard, from).Any((m) => m.ToSquare == to);
 
     
     /// <summary>
@@ -71,14 +71,14 @@ public class GameRulesEngine {
     }
     
         
-    private IEnumerable<CandidateMove> GetAllMoves(IChessBoard chessBoard, SquareName from) => _moveRules
+    private IEnumerable<ChessMove> GetAllMoves(IChessBoard chessBoard, SquareName from) => _moveRules
         .Where(movementRule => movementRule.IsApplicable(chessBoard, from))
-        .SelectMany(movementRule => movementRule.GetPossibleMoves(chessBoard, from));
+        .SelectMany(movementRule => movementRule.GetCandidateMoves(chessBoard, from));
 
     private bool IsKingInCheck(MoveCalculator otherPlayerMoves, Square kingSquare) => otherPlayerMoves.GetMoveCount(kingSquare.Name) > 0;
 
-    private bool CanKingMoveSafely(MoveCalculator otherPlayerMoves, IEnumerable<CandidateMove> kingMoves) =>
-        kingMoves.Any(move => otherPlayerMoves.GetMoveCount(move.Square) == 0);
+    private bool CanKingMoveSafely(MoveCalculator otherPlayerMoves, IEnumerable<ChessMove> kingMoves) =>
+        kingMoves.Any(move => otherPlayerMoves.GetMoveCount(move.ToSquare) == 0);
 
     
     private bool IsCurrentPlayerPiece(ChessGameState gameState, SquareName from) {

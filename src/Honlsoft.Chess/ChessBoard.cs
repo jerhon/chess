@@ -73,7 +73,7 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
 
         newBoard.SetSquare(newFromSpace);
         newBoard.SetSquare(newToSpace);
-        newBoard.EnPassant = enPassant;
+        newBoard.EnPassantTarget = enPassant;
         return newBoard;
     }
     
@@ -87,7 +87,7 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
         return this._spaces[file, rank];
     }
     
-    public SquareName? EnPassant { get; private set; }
+    public SquareName? EnPassantTarget { get; private set; }
 
 
     /// <summary>

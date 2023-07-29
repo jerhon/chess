@@ -21,5 +21,5 @@ public class FakeChessBoard : IChessBoard {
         }
     }
     
-    public SquareName? EnPassant { get; set; }
+    public SquareName? EnPassantTarget { get; set; }
 }

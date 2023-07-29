@@ -12,5 +12,5 @@ public interface IChessBoard {
      /// <summary>
      /// The square a pawn has moved over in the last move. 
      /// </summary>
-     SquareName? EnPassant { get; }
+     SquareName? EnPassantTarget { get; }
 }
