@@ -10,28 +10,29 @@ namespace Honlsoft.Chess;
 /// <summary>
 /// Engine for a standard chess game.
 /// </summary>
-public class ChessGame {
+public class ChessGame : IChessGame {
 
-    private readonly List<ChessGameMove> _gameMoves;
+    private readonly List<PlayerTurn> _gameMoves;
     private readonly GameRulesEngine _rulesEngine;
-
-    public ChessGame(ChessGameState initialGameState, GameRulesEngine rulesEngine) {
-        GameState = initialGameState;
+    private readonly ChessBoardBuilder _chessBoard;
+    
+    public ChessGame(IChessBoard initialChessBoard, GameRulesEngine rulesEngine) {
+        _chessBoard = new ChessBoardBuilder();
         _rulesEngine = rulesEngine;
-        _gameMoves = new List<ChessGameMove>();
-        Moves = new ReadOnlyCollection<ChessGameMove>(_gameMoves);
+        _gameMoves = new List<PlayerTurn>();
+        Turns = new ReadOnlyCollection<PlayerTurn>(_gameMoves);
     }
     
     /// <summary>
     /// The moves in the chess game.
     /// </summary>
-    public IReadOnlyList<ChessGameMove> Moves { get; }
-    
-    /// <summary>
-    /// The current state of the game.
-    /// </summary>
-    public ChessGameState GameState { get; private set; }
-    
+    public IReadOnlyList<PlayerTurn> Turns { get; }
+
+
+    public PieceColor CurrentPlayer { get; } = PieceColor.White;
+
+    public IChessBoard CurrentBoard => _chessBoard;
+
     /// <summary>
     /// Trys to move a piece in the game.
     /// </summary>
@@ -40,28 +41,25 @@ public class ChessGame {
     /// <returns></returns>
     public (bool CanMove, string? Reason) MovePiece(SquareName from, SquareName to) {
         
-        var (isValid, reason) = _rulesEngine.IsValidMove(GameState, from, to);
-        if (!isValid) {
-            return (isValid, reason);
+        var (move, reason) = _rulesEngine.IsValidMove(this, from, to);
+        if (move == null) {
+            return (false, reason);
         }
+
+        _chessBoard.Move(move);
         
-        // Make the move
-        var nextBoard = GameState.Board.Move(from, to);
+        _gameMoves.Add(new PlayerTurn(_chessBoard.Build(), move, CurrentPlayer));
+        
         
         // Change the color
         var nextColor = NextColor();
 
-        var nextGameState = new ChessGameState(nextBoard, nextColor);
-
-        _gameMoves.Add(new ChessGameMove(GameState, nextGameState, from, to));
-        
-        GameState = nextGameState;
         
         return (true, null);
     }
     
     private PieceColor NextColor() {
-        if (GameState.CurrentColor == PieceColor.Black) {
+        if (CurrentPlayer == PieceColor.Black) {
             return PieceColor.White;
         } else {
             return PieceColor.Black;

@@ -121,7 +121,7 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
         var gameState = new ChessBoard();
         foreach (var position in gameState) {
             var color = GetInitialColor(position.Name);
-            var piece = GetPieceType(position.Name);
+            var piece = GetInitialPieceType(position.Name);
 
             if (piece != null && color != null) {
                 gameState.SetSquare(new Square(position.Name, new Piece(piece.Value, color.Value)));
@@ -183,7 +183,7 @@ public class ChessBoard : IEnumerable<Square>, IChessBoard {
     }
     
 
-    private static PieceType? GetPieceType(SquareName position) =>
+    private static PieceType? GetInitialPieceType(SquareName position) =>
         (position.File.Name, position.Rank.Number) switch {
             ('a' or 'h', 1 or 8) => PieceType.Rook,
             ('b' or 'g', 1 or 8) => PieceType.Knight,
