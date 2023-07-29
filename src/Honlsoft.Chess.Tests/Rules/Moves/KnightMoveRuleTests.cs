@@ -46,7 +46,7 @@ public class KnightMoveRuleTests {
         FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPieces("Ne4", "Ng5");
         var rule = new KnightMoveRule();
         var moves = rule.GetCandidateMoves(fakeChessBoard, SquareName.Parse("e4"));
-        moves.Select((m) => m.ToSquare).Should().NotContain(SquareName.Parse("g5"));
+        moves.Select((m) => m.To).Should().NotContain(SquareName.Parse("g5"));
     }
     
     [Fact]
@@ -54,7 +54,7 @@ public class KnightMoveRuleTests {
         FakeChessBoard fakeChessBoard = new FakeChessBoard().AddPieces("Ne4", "ng5");
         var rule = new KnightMoveRule();
         var moves = rule.GetCandidateMoves(fakeChessBoard, SquareName.Parse("e4"));
-        moves.Select((m) => m.ToSquare).Should().Contain(SquareName.Parse("g5"));
+        moves.Select((m) => m.To).Should().Contain(SquareName.Parse("g5"));
     }
     
     [Fact]
@@ -63,6 +63,6 @@ public class KnightMoveRuleTests {
         var rule = new KnightMoveRule();
         var moves = rule.GetCandidateMoves(fakeChessBoard, SquareName.Parse("h8"));
         var expected = ChessBoardUtils.GetSquares("g6", "f7");
-        moves.Select((m) => m.ToSquare).Should().HaveCount(2).And.BeEquivalentTo(expected);
+        moves.Select((m) => m.To).Should().HaveCount(2).And.BeEquivalentTo(expected);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Honlsoft.Chess.Rules;
 
-public record ChessMove(SquareName FromSquare, SquareName ToSquare) {
+public record ChessMove(SquareName From, SquareName To) {
 
     public SquareName? EnPassantCapture { get; set; }
         

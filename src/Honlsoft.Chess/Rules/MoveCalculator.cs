@@ -67,10 +67,10 @@ public class MoveCalculator {
                 foreach (var moveRule in _moveRules) {
                     var moves = moveRule.GetCandidateMoves(_chessBoard, square.Name);
                     foreach (var move in moves) {
-                        if (move.ToSquare == squareName)
+                        if (move.To == squareName)
                             continue;
                         
-                        IncreaseSquareMoves(move.ToSquare);
+                        IncreaseSquareMoves(move.To);
                     }
                 }
             }

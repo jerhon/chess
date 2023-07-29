@@ -6,14 +6,47 @@ namespace Honlsoft.Chess.Tests.Rules.Moves;
 public class PawnMoveRuleTests {
 
     [Theory]
-    [InlineData("Pb2", "b2", "b3:b4")]
-    [InlineData("Pb2:pa3:pc3", "b2", "b3:b4:a3:c3")]
     [InlineData("Pb8", "b8", "")]
     public void GetPossibleMoves_MatchesExpectedMoves(string boardSetup, string positionToEvaluate, string expectedMoves) {
         
         RuleTest.TestRuleCandidates(boardSetup, positionToEvaluate, expectedMoves, new PawnMoveRule());
         
     }
+
+    [Fact]
+    public void GetPossibleMoves_InitialPositionSuccess() {
+        var chessBoard = new FakeChessBoard().AddPieces("Pb2");
+
+        var pawnMoveRule = new PawnMoveRule();
+
+        var candidateMoves = pawnMoveRule.GetCandidateMoves(chessBoard, SquareName.Parse("b2"));
+
+        var from = SquareName.Parse("b2");
+        candidateMoves.Should().BeEquivalentTo(new object[] {
+            new { From = from, To = SquareName.Parse("b3") },
+            new { From = from, To = SquareName.Parse("b4"), EnPassantTarget = SquareName.Parse("b3") },
+        });
+    }
+    
+    [Fact]
+    public void GetPossibleMoves_InitialPositionWithCaptures() {
+        var chessBoard = new FakeChessBoard().AddPieces("Pb2", "pa3", "pc3");
+
+        var pawnMoveRule = new PawnMoveRule();
+
+        var candidateMoves = pawnMoveRule.GetCandidateMoves(chessBoard, SquareName.Parse("b2"));
+
+        var from = SquareName.Parse("b2");
+        candidateMoves.Should().BeEquivalentTo(new object[] {
+            new { From = from, To = SquareName.Parse("b3") },
+            new { From = from, To = SquareName.Parse("b4"), EnPassantTarget = SquareName.Parse("b3") },
+            new { From = from, To = SquareName.Parse("a3") },
+            new { From = from, To = SquareName.Parse("c3") },
+        });
+    }
+
+
+    
 
     [Fact]
     public void IsApplicable_MatchesPawns() {

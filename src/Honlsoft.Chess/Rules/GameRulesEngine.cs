@@ -32,7 +32,7 @@ public class GameRulesEngine {
     /// <param name="from">The square to move from.</param>
     /// <param name="to">The square to move to.</param>
     /// <returns></returns>
-    public ChessMove? GetMove(IChessBoard chessBoard, SquareName from, SquareName to) => GetAllMoves(chessBoard, from).FirstOrDefault((m) => m.ToSquare == to);
+    public ChessMove? GetMove(IChessBoard chessBoard, SquareName from, SquareName to) => GetAllMoves(chessBoard, from).FirstOrDefault((m) => m.To == to);
 
     
     /// <summary>
@@ -81,7 +81,7 @@ public class GameRulesEngine {
     private bool IsKingInCheck(MoveCalculator otherPlayerMoves, Square kingSquare) => otherPlayerMoves.GetMoveCount(kingSquare.Name) > 0;
 
     private bool CanKingMoveSafely(MoveCalculator otherPlayerMoves, IEnumerable<ChessMove> kingMoves) =>
-        kingMoves.Any(move => otherPlayerMoves.GetMoveCount(move.ToSquare) == 0);
+        kingMoves.Any(move => otherPlayerMoves.GetMoveCount(move.To) == 0);
 
     
     private bool IsCurrentPlayerPiece(IChessGame gameState, SquareName from) {

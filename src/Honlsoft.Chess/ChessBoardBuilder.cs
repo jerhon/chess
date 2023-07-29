@@ -45,7 +45,7 @@ public class ChessBoardBuilder : IChessBoard {
     }
 
     public ChessBoardBuilder Move(ChessMove move) {
-        Move(move.FromSquare, move.ToSquare);
+        Move(move.From, move.To);
         if (move.EnPassantCapture != null) {
             RemovePiece(move.EnPassantCapture);
         }
