@@ -51,7 +51,7 @@ public class GameRulesEngine {
         
         // Needs to be the current player's piece to move.
         if (!IsCurrentPlayerPiece(gameState, from)) {
-            return (null, "This piece is not your color.");
+            return (null, "This piece is not yours.");
         }
 
         // Is player in check, can only move the king.
