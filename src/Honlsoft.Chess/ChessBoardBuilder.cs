@@ -26,6 +26,17 @@ public class ChessBoardBuilder : IChessBoard {
         return WithSquare(square);
     }
 
+    public ChessBoardBuilder FromBoard(IChessBoard chessBoard) {
+        this.EnPassantTarget = chessBoard.EnPassantTarget;
+        foreach (var squareName in SquareName.AllSquares()) {
+            var square = chessBoard.GetSquare(squareName);
+            if (square.HasPiece) {
+                WithSquare(square);
+            }
+        }
+        return this;
+    }
+
     /// <summary>
     /// Moves the piece on one square to another.
     /// </summary>

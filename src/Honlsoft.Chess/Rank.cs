@@ -52,6 +52,12 @@ public record Rank(int Number)
     /// This is the last file.
     /// </summary>
     public bool IsLast => this.Number == 8;
+
+
+    /// <summary>
+    /// The zero based index of the rank.
+    /// </summary>
+    public int Index => this.Number - 1;
     
     /// <summary>
     /// Returns the number to a string.

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Honlsoft.Chess", "Honlsoft.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Honlsoft.Chess.Tests", "Honlsoft.Chess.Tests\Honlsoft.Chess.Tests.csproj", "{961437D5-F5B7-4FFD-867F-BBB0E6F57098}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Honlsoft.Chess.Console", "Honlsoft.Chess.Console\Honlsoft.Chess.Console.csproj", "{552DB7B2-E629-4FE7-B0F1-83EEA09DB581}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{961437D5-F5B7-4FFD-867F-BBB0E6F57098}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{961437D5-F5B7-4FFD-867F-BBB0E6F57098}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{961437D5-F5B7-4FFD-867F-BBB0E6F57098}.Release|Any CPU.Build.0 = Release|Any CPU
+		{552DB7B2-E629-4FE7-B0F1-83EEA09DB581}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{552DB7B2-E629-4FE7-B0F1-83EEA09DB581}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{552DB7B2-E629-4FE7-B0F1-83EEA09DB581}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{552DB7B2-E629-4FE7-B0F1-83EEA09DB581}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -10,19 +10,19 @@ public class GameRulesEngine {
         _moveRules = moveRules;
     }
 
-    public ChessGameResult CalculateResult(IChessGame gameState) {
+    public ChessGameState CalculateState(IChessGame gameState) {
         var currentPlayerMoves = new MoveCalculator(gameState.CurrentBoard, _moveRules, gameState.CurrentPlayer);
         var otherPlayerMoves = new MoveCalculator(gameState.CurrentBoard, _moveRules, gameState.CurrentPlayer);
         var kingSquare = currentPlayerMoves.GetKingSquare();
-        var kingMoves = GetAllMoves(gameState.CurrentBoard, kingSquare.Name);
+        var kingMoves = GetMoves(gameState.CurrentBoard, kingSquare.Name);
 
         if (IsKingInCheck(otherPlayerMoves, kingSquare)) {
             return CanKingMoveSafely(otherPlayerMoves, kingMoves)
-                ? ChessGameResult.Check
-                : ChessGameResult.Checkmate;
+                ? ChessGameState.Check
+                : ChessGameState.Checkmate;
         }
 
-        return currentPlayerMoves.GetTotalMoves() == 0 ? ChessGameResult.Stalemate : ChessGameResult.Normal;
+        return currentPlayerMoves.GetTotalMoves() == 0 ? ChessGameState.Stalemate : ChessGameState.Normal;
     }
 
     /// <summary>
@@ -32,9 +32,9 @@ public class GameRulesEngine {
     /// <param name="from">The square to move from.</param>
     /// <param name="to">The square to move to.</param>
     /// <returns></returns>
-    public ChessMove? GetMove(IChessBoard chessBoard, SquareName from, SquareName to) => GetAllMoves(chessBoard, from).FirstOrDefault((m) => m.To == to);
+    public ChessMove? GetMove(IChessBoard chessBoard, SquareName from, SquareName to) => GetMoves(chessBoard, from).FirstOrDefault((m) => m.To == to);
 
-    
+
     /// <summary>
     /// Validates a move in a chess game.
     /// </summary>
@@ -44,8 +44,8 @@ public class GameRulesEngine {
     /// <returns>A tuple with two elements. The first is a boolean indicating whether the move is valid or not. If the move is invalid, the second string element contains the reason for its invalidity. If the move is valid, this element will be null.</returns>
     public (ChessMove? Move, string? Reason) IsValidMove(IChessGame gameState, SquareName from, SquareName to) {
         
-        var gameResult = CalculateResult(gameState);
-        if (gameResult == ChessGameResult.Checkmate || gameResult == ChessGameResult.Stalemate) {
+        var gameResult = CalculateState(gameState);
+        if (gameResult == ChessGameState.Checkmate || gameResult == ChessGameState.Stalemate) {
             return (null, $"You are in {gameResult.ToString().ToLower()}. The game is over.");
         }
         
@@ -55,7 +55,7 @@ public class GameRulesEngine {
         }
 
         // Is player in check, can only move the king.
-        if (gameResult == ChessGameResult.Check) {
+        if (gameResult == ChessGameState.Check) {
             var square = gameState.CurrentBoard.GetSquare(from);
             if (square is not { Piece: {Type: PieceType.King }} || square?.Piece?.Color != gameState.CurrentPlayer) {
                 return (null, "Your King is in check. You must move your king out of check.");
@@ -74,9 +74,10 @@ public class GameRulesEngine {
     }
     
         
-    private IEnumerable<ChessMove> GetAllMoves(IChessBoard chessBoard, SquareName from) => _moveRules
+    public IEnumerable<ChessMove> GetMoves(IChessBoard chessBoard, SquareName from) => _moveRules
         .Where(movementRule => movementRule.IsApplicable(chessBoard, from))
-        .SelectMany(movementRule => movementRule.GetCandidateMoves(chessBoard, from));
+        .SelectMany(movementRule => movementRule.GetCandidateMoves(chessBoard, from))
+        .DistinctBy((m) => m.To.ToString());
 
     private bool IsKingInCheck(MoveCalculator otherPlayerMoves, Square kingSquare) => otherPlayerMoves.GetMoveCount(kingSquare.Name) > 0;
 

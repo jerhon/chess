@@ -64,4 +64,5 @@ public record SquareName(File File, Rank Rank) : IParsable<SquareName?> {
         return Chess.Rank.AllRanks.SelectMany((rank) => Chess.File.AllFiles.Select((file) => new SquareName(file, rank)));
     }
 
+    public SquareColor Color => Rank.Index % 2 == File.Index % 2 ? SquareColor.Dark : SquareColor.Light;
 }

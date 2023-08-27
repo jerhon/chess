@@ -18,6 +18,7 @@ public class ChessGame : IChessGame {
     
     public ChessGame(IChessBoard initialChessBoard, GameRulesEngine rulesEngine) {
         _chessBoard = new ChessBoardBuilder();
+        _chessBoard.FromBoard(initialChessBoard);
         _rulesEngine = rulesEngine;
         _gameMoves = new List<PlayerTurn>();
         Turns = new ReadOnlyCollection<PlayerTurn>(_gameMoves);
@@ -29,7 +30,7 @@ public class ChessGame : IChessGame {
     public IReadOnlyList<PlayerTurn> Turns { get; }
 
 
-    public PieceColor CurrentPlayer { get; } = PieceColor.White;
+    public PieceColor CurrentPlayer { get; private set; } = PieceColor.White;
 
     public IChessBoard CurrentBoard => _chessBoard;
 
@@ -39,8 +40,9 @@ public class ChessGame : IChessGame {
     /// <param name="from"></param>
     /// <param name="to"></param>
     /// <returns></returns>
-    public (bool CanMove, string? Reason) MovePiece(SquareName from, SquareName to) {
+    public (bool ValidMove, string? Reason) MovePiece(SquareName from, SquareName to) {
         
+
         var (move, reason) = _rulesEngine.IsValidMove(this, from, to);
         if (move == null) {
             return (false, reason);
@@ -52,7 +54,7 @@ public class ChessGame : IChessGame {
         
         
         // Change the color
-        var nextColor = NextColor();
+        CurrentPlayer = NextColor();
 
         
         return (true, null);
@@ -65,4 +67,6 @@ public class ChessGame : IChessGame {
             return PieceColor.Black;
         }
     }
+
+    public SquareName[] GetCandidateMoves(SquareName squareName)  => _rulesEngine.GetMoves(_chessBoard, squareName).Select((m) => m.To).ToArray();
 }

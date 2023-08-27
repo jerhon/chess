@@ -71,4 +71,6 @@ public record File(char Name) {
             file = file?.Add(step);
         }
     }
+
+    public int Index => Name - 'a';
 }
