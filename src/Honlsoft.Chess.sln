@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Honlsoft.Chess.Tests", "Hon
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Honlsoft.Chess.Console", "Honlsoft.Chess.Console\Honlsoft.Chess.Console.csproj", "{552DB7B2-E629-4FE7-B0F1-83EEA09DB581}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Honlsoft.Chess.Uci.Client", "Honlsoft.Chess.Uci.Client\Honlsoft.Chess.Uci.Client.csproj", "{B5FF32AE-74ED-49DF-BDB5-D7B887D44B72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Honlsoft.Chess.Uci.Client.Tests", "Honlsoft.Chess.Uci.Client.Tests\Honlsoft.Chess.Uci.Client.Tests.csproj", "{DBFFFAB9-89D1-492F-8019-B7409097CB41}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,13 @@ Global
 		{552DB7B2-E629-4FE7-B0F1-83EEA09DB581}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{552DB7B2-E629-4FE7-B0F1-83EEA09DB581}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{552DB7B2-E629-4FE7-B0F1-83EEA09DB581}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5FF32AE-74ED-49DF-BDB5-D7B887D44B72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5FF32AE-74ED-49DF-BDB5-D7B887D44B72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5FF32AE-74ED-49DF-BDB5-D7B887D44B72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5FF32AE-74ED-49DF-BDB5-D7B887D44B72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBFFFAB9-89D1-492F-8019-B7409097CB41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBFFFAB9-89D1-492F-8019-B7409097CB41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBFFFAB9-89D1-492F-8019-B7409097CB41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBFFFAB9-89D1-492F-8019-B7409097CB41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
