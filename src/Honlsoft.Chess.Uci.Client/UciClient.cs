@@ -35,11 +35,7 @@ public class UciClient {
     }
 
     private void ProcessIdCommand(UciCommand command) {
-        if (command.Parameters is ["name", ..]) {
-            Name = string.Join(" ", command.Parameters.Skip(1));
-        } else if (command.Parameters is ["author", ..]) {
-            Authors = string.Join(" ", command.Parameters.Skip(1));
-        }
+
     }
 
     private void ProcessOptionCommand(UciCommand command) {

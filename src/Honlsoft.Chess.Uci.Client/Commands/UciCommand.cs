@@ -2,12 +2,12 @@
 
 public class UciCommand {
 
-    public UciCommand(string command, IEnumerable<string>? parameters = null) {
+    public UciCommand(string command, IEnumerable<UciParameter>? parameters = null) {
         Command = command;
         if (parameters == null) {
-            Parameters = new List<string>();
+            Parameters = new List<UciParameter>();
         } else {
-            Parameters = new List<string>(parameters);   
+            Parameters = new List<UciParameter>(parameters);   
         }
     }
 
@@ -19,5 +19,5 @@ public class UciCommand {
     /// <summary>
     /// The parameters for the command.
     /// </summary>
-    public IReadOnlyList<string> Parameters { get; }
+    public IReadOnlyList<UciParameter> Parameters { get; }
 }

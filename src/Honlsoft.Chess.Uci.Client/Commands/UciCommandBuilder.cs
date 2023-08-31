@@ -3,7 +3,7 @@
 public class UciCommandBuilder {
 
 
-    private List<string>? _parameters = new List<string>();
+    private readonly List<UciParameter> _parameters = new();
     private string _command;
 
 
@@ -12,8 +12,8 @@ public class UciCommandBuilder {
         return this;
     }
 
-    public UciCommandBuilder WithParameter(string parameter) {
-        _parameters.Add(parameter);
+    public UciCommandBuilder WithParameter(string key, string value) {
+        _parameters.Add(new UciParameter{ Key = key, Value = value });
         return this;
     }
 
