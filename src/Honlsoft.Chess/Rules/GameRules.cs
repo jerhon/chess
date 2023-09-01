@@ -2,11 +2,11 @@
 
 namespace Honlsoft.Chess;
 
-public class GameRulesEngine {
+public class GameRules {
 
     private readonly IEnumerable<IMoveRule> _moveRules;
 
-    public GameRulesEngine(IEnumerable<IMoveRule> moveRules) {
+    public GameRules(IEnumerable<IMoveRule> moveRules) {
         _moveRules = moveRules;
     }
 

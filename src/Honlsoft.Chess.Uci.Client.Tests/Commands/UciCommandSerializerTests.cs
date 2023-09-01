@@ -55,6 +55,15 @@ public class UciCommandSerializerTests {
 
         command.Should().BeEquivalentTo(expected);
     }
+
+    [Theory]
+    [MemberData(nameof(CommandsToString))]
+    public void SerializeCommand(UciCommand command, string expected) {
+        UciCommandSerializer serializer = new UciCommandSerializer();
+        string actual = serializer.SerializeCommand(command);
+
+        actual.Should().Be(expected);
+    }
     
     
     
@@ -72,6 +81,17 @@ public class UciCommandSerializerTests {
 
             return data;
         }
+    }
+
+    public static TheoryData<UciCommand, string> CommandsToString {
+        get {
+            TheoryData<UciCommand, string> data = new TheoryData<UciCommand, string>();
+            data.Add(new UciCommand("position", new [] { new UciParameter("startpos", null), new UciParameter("moves", "e2e4 e7e5") }),
+                "position startpos moves e2e4 e7e5\n");
+
+            data.Add(new UciCommand("isready"), "isready\n");
+            return data;
+        }  
     }
 
 }

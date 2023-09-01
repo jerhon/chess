@@ -6,10 +6,13 @@ namespace Honlsoft.Chess.Uci.Client.Tests;
 public class FakeUciInterface : IUciInputOutput {
 
     private readonly List<Action<UciCommand, FakeUciInterface>> _responders = new();
-    private Queue<UciCommand> _responses = new();
+    private readonly Queue<UciCommand?> _responses = new();
+
+    public List<UciCommand> Requests { get; } = new();
+
+    public bool HasResponses => _responses.Count > 0;
     
-    
-    public void AddResponses(params UciCommand[] responses) {
+    public void AddResponses(params UciCommand?[] responses) {
         foreach (var response in responses) {
             _responses.Enqueue(response);
         }
@@ -36,6 +39,8 @@ public class FakeUciInterface : IUciInputOutput {
     
     public Task SendCommandAsync(UciCommand command, CancellationToken cancellationToken) {
 
+        Requests.Add(command);
+        
         foreach (var responder in _responders) {
             responder(command, this);
         }

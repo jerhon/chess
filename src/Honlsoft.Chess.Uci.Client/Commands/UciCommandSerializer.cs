@@ -9,8 +9,13 @@ public class UciCommandSerializer {
     /// <param name="command"></param>
     /// <returns></returns>
     public string SerializeCommand(UciCommand command) {
-        var parameters = string.Join(" ", command.Parameters);
-        return $"{command.Command} {parameters}\n";
+
+        if (command.Parameters.Count > 0) {
+            var parameters = string.Join(" ", command.Parameters.Select(SerializeParameter));
+            return $"{command.Command} {parameters}\n";
+        } else {
+            return command.Command + "\n";
+        }
     }
 
     public UciCommand DeserializeCommand(string rawCommand) {
@@ -65,6 +70,22 @@ public class UciCommandSerializer {
             return source.Substring(index, value.Length) == value;
         }
         return false;
+    }
+
+    private string SerializeParameter(UciParameter parameter) {
+        if (parameter.Value is null) {
+            if (parameter.Key is null) {
+                return "";
+            } else {
+                return parameter.Key;
+            }
+        } else {
+            if (parameter.Key is null) {
+                return "";
+            } else {
+                return $"{parameter.Key} {parameter.Value}";
+            }
+        }
     }
 
     private UciCommand ParseComplexCommand(string rawCommand, params string[] parameterKeys) {

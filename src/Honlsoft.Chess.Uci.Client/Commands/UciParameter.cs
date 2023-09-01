@@ -2,7 +2,7 @@
 
 public class UciParameter {
 
-    public UciParameter(string? key, string value) {
+    public UciParameter(string? key, string? value) {
         Key = key;
         Value = value;
     }
@@ -15,5 +15,5 @@ public class UciParameter {
     /// <summary>
     /// The value for the parameter.
     /// </summary>
-    public string Value { get; set; }
+    public string? Value { get; set; }
 }

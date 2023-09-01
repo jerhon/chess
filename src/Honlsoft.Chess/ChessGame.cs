@@ -13,13 +13,13 @@ namespace Honlsoft.Chess;
 public class ChessGame : IChessGame {
 
     private readonly List<PlayerTurn> _gameMoves;
-    private readonly GameRulesEngine _rulesEngine;
+    private readonly GameRules _rules;
     private readonly ChessBoardBuilder _chessBoard;
     
-    public ChessGame(IChessBoard initialChessBoard, GameRulesEngine rulesEngine) {
+    public ChessGame(IChessBoard initialChessBoard, GameRules rules) {
         _chessBoard = new ChessBoardBuilder();
         _chessBoard.FromBoard(initialChessBoard);
-        _rulesEngine = rulesEngine;
+        _rules = rules;
         _gameMoves = new List<PlayerTurn>();
         Turns = new ReadOnlyCollection<PlayerTurn>(_gameMoves);
     }
@@ -43,7 +43,7 @@ public class ChessGame : IChessGame {
     public (bool ValidMove, string? Reason) MovePiece(SquareName from, SquareName to) {
         
 
-        var (move, reason) = _rulesEngine.IsValidMove(this, from, to);
+        var (move, reason) = _rules.IsValidMove(this, from, to);
         if (move == null) {
             return (false, reason);
         }
@@ -68,5 +68,5 @@ public class ChessGame : IChessGame {
         }
     }
 
-    public SquareName[] GetCandidateMoves(SquareName squareName)  => _rulesEngine.GetMoves(_chessBoard, squareName).Select((m) => m.To).ToArray();
+    public SquareName[] GetCandidateMoves(SquareName squareName)  => _rules.GetMoves(_chessBoard, squareName).Select((m) => m.To).ToArray();
 }

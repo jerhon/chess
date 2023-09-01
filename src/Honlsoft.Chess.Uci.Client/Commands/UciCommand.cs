@@ -2,12 +2,12 @@
 
 public class UciCommand {
 
-    public UciCommand(string command, IEnumerable<UciParameter>? parameters = null) {
+    public UciCommand(string command, IEnumerable<UciParameter?>? parameters = null) {
         Command = command;
         if (parameters == null) {
             Parameters = new List<UciParameter>();
         } else {
-            Parameters = new List<UciParameter>(parameters);   
+            Parameters = new List<UciParameter>(parameters.Where((p) => p is not null)!);   
         }
     }
 

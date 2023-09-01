@@ -34,6 +34,65 @@ public class UciClient {
         }    
     }
 
+    public async Task IsReadyAsync(CancellationToken cancellationToken) {
+
+        await _inputOutput.SendCommandAsync(new UciCommand("isready"), cancellationToken);
+
+        await WaitForCommandAsync("readyok", cancellationToken);
+    }
+
+    public async Task SetOptionAsync(string name, string? value, CancellationToken cancellationToken) {
+
+        UciCommandBuilder builder = new();
+        builder.WithCommand("setoption");
+        builder.WithParameter("name", name);
+        if (value is not null) {
+            builder.WithParameter("value", value);
+        }
+        UciCommand command = builder.Build();
+
+        await _inputOutput.SendCommandAsync(command, cancellationToken);
+        
+        // There is no response for this
+    }
+
+    public async Task SetFenPositionAsync(string fenString, string[] moves, CancellationToken cancellationToken) {
+        UciCommandBuilder builder = new();
+        builder.WithCommand("position");
+        builder.WithParameter("fen", fenString);
+        builder.WithParameter("moves", string.Join(" ", moves));
+        UciCommand command = builder.Build();
+
+        await _inputOutput.SendCommandAsync(command, cancellationToken);
+    }
+
+    public async Task SetStartingPositionAsync(string[] moves, CancellationToken cancellationToken) {
+        UciCommandBuilder builder = new();
+        builder.WithCommand("position");
+        builder.WithParameter("startpos", null);
+        builder.WithParameter("moves", string.Join(" ", moves));
+        UciCommand command = builder.Build();
+
+        await _inputOutput.SendCommandAsync(command, cancellationToken);
+    }
+
+    public async Task SetMovePositionAsync(string[] moves, CancellationToken cancellationToken) {
+        UciCommandBuilder builder = new();
+        builder.WithCommand("position");
+        builder.WithParameter("moves", string.Join(" ", moves));
+        UciCommand command = builder.Build();
+
+        await _inputOutput.SendCommandAsync(command, cancellationToken);
+    }
+
+    private async Task<UciCommand?> WaitForCommandAsync(string commandName, CancellationToken cancellationToken) {
+        UciCommand? command = null;
+        while (command?.Command != commandName) {
+            command = await _inputOutput.ReadCommandAsync(cancellationToken);
+        }
+        return command;
+    }
+
     private void ProcessStartupCommand(UciCommand command) {
         if (command is { Command: "id" }) {
             ProcessIdCommand(command);
@@ -41,8 +100,6 @@ public class UciClient {
             ProcessOptionCommand(command);
         }
     }
-
-    
     
     private void ProcessIdCommand(UciCommand command) {
         var firstParameter = command.Parameters.FirstOrDefault();
