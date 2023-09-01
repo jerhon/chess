@@ -35,7 +35,7 @@ public class UciCommandSerializerTests {
     public void ParseDebug(string commandString, string parameter) {
         var serializer = NewObj();
         var command = serializer.DeserializeCommand(commandString);
-        command.Should().BeEquivalentTo(new UciCommand("debug", new [] { new UciParameter() { Value = parameter } }));
+        command.Should().BeEquivalentTo(new UciCommand("debug", new [] { new UciParameter(null, parameter)}));
     }
 
     [Theory]
@@ -44,6 +44,34 @@ public class UciCommandSerializerTests {
     public void ParseIdCommand(string commandString, string parameterKey, string parameterValue) {
         var serializer = NewObj();
         var command = serializer.DeserializeCommand(commandString);
-        command.Should().BeEquivalentTo(new UciCommand("id", new UciParameter[] { new UciParameter() { Key = parameterKey, Value = parameterValue }}));
+        command.Should().BeEquivalentTo(new UciCommand("id", new UciParameter[] { new UciParameter(parameterKey, parameterValue) }));
     }
+
+    [Theory]
+    [MemberData(nameof(OptionCommands))]
+    public void DeserializeCommand_Option_SuccessCases(string commandString, UciCommand expected) {
+        var serializer = NewObj();
+        var command = serializer.DeserializeCommand(commandString);
+
+        command.Should().BeEquivalentTo(expected);
+    }
+    
+    
+    
+    public static TheoryData<string, UciCommand> OptionCommands {
+        get {
+            TheoryData<string, UciCommand> data = new TheoryData<string, UciCommand>();
+
+            // Option for a Debug Log File
+            UciCommand command = new UciCommand("option", new[] {
+                new UciParameter("name", "Debug Log File"),
+                new UciParameter("type", "string"),
+                new UciParameter("default", "")
+            });
+            data.Add("option name Debug Log File type string default", command);
+
+            return data;
+        }
+    }
+
 }

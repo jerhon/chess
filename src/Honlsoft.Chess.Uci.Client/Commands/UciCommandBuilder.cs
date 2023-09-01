@@ -13,7 +13,7 @@ public class UciCommandBuilder {
     }
 
     public UciCommandBuilder WithParameter(string key, string value) {
-        _parameters.Add(new UciParameter{ Key = key, Value = value });
+        _parameters.Add(new UciParameter(key, value));
         return this;
     }
 

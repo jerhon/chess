@@ -29,7 +29,7 @@ public class UciCommandSerializer {
 
         // Now for the more complicated ones with specific parameters
         if (command is "option") {
-            return ParseComplexCommand("name", "type", "default", "min", "max", "var");
+            return ParseComplexCommand(rawCommand, "name", "type", "default", "min", "max", "var");
         } else if (command is "id") {
             return ParseComplexCommand(rawCommand, "name", "author");
         } else if (command is "register") {
@@ -50,7 +50,7 @@ public class UciCommandSerializer {
         }
 
         var remainder = rawCommand.Length > command.Length + 1
-            ? new[] { new UciParameter() { Value = rawCommand.Substring(command.Length + 1) } }
+            ? new[] { new UciParameter(null, rawCommand.Substring(command.Length + 1)) }
             : null;
 
         // if all else fails, just create the command by using the first part as the command, and split the rest for the parameters
@@ -97,12 +97,14 @@ public class UciCommandSerializer {
             if (spaceIdx > 0) {
                 var name = rawParameter.Substring(0, spaceIdx);
                 var value = rawParameter.Substring(spaceIdx + 1);
-                return new UciParameter { Key = name, Value = value };
+                return new UciParameter(name, value);
+            } else {
+                return new UciParameter(rawParameter, "");
             }
 
         }
 
-        return new UciParameter() { Value = rawParameter };
+        return new UciParameter(null, rawParameter);
     }
     
     
@@ -110,11 +112,11 @@ public class UciCommandSerializer {
         var keywordPositions = GetKeyPositions(rawCommand, startingIdx, parameterKeys);
         List<string> parameters = new List<string>();
 
-        for (int i = 0; i < parameters.Count - 1; i++) {
+        for (int i = 0; i < keywordPositions.Count - 1; i++) {
             var currentPosition = keywordPositions[i];
             var nextPosition = keywordPositions[i + 1];
             
-            parameters.Add(rawCommand.Substring(currentPosition, nextPosition).Trim());
+            parameters.Add(rawCommand.Substring(currentPosition, nextPosition - currentPosition).Trim());
         }
 
         if (keywordPositions.Count > 0 && rawCommand.Length > keywordPositions[^1]) {
