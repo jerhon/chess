@@ -20,7 +20,7 @@ public class UciCommandSerializerTests {
     [InlineData("ponderhit")]
     [InlineData("quit")]
     [InlineData("readyok")]
-    public void ParseSimpleCommands(string commandString) {
+    public void DeserializeCommand_SimpleCommands(string commandString) {
 
         var serializer = NewObj();
         var command = serializer.DeserializeCommand(commandString);
@@ -32,7 +32,7 @@ public class UciCommandSerializerTests {
     [Theory]
     [InlineData("debug on", "on")]
     [InlineData("debug off", "off")]
-    public void ParseDebug(string commandString, string parameter) {
+    public void DeserializeCommand_debug(string commandString, string parameter) {
         var serializer = NewObj();
         var command = serializer.DeserializeCommand(commandString);
         command.Should().BeEquivalentTo(new UciCommand("debug", new [] { new UciParameter(null, parameter)}));
@@ -41,7 +41,7 @@ public class UciCommandSerializerTests {
     [Theory]
     [InlineData("id author Jean Luc Picard", "author", "Jean Luc Picard")]
     [InlineData("id name Honlsoft Chess", "name", "Honlsoft Chess")]
-    public void ParseIdCommand(string commandString, string parameterKey, string parameterValue) {
+    public void DeserializeCommand_id(string commandString, string parameterKey, string parameterValue) {
         var serializer = NewObj();
         var command = serializer.DeserializeCommand(commandString);
         command.Should().BeEquivalentTo(new UciCommand("id", new UciParameter[] { new UciParameter(parameterKey, parameterValue) }));
@@ -49,7 +49,7 @@ public class UciCommandSerializerTests {
 
     [Theory]
     [MemberData(nameof(OptionCommands))]
-    public void DeserializeCommand_Option_SuccessCases(string commandString, UciCommand expected) {
+    public void DeserializeCommand_option(string commandString, UciCommand expected) {
         var serializer = NewObj();
         var command = serializer.DeserializeCommand(commandString);
 
