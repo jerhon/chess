@@ -10,18 +10,18 @@ public interface IChessEngine {
     /// <param name="chessBoard">The chess board.</param>
     /// <param name="moves">The moves.</param>
     /// <returns></returns>
-    public Task StartGameAsync(IChessBoard chessBoard, ChessMove[] moves);
+    public Task StartGameAsync(IChessBoard chessBoard, ChessMove[] moves, CancellationToken cancellationToken);
     
     /// <summary>
     /// Sends a new move 
     /// </summary>
     /// <param name="move">The move for the chess engine.</param>
     /// <returns>A task that completes when the move has been sent.</returns>
-    public Task SendMoveAsync(ChessMove move);
+    public Task SendMoveAsync(ChessMove move, CancellationToken cancellationToken);
     
     /// <summary>
     /// Suggests a move from the engine.
     /// </summary>
     /// <returns></returns>
-    public Task<string> SuggestMoveAsync();
+    public Task<ChessMove> SuggestMoveAsync(CancellationToken cancellationToken);
 }

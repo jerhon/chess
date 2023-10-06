@@ -6,17 +6,8 @@ namespace Honlsoft.Chess;
 /// <summary>
 /// Calculates the  number of moves on the board for a particular color. Helpful for determining if we're in checkmate, or stalemate.
 /// </summary>
-public class MoveCalculator {
+public class MoveCalculator(IChessBoard chessBoard, IEnumerable<IMoveRule> moveRules, PieceColor color) {
 
-    public MoveCalculator(IChessBoard chessBoard, IEnumerable<IMoveRule> moveRules, PieceColor color) {
-        _chessBoard = chessBoard;
-        _moveRules = moveRules;
-        _color = color;
-    }
-
-    private readonly IChessBoard _chessBoard;
-    private readonly IEnumerable<IMoveRule> _moveRules;
-    private readonly PieceColor _color;
     private readonly Dictionary<SquareName, int> _moveCounts = new();
     private int _totalMoves = 0;
     private bool _calculated = false;
@@ -56,16 +47,16 @@ public class MoveCalculator {
         }
         
         foreach (var squareName in SquareName.AllSquares()) {
-            var square = _chessBoard.GetSquare(squareName);
-            if (square?.Piece?.Color == _color) {
+            var square = chessBoard.GetSquare(squareName);
+            if (square?.Piece?.Color == color) {
 
                 if (square is { Piece: { Type: PieceType.King } }) {
                     _kingSquare = square;
                 }
                 
                 // find squares we are moving off of
-                foreach (var moveRule in _moveRules) {
-                    var moves = moveRule.GetCandidateMoves(_chessBoard, square.Name);
+                foreach (var moveRule in moveRules) {
+                    var moves = moveRule.GetCandidateMoves(chessBoard, square.Name);
                     foreach (var move in moves) {
                         if (move.To == squareName)
                             continue;

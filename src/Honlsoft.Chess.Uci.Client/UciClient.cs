@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using Honlsoft.Chess.Uci.Client.Commands;
 
 namespace Honlsoft.Chess.Uci.Client; 
@@ -83,6 +84,29 @@ public class UciClient {
         UciCommand command = builder.Build();
 
         await _inputOutput.SendCommandAsync(command, cancellationToken);
+    }
+
+    public async Task UciNewGameAsync(CancellationToken cancellationToken) {
+        await _inputOutput.SendCommandAsync(new UciCommand("ucinewgame"), cancellationToken);
+    }
+
+    public async Task<BestMove> GoAsync(GoParameters parameters, CancellationToken cancellationToken) {
+        UciCommandBuilder commandBuilder = new UciCommandBuilder();
+        commandBuilder.WithCommand("go");
+        if (parameters.MoveTime.HasValue) {
+            commandBuilder.WithParameter("movetime", Math.Round(parameters.MoveTime.Value.TotalMilliseconds, 0).ToString(CultureInfo.CurrentCulture));
+        }
+        if (parameters.Infinite ?? false) {
+            commandBuilder.WithParameter("infinite", null);
+        }
+
+        await _inputOutput.SendCommandAsync(new UciCommand("go"), cancellationToken);
+
+        // TODO add a way to singal stopping
+        
+        var bestMove = await WaitForCommandAsync("bestmove", cancellationToken);
+        var ret = new BestMove() { Move = bestMove.Parameters[0].Value, PonderMove = bestMove?.Parameters?[1]?.Value };
+        return ret;
     }
 
     private async Task<UciCommand?> WaitForCommandAsync(string commandName, CancellationToken cancellationToken) {

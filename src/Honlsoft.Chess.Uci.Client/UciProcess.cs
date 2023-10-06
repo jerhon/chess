@@ -3,19 +3,13 @@ using Honlsoft.Chess.Uci.Client.Commands;
 
 namespace Honlsoft.Chess.Uci.Client; 
 
-public class UciProcess {
-    private readonly string _executablePath;
+public class UciProcess(string executablePath) {
+    
     private Process? _currentProcess;
-    
-    
-    public UciProcess(string executablePath) {
-        _executablePath = executablePath;
-
-    }
 
     public void Start() {
 
-        ProcessStartInfo startInfo = new ProcessStartInfo(_executablePath) {
+        ProcessStartInfo startInfo = new ProcessStartInfo(executablePath) {
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             CreateNoWindow = true,

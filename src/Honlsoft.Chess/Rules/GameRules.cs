@@ -2,17 +2,11 @@
 
 namespace Honlsoft.Chess;
 
-public class GameRules {
-
-    private readonly IEnumerable<IMoveRule> _moveRules;
-
-    public GameRules(IEnumerable<IMoveRule> moveRules) {
-        _moveRules = moveRules;
-    }
+public class GameRules(IEnumerable<IMoveRule> moveRules) {
 
     public ChessGameState CalculateState(IChessGame gameState) {
-        var currentPlayerMoves = new MoveCalculator(gameState.CurrentBoard, _moveRules, gameState.CurrentPlayer);
-        var otherPlayerMoves = new MoveCalculator(gameState.CurrentBoard, _moveRules, gameState.CurrentPlayer);
+        var currentPlayerMoves = new MoveCalculator(gameState.CurrentBoard, moveRules, gameState.CurrentPlayer);
+        var otherPlayerMoves = new MoveCalculator(gameState.CurrentBoard, moveRules, gameState.CurrentPlayer);
         var kingSquare = currentPlayerMoves.GetKingSquare();
         var kingMoves = GetMoves(gameState.CurrentBoard, kingSquare.Name);
 
@@ -74,7 +68,7 @@ public class GameRules {
     }
     
         
-    public IEnumerable<ChessMove> GetMoves(IChessBoard chessBoard, SquareName from) => _moveRules
+    public IEnumerable<ChessMove> GetMoves(IChessBoard chessBoard, SquareName from) => moveRules
         .Where(movementRule => movementRule.IsApplicable(chessBoard, from))
         .SelectMany(movementRule => movementRule.GetCandidateMoves(chessBoard, from))
         .DistinctBy((m) => m.To.ToString());

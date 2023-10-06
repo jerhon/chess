@@ -1,9 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Honlsoft.Chess.Uci.Client\Honlsoft.Chess.Uci.Client.csproj" />
+      <ProjectReference Include="..\Honlsoft.Chess\Honlsoft.Chess.csproj" />
+    </ItemGroup>
 
 </Project>

@@ -3,11 +3,7 @@
 namespace Honlsoft.Chess; 
 
 public class ChessGameFactory {
-
-
-    public ChessGameFactory() {
-        
-    }
+    
 
     public ChessGame CreateGame(IChessBoard initialBoard) {
         return new ChessGame(initialBoard,
