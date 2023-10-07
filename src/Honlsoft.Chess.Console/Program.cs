@@ -38,7 +38,7 @@ while (playing) {
         lastMoveResult = game.MovePiece(from, to);
     } else {
         var move = await randomGameEngine.SuggestMoveAsync(CancellationToken.None);
-        var (engineSuccess, engineLastError) = game.MovePiece(move.From, move.To);
+        var engineError = game.MovePiece(move.From, move.To);
     }
 }
 
