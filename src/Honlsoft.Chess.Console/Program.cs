@@ -12,7 +12,6 @@ var randomGameEngine = new RandomEngine(game);
 
 
 // start playing
-var playing = true;
 MoveResult lastMoveResult = MoveResult.ValidMove;
 
 // The move loop, keep moving until the game is over
