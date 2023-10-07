@@ -29,11 +29,12 @@ while (playing) {
     
     if (game.CurrentPlayer == PieceColor.White) {
         var from = AnsiConsole.Console.AskPickAPiece();
-        var to = AnsiConsole.Console.AskMoveTo();
-        lastMoveResult = game.MovePiece(from, to);
+        var (to, promotionPiece) = AnsiConsole.Console.AskMoveTo();
+        lastMoveResult = game.MovePiece(from, to, promotionPiece);
     } else {
         var move = await randomGameEngine.SuggestMoveAsync(CancellationToken.None);
-        var engineError = game.MovePiece(move.From, move.To);
+        PieceType? promotionPiece = move.RequiresPromotion ? PieceType.Queen : null;
+        var engineError = game.MovePiece(move.From, move.To, promotionPiece);
     }
 }
 

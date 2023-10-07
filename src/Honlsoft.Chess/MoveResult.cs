@@ -6,4 +6,6 @@ public enum MoveResult {
     PieceWrongColor,
     InCheckMustMoveKing,
     NotALegalMove,
+    RequiresPromotion,
+    NotAValidPromotion,
 }

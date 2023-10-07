@@ -65,8 +65,15 @@ public class PawnMoveRule : IMoveRule {
         
         return squares.Select((to) => new ChessMove(from, to)
         {
-            EnPassantTarget = GetEnPassantTarget(from, to)
+            EnPassantTarget = GetEnPassantTarget(from, to),
+            RequiresPromotion = IsPromotionSquare(to, pieceColor)
         }).ToArray();
+    }
+
+
+    private bool IsPromotionSquare(SquareName squareName, PieceColor color) {
+        return (squareName.Rank == Rank.Rank1 && color == PieceColor.Black)
+               || (squareName.Rank == Rank.Rank8 && color == PieceColor.White);
     }
 
     private SquareName? GetEnPassantTarget(SquareName from, SquareName to) {

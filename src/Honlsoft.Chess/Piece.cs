@@ -50,8 +50,14 @@ public record Piece(PieceType Type, PieceColor Color) {
             throw new FormatException("String must have at least one character.");
         }
 
+        var pieceType = ParsePieceType(value);
+        var pieceColor = Char.IsUpper(value[0]) ? PieceColor.White : PieceColor.Black;
+
+        return new Piece(pieceType, pieceColor);
+    }
+
+    public static PieceType ParsePieceType(string value) {
         char pieceChar = value[0];
-        PieceColor pieceColor = Char.IsUpper(pieceChar) ? PieceColor.White : PieceColor.Black;
         pieceChar = Char.ToLower(pieceChar);
 
         var pieceType = pieceChar switch {
@@ -64,6 +70,6 @@ public record Piece(PieceType Type, PieceColor Color) {
             _ => throw new FormatException("Unrecognized piece type.")
         };
 
-        return new Piece(pieceType, pieceColor);
+        return pieceType;
     }
 }

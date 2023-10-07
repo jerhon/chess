@@ -25,9 +25,9 @@ public class ChessGame(IChessBoard initialChessBoard, GameRules rules) : IChessG
     /// <param name="from">The position to move from</param>
     /// <param name="to">The position to move to</param>
     /// <returns></returns>
-    public MoveResult MovePiece(SquareName from, SquareName to) {
+    public MoveResult MovePiece(SquareName from, SquareName to, PieceType? promotionPiece) {
         
-        var (validationResult, move) = rules.IsValidMove(this, from, to, null);
+        var (validationResult, move) = rules.IsValidMove(this, from, to, promotionPiece);
         if (move == null || validationResult != MoveResult.ValidMove) {
             return validationResult;
         }

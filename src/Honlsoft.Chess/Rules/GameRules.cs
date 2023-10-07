@@ -56,8 +56,7 @@ public class GameRules(IEnumerable<IMoveRule> moveRules) {
                 return (MoveResult.InCheckMustMoveKing, null);
             }
         }
-
-
+        
         var chessMove = GetMove(gameState.CurrentBoard, from, to);
         
         // If the move is invalid, don't allow it.
@@ -65,6 +64,13 @@ public class GameRules(IEnumerable<IMoveRule> moveRules) {
             return (MoveResult.NotALegalMove, null);
         }
 
+        if (chessMove.RequiresPromotion && promotionPiece == null) {
+            return (MoveResult.RequiresPromotion, null);
+        }
+        if (!chessMove.RequiresPromotion && promotionPiece != null) {
+            return (MoveResult.NotAValidPromotion, null);
+        }
+        
         return (MoveResult.ValidMove, null);
     }
     
