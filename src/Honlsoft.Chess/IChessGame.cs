@@ -5,4 +5,6 @@ public interface IChessGame {
     public PieceColor CurrentPlayer { get; }
     
     public IChessBoard CurrentBoard { get; }
+    
+    public ChessGameState GameState { get; }
 }

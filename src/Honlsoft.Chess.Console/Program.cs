@@ -5,10 +5,8 @@ using Honlsoft.Chess.Console;
 using Honlsoft.Chess.Engine;
 using Spectre.Console;
 
-var chessBoard = new ChessBoardBuilder().AddStandardGamePieces().Build();
 var gameFactory = new ChessGameFactory();
-var game = gameFactory.CreateGame(chessBoard);
-
+var game = gameFactory.CreateStandardGame();
 
 var randomGameEngine = new RandomEngine(game);
 

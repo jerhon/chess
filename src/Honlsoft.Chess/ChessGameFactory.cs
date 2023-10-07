@@ -4,10 +4,15 @@ namespace Honlsoft.Chess;
 
 public class ChessGameFactory {
     
-
-    public ChessGame CreateGame(IChessBoard initialBoard) {
-        return new ChessGame(initialBoard,
-            new GameRules(new IMoveRule[]
-                { new DiagonalMoveRule(), new EnPassantRule(), new FileAndRankMoveRule(), new KnightMoveRule(), new PawnMoveRule() }));
+    private GameRules CreateGameRules() {
+        return [ new DiagonalMoveRule(), new EnPassantRule(), new FileAndRankMoveRule(), new KnightMoveRule(), new PawnMoveRule() ];
+    }
+    
+    public ChessGame CreateStandardGame() {
+        return new ChessGame(ChessBoard.StandardGame, PieceColor.White, CreateGameRules());
+    }
+    
+    public ChessGame CreateGameFromPosition(IChessBoard initialBoard, PieceColor playerToMove) {
+        return new ChessGame(initialBoard, playerToMove, CreateGameRules());
     }
 }

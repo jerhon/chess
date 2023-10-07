@@ -4,11 +4,11 @@ namespace Honlsoft.Chess;
 
 public class GameRules(IEnumerable<IMoveRule> moveRules) {
 
-    public ChessGameState CalculateState(IChessGame gameState) {
-        var currentPlayerMoves = new MoveCalculator(gameState.CurrentBoard, moveRules, gameState.CurrentPlayer);
-        var otherPlayerMoves = new MoveCalculator(gameState.CurrentBoard, moveRules, gameState.CurrentPlayer);
+    public ChessGameState CalculateState(IChessBoard chessBoard, PieceColor playerToMove) {
+        var currentPlayerMoves = new MoveCalculator(chessBoard, moveRules, playerToMove);
+        var otherPlayerMoves = new MoveCalculator(chessBoard, moveRules, playerToMove);
         var kingSquare = currentPlayerMoves.GetKingSquare();
-        var kingMoves = GetMoves(gameState.CurrentBoard, kingSquare.Name);
+        var kingMoves = GetMoves(chessBoard, kingSquare.Name);
 
         if (IsKingInCheck(otherPlayerMoves, kingSquare)) {
             return CanKingMoveSafely(otherPlayerMoves, kingMoves)
@@ -16,7 +16,7 @@ public class GameRules(IEnumerable<IMoveRule> moveRules) {
                 : ChessGameState.Checkmate;
         }
 
-        return currentPlayerMoves.GetTotalMoves() == 0 ? ChessGameState.Stalemate : ChessGameState.Normal;
+        return currentPlayerMoves.GetTotalMoves() == 0 ? ChessGameState.Stalemate : ChessGameState.PlayerToMove;
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public class GameRules(IEnumerable<IMoveRule> moveRules) {
     /// <returns>A tuple with two elements. The first is a boolean indicating whether the move is valid or not. If the move is invalid, the second string element contains the reason for its invalidity. If the move is valid, this element will be null.</returns>
     public (MoveResult, ChessMove?) IsValidMove(IChessGame gameState, SquareName from, SquareName to, PieceType? promotionPiece) {
         
-        var gameResult = CalculateState(gameState);
+        var gameResult = CalculateState(gameState.CurrentBoard, gameState.CurrentPlayer);
         if (gameResult == ChessGameState.Checkmate || gameResult == ChessGameState.Stalemate) {
             return (MoveResult.GameOver, null);
         }
@@ -71,7 +71,7 @@ public class GameRules(IEnumerable<IMoveRule> moveRules) {
             return (MoveResult.NotAValidPromotion, null);
         }
         
-        return (MoveResult.ValidMove, null);
+        return (MoveResult.ValidMove, chessMove);
     }
     
         

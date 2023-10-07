@@ -4,5 +4,5 @@ public enum ChessGameState {
     Check,
     Checkmate,
     Stalemate,
-    Normal,
+    PlayerToMove,
 }

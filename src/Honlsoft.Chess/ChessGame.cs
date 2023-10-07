@@ -10,15 +10,35 @@ namespace Honlsoft.Chess;
 /// <summary>
 /// Engine for a standard chess game.
 /// </summary>
-public class ChessGame(IChessBoard initialChessBoard, GameRules rules) : IChessGame {
+public class ChessGame : IChessGame {
+    private readonly GameRules _rules;
 
     private readonly List<PlayerTurn> _gameMoves = new();
-    private readonly ChessBoardBuilder _chessBoard = new ChessBoardBuilder().FromBoard(initialChessBoard);
+    private readonly ChessBoardBuilder _chessBoard;
     
     public PieceColor CurrentPlayer { get; private set; } = PieceColor.White;
 
     public IChessBoard CurrentBoard => _chessBoard;
 
+    public ChessGameState GameState { get; private set; }
+
+
+    public ChessGame(IChessBoard initialChessBoard, PieceColor playerToMove,  GameRules rules) {
+        _rules = rules;
+
+        _chessBoard = new ChessBoardBuilder()
+            .FromBoard(initialChessBoard);
+
+        GameState = rules.CalculateState(initialChessBoard, playerToMove);
+
+        CurrentPlayer = playerToMove;
+
+    }
+
+    public ChessGame(GameRules gameRules) : this(ChessBoard.StandardGame, PieceColor.White, gameRules) {
+        
+    }
+    
     /// <summary>
     /// Trys to move a piece in the game.
     /// </summary>
@@ -27,7 +47,7 @@ public class ChessGame(IChessBoard initialChessBoard, GameRules rules) : IChessG
     /// <returns></returns>
     public MoveResult MovePiece(SquareName from, SquareName to, PieceType? promotionPiece) {
         
-        var (validationResult, move) = rules.IsValidMove(this, from, to, promotionPiece);
+        var (validationResult, move) = _rules.IsValidMove(this, from, to, promotionPiece);
         if (move == null || validationResult != MoveResult.ValidMove) {
             return validationResult;
         }
@@ -40,10 +60,16 @@ public class ChessGame(IChessBoard initialChessBoard, GameRules rules) : IChessG
         // Change the color
         CurrentPlayer = NextColor();
 
+        // Calculate the current state of the game
+        GameState = _rules.CalculateState(_chessBoard, CurrentPlayer);
         
         return validationResult;
     }
     
+    /// <summary>
+    /// Determines the next color to play.
+    /// </summary>
+    /// <returns>The next color to play.</returns>
     private PieceColor NextColor() {
         if (CurrentPlayer == PieceColor.Black) {
             return PieceColor.White;
@@ -52,5 +78,5 @@ public class ChessGame(IChessBoard initialChessBoard, GameRules rules) : IChessG
         }
     }
 
-    public SquareName[] GetCandidateMoves(SquareName squareName)  => rules.GetMoves(_chessBoard, squareName).Select((m) => m.To).ToArray();
+    public SquareName[] GetCandidateMoves(SquareName squareName)  => _rules.GetMoves(_chessBoard, squareName).Select((m) => m.To).ToArray();
 }
