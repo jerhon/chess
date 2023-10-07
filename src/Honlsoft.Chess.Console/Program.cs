@@ -20,22 +20,22 @@ var randomGameEngine = new RandomEngine(game);
 
 // start playing
 var playing = true;
-string lastError = string.Empty;
+MoveResult lastMoveResult = MoveResult.ValidMove;
 
 while (playing) {
     
     AnsiConsole.Console.Clear();
     var view = new ChessBoardView(game.CurrentBoard);
     AnsiConsole.Write(view);
-    if (!string.IsNullOrWhiteSpace(lastError)) {
-        AnsiConsole.Write(new Paragraph(lastError + "\n", new Style(Color.White, Color.DarkRed)));
+    if (lastMoveResult != MoveResult.ValidMove) {
+        AnsiConsole.Write(new Paragraph(lastMoveResult + "\n", new Style(Color.White, Color.DarkRed)));
     }
     AnsiConsole.WriteLine(game.CurrentPlayer + " to move.");
     
     if (game.CurrentPlayer == PieceColor.White) {
         var from = AnsiConsole.Console.AskPickAPiece();
         var to = AnsiConsole.Console.AskMoveTo();
-        (var success, lastError) = game.MovePiece(from, to);
+        lastMoveResult = game.MovePiece(from, to);
     } else {
         var move = await randomGameEngine.SuggestMoveAsync(CancellationToken.None);
         var (engineSuccess, engineLastError) = game.MovePiece(move.From, move.To);

@@ -25,12 +25,11 @@ public class ChessGame(IChessBoard initialChessBoard, GameRules rules) : IChessG
     /// <param name="from">The position to move from</param>
     /// <param name="to">The position to move to</param>
     /// <returns></returns>
-    public (bool ValidMove, string? Reason) MovePiece(SquareName from, SquareName to) {
+    public MoveResult MovePiece(SquareName from, SquareName to) {
         
-
-        var (move, reason) = rules.IsValidMove(this, from, to);
-        if (move == null) {
-            return (false, reason);
+        var (validationResult, move) = rules.IsValidMove(this, from, to, null);
+        if (move == null || validationResult != MoveResult.ValidMove) {
+            return validationResult;
         }
 
         _chessBoard.Move(move);
@@ -42,7 +41,7 @@ public class ChessGame(IChessBoard initialChessBoard, GameRules rules) : IChessG
         CurrentPlayer = NextColor();
 
         
-        return (true, null);
+        return validationResult;
     }
     
     private PieceColor NextColor() {
