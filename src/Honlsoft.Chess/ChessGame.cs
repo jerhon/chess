@@ -22,8 +22,8 @@ public class ChessGame(IChessBoard initialChessBoard, GameRules rules) : IChessG
     /// <summary>
     /// Trys to move a piece in the game.
     /// </summary>
-    /// <param name="from"></param>
-    /// <param name="to"></param>
+    /// <param name="from">The position to move from</param>
+    /// <param name="to">The position to move to</param>
     /// <returns></returns>
     public (bool ValidMove, string? Reason) MovePiece(SquareName from, SquareName to) {
         

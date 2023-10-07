@@ -2,6 +2,11 @@
 
 namespace Honlsoft.Chess.Engine; 
 
+
+
+/// <summary>
+/// Provides a chess engine.  It's assummed the engine is tied to an individual chess game and as such has access to the current game's state.
+/// </summary>
 public interface IChessEngine {
     
     /// <summary>
@@ -10,18 +15,13 @@ public interface IChessEngine {
     /// <param name="chessBoard">The chess board.</param>
     /// <param name="moves">The moves.</param>
     /// <returns></returns>
-    public Task StartGameAsync(IChessBoard chessBoard, ChessMove[] moves, CancellationToken cancellationToken);
-    
-    /// <summary>
-    /// Sends a new move 
-    /// </summary>
-    /// <param name="move">The move for the chess engine.</param>
-    /// <returns>A task that completes when the move has been sent.</returns>
-    public Task SendMoveAsync(ChessMove move, CancellationToken cancellationToken);
+    public Task StartGameAsync(CancellationToken cancellationToken);
     
     /// <summary>
     /// Suggests a move from the engine.
     /// </summary>
     /// <returns></returns>
     public Task<ChessMove> SuggestMoveAsync(CancellationToken cancellationToken);
+    
+    
 }

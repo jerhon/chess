@@ -5,35 +5,45 @@ using Honlsoft.Chess.Uci.Client;
 
 namespace Honlsoft.Chess.Uci.Engine;
 
-public class UciEngine : IChessEngine {
+/// <summary>
+/// Provides a chess engine backed by a UCI interface.
+/// </summary>
+public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
 
-    private UciClient _client;
-    
-    public UciEngine(UciClient client) {
-        _client = client;
+
+    /// <summary>
+    /// Runs initialization for the underlying chess engine.
+    /// </summary>
+    /// <returns></returns>
+    public async Task InitializeEngineAsync(CancellationToken cancellationToken) {
+        await client.UciAsync(cancellationToken);
+        await client.IsReadyAsync(cancellationToken);
     }
-
-
-    public async Task StartGameAsync(IChessBoard chessBoard, ChessMove[] moves, CancellationToken cancellationToken) {
+    
+    public async Task StartGameAsync(CancellationToken cancellationToken) {
 
         FenSerializer fenSerializer = new FenSerializer();
-        string fenString = fenSerializer.Serialize(chessBoard);
+        string fenString = fenSerializer.Serialize(chessGame.CurrentBoard);
 
-        await _client.UciNewGameAsync(cancellationToken);
-        await _client.SetFenPositionAsync(fenString, moves.Select((m) => m.ToString()).ToArray(), cancellationToken);
+        await client.UciNewGameAsync(cancellationToken);
+        await client.SetFenPositionAsync(fenString, [], cancellationToken);
     }
     
     public Task SendMoveAsync(ChessMove move, CancellationToken cancelToken) {
-        throw new NotImplementedException();
+        var uciMove = MapChessMoveToUciMove(move);
+        return client.SetMovePositionAsync([uciMove], cancelToken);
     }
     
     public async Task<ChessMove> SuggestMoveAsync(CancellationToken cancelToken) {
-        var bestMove = await _client.GoAsync(new GoParameters(), cancelToken);
+        // TODO: Need to send current position
+        
+        
+        var bestMove = await client.GoAsync(new GoParameters(), cancelToken);
 
         return MapUciMoveToChessMove(bestMove.Move);
     }
 
-    private ChessMove MapUciMoveToChessMove(string uciMove) {
+    public static ChessMove MapUciMoveToChessMove(string uciMove) {
         string firstPosition = uciMove.Substring(0, 2);
         string secondPosition = uciMove.Substring(2, 2);
         
@@ -41,5 +51,12 @@ public class UciEngine : IChessEngine {
         SquareName endingSquare = SquareName.Parse(secondPosition);
 
         return new ChessMove(startingSquare, endingSquare);
+    }
+
+    public static string MapChessMoveToUciMove(ChessMove chessMove) {
+        var from = chessMove.From.ToString();
+        var to = chessMove.To.ToString();
+
+        return "{from}{to}";
     }
 }

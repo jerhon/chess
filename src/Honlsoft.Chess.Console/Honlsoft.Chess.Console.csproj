@@ -19,6 +19,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Honlsoft.Chess.Uci.Client\Honlsoft.Chess.Uci.Client.csproj" />
+      <ProjectReference Include="..\Honlsoft.Chess.Uci.Engine\Honlsoft.Chess.Uci.Engine.csproj" />
       <ProjectReference Include="..\Honlsoft.Chess\Honlsoft.Chess.csproj" />
     </ItemGroup>
 

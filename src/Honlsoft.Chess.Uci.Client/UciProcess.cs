@@ -9,11 +9,11 @@ public class UciProcess(string executablePath) {
 
     public void Start() {
 
-        ProcessStartInfo startInfo = new ProcessStartInfo(executablePath) {
+        ProcessStartInfo startInfo = new ProcessStartInfo(executablePath); /* {
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             CreateNoWindow = true,
-        };
+        };*/
 
         _currentProcess = Process.Start(startInfo);
         
