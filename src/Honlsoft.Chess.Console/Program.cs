@@ -15,7 +15,8 @@ var randomGameEngine = new RandomEngine(game);
 var playing = true;
 MoveResult lastMoveResult = MoveResult.ValidMove;
 
-while (playing) {
+// The move loop, keep moving until the game is over
+while (game.GameState is ChessGameState.Check or ChessGameState.PlayerToMove) {
     
     AnsiConsole.Console.Clear();
     var view = new ChessBoardView(game.CurrentBoard);
@@ -36,3 +37,4 @@ while (playing) {
     }
 }
 
+AnsiConsole.WriteLine("Game is over... " + game.GameState);

@@ -5,7 +5,7 @@ namespace Honlsoft.Chess;
 public class ChessGameFactory {
     
     private GameRules CreateGameRules() {
-        return [ new DiagonalMoveRule(), new EnPassantRule(), new FileAndRankMoveRule(), new KnightMoveRule(), new PawnMoveRule() ];
+        return new GameRules( [ new DiagonalMoveRule(), new EnPassantRule(), new FileAndRankMoveRule(), new KnightMoveRule(), new PawnMoveRule() ] );
     }
     
     public ChessGame CreateStandardGame() {
