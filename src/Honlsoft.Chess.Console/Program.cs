@@ -3,12 +3,7 @@
 using Honlsoft.Chess;
 using Honlsoft.Chess.Console;
 using Honlsoft.Chess.Engine;
-using Honlsoft.Chess.Rules;
-using Honlsoft.Chess.Uci.Client;
-using Honlsoft.Chess.Uci.Engine;
 using Spectre.Console;
-using Spectre.Console.Rendering;
-using File = Honlsoft.Chess.File;
 
 var chessBoard = new ChessBoardBuilder().AddStandardGamePieces().Build();
 var gameFactory = new ChessGameFactory();
