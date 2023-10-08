@@ -1,10 +1,10 @@
 ﻿namespace Honlsoft.Chess.Tests; 
 
-public class FakeChessBoard : IChessBoard {
+public class FakeChessPosition : IChessPosition {
 
     private readonly IDictionary<string, Square> _squares = new Dictionary<string, Square>();
     
-    public FakeChessBoard AddPieces(params string[] squareNotations) 
+    public FakeChessPosition AddPieces(params string[] squareNotations) 
     {
         foreach (var squareNotation in squareNotations) {
             var square = Square.Parse(squareNotation);
@@ -22,4 +22,8 @@ public class FakeChessBoard : IChessBoard {
     }
     
     public SquareName? EnPassantTarget { get; set; }
+    
+    public bool CanCastle(PieceColor playerColor, CastlingSide castleSide) {
+        throw new NotImplementedException();
+    }
 }

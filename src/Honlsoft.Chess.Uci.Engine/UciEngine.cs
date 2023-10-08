@@ -23,18 +23,18 @@ public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
     public async Task StartGameAsync(CancellationToken cancellationToken) {
 
         FenSerializer fenSerializer = new FenSerializer();
-        string fenString = fenSerializer.Serialize(chessGame.CurrentBoard);
+        string fenString = fenSerializer.Serialize(chessGame.CurrentPosition);
 
         await client.UciNewGameAsync(cancellationToken);
         await client.SetFenPositionAsync(fenString, [], cancellationToken);
     }
     
-    public Task SendMoveAsync(ChessMove move, CancellationToken cancelToken) {
+    public Task SendMoveAsync(EngineSuggestion move, CancellationToken cancelToken) {
         var uciMove = MapChessMoveToUciMove(move);
         return client.SetMovePositionAsync([uciMove], cancelToken);
     }
     
-    public async Task<ChessMove> SuggestMoveAsync(CancellationToken cancelToken) {
+    public async Task<EngineSuggestion> SuggestMoveAsync(CancellationToken cancelToken) {
         // TODO: Need to send current position
         
         
@@ -43,17 +43,17 @@ public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
         return MapUciMoveToChessMove(bestMove.Move);
     }
 
-    public static ChessMove MapUciMoveToChessMove(string uciMove) {
+    public static EngineSuggestion MapUciMoveToChessMove(string uciMove) {
         string firstPosition = uciMove.Substring(0, 2);
         string secondPosition = uciMove.Substring(2, 2);
         
         SquareName startingSquare = SquareName.Parse(firstPosition);
         SquareName endingSquare = SquareName.Parse(secondPosition);
 
-        return new ChessMove(startingSquare, endingSquare);
+        return new EngineSuggestion(startingSquare, endingSquare);
     }
 
-    public static string MapChessMoveToUciMove(ChessMove chessMove) {
+    public static string MapChessMoveToUciMove(EngineSuggestion chessMove) {
         var from = chessMove.From.ToString();
         var to = chessMove.To.ToString();
 

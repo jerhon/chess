@@ -4,12 +4,12 @@ namespace Honlsoft.Chess.Serialization;
 
 public class FenSerializer {
     
-    public string Serialize(IChessBoard chessBoard) {
+    public string Serialize(IChessPosition chessPosition) {
         StringBuilder builder = new StringBuilder();
         foreach (var rank in Rank.Rank1.ToEnd(true).Reverse()) {
             int emptySpaces = 0;
             foreach (var file in File.a.ToEnd(true)) {
-                var square = chessBoard.GetSquare(new SquareName(file, rank));
+                var square = chessPosition.GetSquare(new SquareName(file, rank));
                 if (square.Piece != null) {
                     if (emptySpaces > 0) {
                         builder.Append(emptySpaces.ToString());
@@ -27,5 +27,15 @@ public class FenSerializer {
         }
         builder.Length -= 1;
         return builder.ToString();
+    }
+    
+    public string Serialize(IChessGame chessGame) {
+        var positions = Serialize(chessGame);
+
+        var moveTurn = chessGame.CurrentPlayer == PieceColor.Black ? "b" : "w";
+        
+
+        return $"{positions} {moveTurn}";
+
     }
 }

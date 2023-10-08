@@ -19,9 +19,9 @@ public class RandomEngine(ChessGame chessGame) : IChessEngine {
         return Task.CompletedTask;
     }
     
-    public Task<ChessMove> SuggestMoveAsync(CancellationToken cancellationToken) {
+    public Task<EngineSuggestion> SuggestMoveAsync(CancellationToken cancellationToken) {
 
-        var chessBoard = chessGame.CurrentBoard;
+        var chessBoard = chessGame.CurrentPosition;
         var currentPlayer = chessGame.CurrentPlayer;
         
         
@@ -37,6 +37,6 @@ public class RandomEngine(ChessGame chessGame) : IChessEngine {
         // Get a random square
         var move = Random.Shared.GetItems(allCandidateMoves, 1)[0];
 
-        return Task.FromResult(new ChessMove(move.From.Name, move.To));
+        return Task.FromResult(new EngineSuggestion(move.From.Name, move.To));
     }
 }

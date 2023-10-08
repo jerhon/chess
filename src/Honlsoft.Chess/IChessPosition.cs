@@ -1,6 +1,6 @@
 ﻿namespace Honlsoft.Chess; 
 
-public interface IChessBoard {
+public interface IChessPosition {
      
      /// <summary>
      /// Retrieves a square from the chess baard.
@@ -13,4 +13,13 @@ public interface IChessBoard {
      /// The square a pawn has moved over in the last move. 
      /// </summary>
      SquareName? EnPassantTarget { get; }
+
+
+     /// <summary>
+     /// Returns whether a player still has castling rights.
+     /// </summary>
+     /// <param name="playerColor">The player color.</param>
+     /// <param name="castleSide">The castling side.</param>
+     /// <returns></returns>
+     bool CanCastle(PieceColor playerColor, CastlingSide castleSide);
 }

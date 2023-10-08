@@ -5,11 +5,11 @@ namespace Honlsoft.Chess.Console;
 
 public class ChessBoardView : Renderable {
 
-    private readonly IChessBoard _chessBoard;
+    private readonly IChessPosition _chessPosition;
     
 
-    public ChessBoardView(IChessBoard chessBoard) {
-        _chessBoard = chessBoard;
+    public ChessBoardView(IChessPosition chessPosition) {
+        _chessPosition = chessPosition;
     }
 
 
@@ -22,7 +22,7 @@ public class ChessBoardView : Renderable {
             
             lines.Add(new Segment(rank + " "));
             foreach (var file in File.AllFiles) {
-                var square = _chessBoard.GetSquare(new SquareName(file, rank));
+                var square = _chessPosition.GetSquare(new SquareName(file, rank));
                 var style = MapStyle( square );
                 lines.Add(new Segment(GetPieceString(square.Piece), style));
             }

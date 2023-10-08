@@ -5,31 +5,36 @@ namespace Honlsoft.Chess;
 /// <summary>
 /// Builds a chess board with pieces on it.
 /// </summary>
-public class ChessBoardBuilder : IChessBoard {
+public class ChessPositionBuilder : IChessPosition {
 
     private readonly Dictionary<SquareName, Square> _squares = new();
+    private readonly HashSet<(PieceColor, CastlingSide)> _castlingRights = [];
     
     public SquareName? EnPassantTarget { get; private set; }
+    public bool CanCastle(PieceColor playerColor, CastlingSide castleSide) {
 
-    public ChessBoardBuilder WithSquare(Square square) {
+        return _castlingRights.Contains((playerColor, castleSide));
+    }
+
+    public ChessPositionBuilder WithSquare(Square square) {
         _squares[square.Name] = square;
         return this;
     } 
 
-    public ChessBoardBuilder WithSquare(SquareName squareName, PieceType type, PieceColor color) {
+    public ChessPositionBuilder WithSquare(SquareName squareName, PieceType type, PieceColor color) {
         var square = new Square(squareName, new Piece(type, color));
         return WithSquare(square);
     }
 
-    public ChessBoardBuilder WithSquare(string pieceAndSquareNotation) {
+    public ChessPositionBuilder WithSquare(string pieceAndSquareNotation) {
         var square = Square.Parse(pieceAndSquareNotation);
         return WithSquare(square);
     }
 
-    public ChessBoardBuilder FromBoard(IChessBoard chessBoard) {
-        this.EnPassantTarget = chessBoard.EnPassantTarget;
+    public ChessPositionBuilder FromBoard(IChessPosition chessPosition) {
+        this.EnPassantTarget = chessPosition.EnPassantTarget;
         foreach (var squareName in SquareName.AllSquares()) {
-            var square = chessBoard.GetSquare(squareName);
+            var square = chessPosition.GetSquare(squareName);
             if (square.HasPiece) {
                 WithSquare(square);
             }
@@ -38,12 +43,12 @@ public class ChessBoardBuilder : IChessBoard {
     }
 
     /// <summary>
-    /// Moves the piece on one square to another.
+    /// Moves the piece on one square to another.  Does not take any other rules into account.
     /// </summary>
     /// <param name="from">from</param>
     /// <param name="to">to</param>
     /// <returns></returns>
-    public ChessBoardBuilder Move(SquareName from, SquareName to) {
+    public ChessPositionBuilder Move(SquareName from, SquareName to) {
         // Move the piece off the square... there is nothing there anymore
         if (_squares.ContainsKey(from)) {
             var fromSquare = _squares[from];
@@ -55,29 +60,51 @@ public class ChessBoardBuilder : IChessBoard {
         return this;
     }
 
-    public ChessBoardBuilder Move(ChessMove move) {
-        Move(move.From, move.To);
-        if (move.EnPassantCapture != null) {
-            RemovePiece(move.EnPassantCapture);
-        }
-        WithEnPassantTarget(move.EnPassantTarget);
+    public ChessPositionBuilder Move(IChessMove move) {
+        move.ApplyMove(this);
+
         return this;
     }
 
-    public ChessBoardBuilder RemovePiece(SquareName squareName) {
+    public ChessPositionBuilder RemovePiece(SquareName squareName) {
         if (this._squares.ContainsKey(squareName)) {
             this._squares.Remove(squareName);
         }
         return this;
     }
 
-    public ChessBoardBuilder WithEnPassantTarget(SquareName? squareName) {
+    public ChessPositionBuilder WithEnPassantTarget(SquareName? squareName) {
         EnPassantTarget = squareName;
         return this;
     }
+
+    public ChessPositionBuilder WithCastlingRights(PieceColor pieceColor, CastlingSide side, bool canCastle) {
+
+        if (canCastle) {
+            _castlingRights.Add((pieceColor, side));
+        } else {
+            _castlingRights.Remove((pieceColor, side));
+        }
+
+        return this;
+    }
     
-    public ChessBoard Build() {
-        return new ChessBoard(_squares.Values.ToArray()) {  };
+    public IChessPosition Build() {
+        HashSet<(PieceColor, CastlingSide)> castling = new();
+        
+        var chessPositionBuilder = new ChessPositionBuilder() {
+            EnPassantTarget = EnPassantTarget,
+        };
+        
+        foreach (var castle in _castlingRights) {
+            chessPositionBuilder.WithCastlingRights(castle.Item1, castle.Item2, true);
+        }
+
+        foreach (var square in _squares) {
+            chessPositionBuilder.WithSquare(square.Value);
+        }
+
+        return chessPositionBuilder;
     }
     public Square GetSquare(SquareName squareName) {
         if (_squares.TryGetValue(squareName, out var square)) {
@@ -91,7 +118,7 @@ public class ChessBoardBuilder : IChessBoard {
     /// Creates a new game with the chess pieces in their standard positions.
     /// </summary>
     /// <returns></returns>
-    public ChessBoardBuilder AddStandardGamePieces() {
+    public ChessPositionBuilder AddStandardGamePieces() {
         foreach (var position in SquareName.AllSquares()) {
             var color = GetInitialColor(position);
             var piece = GetInitialPieceType(position);
@@ -102,7 +129,16 @@ public class ChessBoardBuilder : IChessBoard {
         }
         return this;
     }
-    
+
+
+    public ChessPositionBuilder AddAllCastling() {
+        WithCastlingRights(PieceColor.Black, CastlingSide.Kingside, true);
+        WithCastlingRights(PieceColor.Black, CastlingSide.Queenside, true);
+        WithCastlingRights(PieceColor.White, CastlingSide.Kingside, true);
+        WithCastlingRights(PieceColor.White, CastlingSide.Queenside, true);
+
+        return this;
+    }
     
     private static PieceType? GetInitialPieceType(SquareName position) =>
         (position.File.Name, position.Rank.Number) switch {
@@ -121,4 +157,7 @@ public class ChessBoardBuilder : IChessBoard {
             7 or 8 => PieceColor.Black,
             _ => null
         };
+
+
+    public static IChessPosition StandardGame = new ChessPositionBuilder().AddStandardGamePieces().AddAllCastling().Build();
 }

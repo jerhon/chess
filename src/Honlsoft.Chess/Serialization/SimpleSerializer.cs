@@ -10,11 +10,11 @@ public class SimpleSerializer {
 
     public char DividerCharacter { get; } = ':';
     
-    public string Serialize(ChessBoard chessBoard) {
+    public string Serialize(IChessPosition chessPosition) {
         StringBuilder sb = new StringBuilder();
         foreach (var file in File.AllFiles) {
             foreach (var rank in Rank.AllRanks) {
-                var square = chessBoard.GetSquare(new SquareName(file, rank));
+                var square = chessPosition.GetSquare(new SquareName(file, rank));
                 if (square?.Piece != null) {
                     sb.Append(square.Piece);
                     sb.Append(square.Name);
@@ -28,8 +28,8 @@ public class SimpleSerializer {
         return sb.ToString();
     }
 
-    public ChessBoard Deserialize(string serializedChessBoard) {
-        var chessBoardBuilder = new ChessBoardBuilder();
+    public IChessPosition Deserialize(string serializedChessBoard) {
+        var chessBoardBuilder = new ChessPositionBuilder();
         var squareStrings = serializedChessBoard.Split(DividerCharacter);
         foreach (var squareString in squareStrings) {
             var square = Square.Parse(squareString);

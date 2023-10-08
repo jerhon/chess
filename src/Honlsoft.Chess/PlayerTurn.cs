@@ -2,4 +2,4 @@
 
 namespace Honlsoft.Chess;
 
-public record PlayerTurn(IChessBoard AfterState, ChessMove Move, PieceColor Player);
+public record PlayerTurn(IChessPosition AfterState, IChessMove Move, PieceColor Player);

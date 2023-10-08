@@ -72,4 +72,8 @@ public record Piece(PieceType Type, PieceColor Color) {
 
         return pieceType;
     }
+
+    public static PieceColor GetOppositeColor(PieceColor color) {
+        return color == PieceColor.White ? PieceColor.Black : PieceColor.White;
+    }
 }

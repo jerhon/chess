@@ -21,7 +21,7 @@ public interface IChessEngine {
     /// Suggests a move from the engine.
     /// </summary>
     /// <returns></returns>
-    public Task<ChessMove> SuggestMoveAsync(CancellationToken cancellationToken);
+    public Task<EngineSuggestion> SuggestMoveAsync(CancellationToken cancellationToken);
     
     
 }

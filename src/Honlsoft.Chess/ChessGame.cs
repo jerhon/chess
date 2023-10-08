@@ -14,30 +14,29 @@ public class ChessGame : IChessGame {
     private readonly GameRules _rules;
 
     private readonly List<PlayerTurn> _gameMoves = new();
-    private readonly ChessBoardBuilder _chessBoard;
+    private readonly ChessPositionBuilder _chessPosition;
     
     public PieceColor CurrentPlayer { get; private set; } = PieceColor.White;
 
-    public IChessBoard CurrentBoard => _chessBoard;
+    public IChessPosition CurrentPosition => _chessPosition;
+    
+    public SquareName? EnPassantTarget { get; private set; }
 
     public ChessGameState GameState { get; private set; }
 
 
-    public ChessGame(IChessBoard initialChessBoard, PieceColor playerToMove,  GameRules rules) {
+    public ChessGame(IChessPosition initialChessPosition, PieceColor playerToMove,  GameRules rules) {
         _rules = rules;
 
-        _chessBoard = new ChessBoardBuilder()
-            .FromBoard(initialChessBoard);
-
-        GameState = rules.CalculateState(initialChessBoard, playerToMove);
-
-        CurrentPlayer = playerToMove;
-
-    }
-
-    public ChessGame(GameRules gameRules) : this(ChessBoard.StandardGame, PieceColor.White, gameRules) {
+        _chessPosition = new ChessPositionBuilder()
+            .FromBoard(initialChessPosition);
         
+        GameState = rules.CalculateState(initialChessPosition, playerToMove);
+        
+        CurrentPlayer = playerToMove;
     }
+
+    public ChessGame(GameRules gameRules) : this(ChessPositionBuilder.StandardGame, PieceColor.White, gameRules) { }
     
     /// <summary>
     /// Trys to move a piece in the game.
@@ -45,23 +44,22 @@ public class ChessGame : IChessGame {
     /// <param name="from">The position to move from</param>
     /// <param name="to">The position to move to</param>
     /// <returns></returns>
-    public MoveResult MovePiece(SquareName from, SquareName to, PieceType? promotionPiece) {
+    public MoveResult MovePiece(SquareName from, SquareName to, PieceType? promitionPiece) {
         
-        var (validationResult, move) = _rules.IsValidMove(this, from, to, promotionPiece);
+        var (validationResult, move) = _rules.IsValidMove(this, from, to, promitionPiece);
         if (move == null || validationResult != MoveResult.ValidMove) {
             return validationResult;
         }
-
-        _chessBoard.Move(move);
         
-        _gameMoves.Add(new PlayerTurn(_chessBoard.Build(), move, CurrentPlayer));
+        _chessPosition.Move(move);
         
+        _gameMoves.Add(new PlayerTurn(_chessPosition.Build(), move, CurrentPlayer));
         
         // Change the color
         CurrentPlayer = NextColor();
 
         // Calculate the current state of the game
-        GameState = _rules.CalculateState(_chessBoard, CurrentPlayer);
+        GameState = _rules.CalculateState(_chessPosition, CurrentPlayer);
         
         return validationResult;
     }
@@ -78,5 +76,5 @@ public class ChessGame : IChessGame {
         }
     }
 
-    public SquareName[] GetCandidateMoves(SquareName squareName)  => _rules.GetMoves(_chessBoard, squareName).Select((m) => m.To).ToArray();
+    public SquareName[] GetCandidateMoves(SquareName squareName)  => _rules.GetMoves(_chessPosition, squareName).Select((m) => m.To).ToArray();
 }

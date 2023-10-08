@@ -21,4 +21,5 @@ public record Square(SquareName Name, Piece? Piece) {
         
         throw new FormatException("Must be an piece abbreviation followed by the square's algebraic notation.  An example is Pd4.");
     }
+
 }

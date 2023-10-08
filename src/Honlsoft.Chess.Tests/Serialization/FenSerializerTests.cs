@@ -8,7 +8,7 @@ public class FenSerializerTests {
     [Fact]
     public void FenSerializer_ChessBoardStandardGame() {
         FenSerializer serialzer = new FenSerializer();
-        string standardFen = serialzer.Serialize(ChessBoard.StandardGame);
+        string standardFen = serialzer.Serialize(ChessPositionBuilder.StandardGame);
 
         Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", standardFen);
     }
@@ -17,11 +17,11 @@ public class FenSerializerTests {
     public void FenSerializer_ChessBoard_WithGaps() {
         var squareName = SquareName.Parse("g8");
         
-        ChessBoard chessBoard = new ChessBoard();
-        chessBoard.RemovePiece(squareName);
+        ChessPositionBuilder chessPosition = new ChessPositionBuilder();
+        chessPosition.RemovePiece(squareName);
         
         FenSerializer serializer = new();
-        string actual = serializer.Serialize(chessBoard);
+        string actual = serializer.Serialize(chessPosition);
     }
     
 }

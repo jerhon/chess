@@ -8,28 +8,28 @@ public class PawnMoveRule : IMoveRule {
     /// <summary>
     /// Checks if a piece is valid on a chess board for a square.
     /// </summary>
-    /// <param name="chessBoard">The chess board.</param>
+    /// <param name="chessPosition">The chess board.</param>
     /// <param name="from">The piece where the chess board is from.</param>
     /// <returns>True if the piece is valid for the move.</returns>
-    public bool IsApplicable(IChessBoard chessBoard, SquareName from) {
-        var square = chessBoard.GetSquare(from);
+    public bool IsApplicable(IChessPosition chessPosition, SquareName from) {
+        var square = chessPosition.GetSquare(from);
         return square is { Piece: { Type: PieceType.Pawn } };
     }
     
     /// <summary>
     /// Returns possible moves for a pawn at the given position on the board.
     /// </summary>
-    /// <param name="chessBoard"></param>
+    /// <param name="chessPosition"></param>
     /// <param name="from"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public ChessMove[] GetCandidateMoves(IChessBoard chessBoard, SquareName from) {
-        if (!IsApplicable(chessBoard, from)) {
-            return Array.Empty<ChessMove>();
+    public IChessMove[] GetCandidateMoves(IChessPosition chessPosition, SquareName from) {
+        if (!IsApplicable(chessPosition, from)) {
+            return [];
         }
 
         List<SquareName> squares = new List<SquareName>();
-        var square = chessBoard.GetSquare(from);
+        var square = chessPosition.GetSquare(from);
         var pieceColor = square!.Piece!.Color;
         bool startingRank = IsInStartingPosition(square);
         int direction = square.Piece.Color == PieceColor.Black ? -1 : 1;
@@ -40,7 +40,7 @@ public class PawnMoveRule : IMoveRule {
             if (newSquareName == null) {
                 break;
             }
-            var newSquare = chessBoard.GetSquare(newSquareName);
+            var newSquare = chessPosition.GetSquare(newSquareName);
             if (newSquare.HasPiece) {
                 break;
             }
@@ -49,7 +49,7 @@ public class PawnMoveRule : IMoveRule {
         
         var leftCapture = from.Add(-1, direction);
         if (leftCapture != null) {
-            var leftSquare = chessBoard.GetSquare(leftCapture);
+            var leftSquare = chessPosition.GetSquare(leftCapture);
             if (leftSquare?.Piece?.IsOpponent(pieceColor) ?? false) {
                 squares.Add(leftCapture);
             }
@@ -57,17 +57,13 @@ public class PawnMoveRule : IMoveRule {
 
         var rightCapture = from.Add(1, direction);
         if (rightCapture != null) {
-            var rightSquare = chessBoard.GetSquare(rightCapture);
+            var rightSquare = chessPosition.GetSquare(rightCapture);
             if (rightSquare?.Piece?.IsOpponent(pieceColor) ?? false) {
                 squares.Add(rightCapture);
             }
         }
         
-        return squares.Select((to) => new ChessMove(from, to)
-        {
-            EnPassantTarget = GetEnPassantTarget(from, to),
-            RequiresPromotion = IsPromotionSquare(to, pieceColor)
-        }).ToArray();
+        return squares.Select((to) => new SimpleMove(from, to)).ToArray();
     }
 
 

@@ -2,24 +2,24 @@
 
 public class KnightMoveRule : IMoveRule {
 
-    public bool IsApplicable(IChessBoard chessBoard, SquareName from) {
-        var square = chessBoard.GetSquare(from);
+    public bool IsApplicable(IChessPosition chessPosition, SquareName from) {
+        var square = chessPosition.GetSquare(from);
         return square is { Piece: { Type: PieceType.Knight } };
     }
-    public ChessMove[] GetCandidateMoves(IChessBoard chessBoard, SquareName from) {
+    public IChessMove[] GetCandidateMoves(IChessPosition chessPosition, SquareName from) {
 
-        if (chessBoard == null) {
-            throw new ArgumentNullException(nameof(chessBoard));
+        if (chessPosition == null) {
+            throw new ArgumentNullException(nameof(chessPosition));
         }
         if (from == null) {
             throw new ArgumentNullException(nameof(from));
         }
 
-        if (!IsApplicable(chessBoard, from)) {
-            return Array.Empty<ChessMove>();
+        if (!IsApplicable(chessPosition, from)) {
+            return [];
         }
 
-        var square = chessBoard.GetSquare(from);
+        var square = chessPosition.GetSquare(from);
 
         var possibleSquares = new[] {
             from.Add(2, 1),
@@ -31,16 +31,18 @@ public class KnightMoveRule : IMoveRule {
             from.Add(1, -2),
             from.Add(-1, -2)
         };
+        
+        // Need to check for threats...
 
-        var squares = possibleSquares.Where((squareName) => CanMove(chessBoard, squareName, square!.Piece!.Color));
-        return squares.Where((s) => s != null).Select((s) => new ChessMove(from, s)).ToArray()!;
+        var squares = possibleSquares.Where((squareName) => CanMove(chessPosition, squareName, square!.Piece!.Color));
+        return squares.Where((s) => s != null).Select((s) => new SimpleMove(from, s)).ToArray()!;
     }
 
-    private bool CanMove(IChessBoard chessBoard, SquareName? squareName, PieceColor color) {
+    private bool CanMove(IChessPosition chessPosition, SquareName? squareName, PieceColor color) {
         if (squareName == null) {
             return false;
         }
-        var square = chessBoard.GetSquare(squareName);
+        var square = chessPosition.GetSquare(squareName);
         return square.Piece == null || (square?.Piece?.IsOpponent(color) ?? false);
     }
     

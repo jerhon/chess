@@ -6,7 +6,7 @@ public class ChessBoardBuilderTests {
     [Fact]
     public void WithSquare_AddsSquare_BuildsChessBoard() {
 
-        var chessBoardBuilder = new ChessBoardBuilder();
+        var chessBoardBuilder = new ChessPositionBuilder();
 
         chessBoardBuilder
             .WithSquare("Pb4")

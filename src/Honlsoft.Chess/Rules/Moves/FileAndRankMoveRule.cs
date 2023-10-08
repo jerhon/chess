@@ -5,8 +5,8 @@
 /// </summary>
 public class FileAndRankMoveRule : IMoveRule {
 
-    public bool IsApplicable(IChessBoard chessBoard, SquareName from) {
-        var square = chessBoard.GetSquare(from);
+    public bool IsApplicable(IChessPosition chessPosition, SquareName from) {
+        var square = chessPosition.GetSquare(from);
 
         // Both bishops and rooks can move over ranks and files.
         return square is {
@@ -16,15 +16,15 @@ public class FileAndRankMoveRule : IMoveRule {
         };
     }
     
-    public ChessMove[] GetCandidateMoves(IChessBoard chessBoard, SquareName from) {
+    public IChessMove[] GetCandidateMoves(IChessPosition chessPosition, SquareName from) {
 
         List<SquareName> squares = new List<SquareName>();
 
-        if (!IsApplicable(chessBoard, from)) {
-            return Array.Empty<ChessMove>();
+        if (!IsApplicable(chessPosition, from)) {
+            return [];
         }
 
-        var originalSquare = chessBoard.GetSquare(from);
+        var originalSquare = chessPosition.GetSquare(from);
         
         
         var leftSquares = from.Rank.ToStart().Select((rank) => new SquareName(from.File, rank));
@@ -35,7 +35,7 @@ public class FileAndRankMoveRule : IMoveRule {
         
         foreach (var squareEnum in new [] { leftSquares, rightSquares, topSquares, bottomSquares }) {
             foreach (var square in squareEnum) {
-                var (cont, add) = CheckSquare(chessBoard, originalSquare!.Piece!.Color, square);
+                var (cont, add) = CheckSquare(chessPosition, originalSquare!.Piece!.Color, square);
                 if (add) {
                     squares.Add(square);
                 }
@@ -45,14 +45,14 @@ public class FileAndRankMoveRule : IMoveRule {
             }
         }
 
-        return squares.Select((s) => new ChessMove(from, s)).ToArray();
+        return squares.Select((s) => new SimpleMove(from, s)).ToArray();
     }
     
     
 
-    private (bool Continue, bool Add) CheckSquare(IChessBoard chessBoard, PieceColor currentColor, SquareName candidateSquareName) {
+    private (bool Continue, bool Add) CheckSquare(IChessPosition chessPosition, PieceColor currentColor, SquareName candidateSquareName) {
         
-        var candidateSquare = chessBoard.GetSquare(candidateSquareName);
+        var candidateSquare = chessPosition.GetSquare(candidateSquareName);
         if (candidateSquare?.Piece == null) {
             return (true, true);
         } else {

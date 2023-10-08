@@ -12,9 +12,9 @@ public class RuleTest {
         
         var actualMoves = rule.GetCandidateMoves(chessBoard, SquareName.Parse(fromSquareName));
 
-        ChessMove[] expectedMovesArray = Array.Empty<ChessMove>();
+        SimpleMove[] expectedMovesArray = [];
         if (!string.IsNullOrEmpty(candateToSquareNames)) {
-            expectedMovesArray = candateToSquareNames.Split(":").Select((m) => new ChessMove(SquareName.Parse(fromSquareName), SquareName.Parse(m))).ToArray();
+            expectedMovesArray = candateToSquareNames.Split(":").Select((m) => new SimpleMove(SquareName.Parse(fromSquareName), SquareName.Parse(m))).ToArray();
         }
         
         Assert.Equal(expectedMovesArray.Length, actualMoves.Length);

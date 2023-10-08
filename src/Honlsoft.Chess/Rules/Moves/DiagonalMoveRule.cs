@@ -8,20 +8,20 @@ public class DiagonalMoveRule : IMoveRule {
     /// <summary>
     /// Only bishops and queens move diagonally.
     /// </summary>
-    /// <param name="chessBoard"></param>
+    /// <param name="chessPosition"></param>
     /// <param name="from"></param>
     /// <returns></returns>
-    public bool IsApplicable(IChessBoard chessBoard, SquareName from) {
-        var square = chessBoard.GetSquare(from);
+    public bool IsApplicable(IChessPosition chessPosition, SquareName from) {
+        var square = chessPosition.GetSquare(from);
         return square is { Piece: { Type: PieceType.Bishop or PieceType.Queen } };
     }
     
-    public ChessMove[] GetCandidateMoves(IChessBoard chessBoard, SquareName from) {
+    public IChessMove[] GetCandidateMoves(IChessPosition chessPosition, SquareName from) {
         List<SquareName> squares = new List<SquareName>();
 
-        var originalSquare = chessBoard.GetSquare(from);
-        if (!IsApplicable(chessBoard, from)) {
-            return Array.Empty<ChessMove>();
+        var originalSquare = chessPosition.GetSquare(from);
+        if (!IsApplicable(chessPosition, from)) {
+            return [];
         }
 
         var topRightSquares = EnumerateDiagonal(from, 1, 1);
@@ -31,7 +31,7 @@ public class DiagonalMoveRule : IMoveRule {
         
         foreach (var squareEnum in new [] { topRightSquares, topLeftSquares, bottomLeftSquares, bottomRightSquares }) {
             foreach (var square in squareEnum) {
-                var (cont, add) = CheckSquare(chessBoard, originalSquare.Piece.Color, square);
+                var (cont, add) = CheckSquare(chessPosition, originalSquare.Piece.Color, square);
                 if (add) {
                     squares.Add(square);
                 }
@@ -41,7 +41,7 @@ public class DiagonalMoveRule : IMoveRule {
             }
         }
 
-        return squares.Select((s) => new ChessMove(from, s)).ToArray();
+        return squares.Select((s) => new SimpleMove(from, s)).ToArray();
     }
 
 
@@ -63,9 +63,9 @@ public class DiagonalMoveRule : IMoveRule {
     }
     
     
-    private (bool Continue, bool Add) CheckSquare(IChessBoard chessBoard, PieceColor currentColor, SquareName candidateSquareName) {
+    private (bool Continue, bool Add) CheckSquare(IChessPosition chessPosition, PieceColor currentColor, SquareName candidateSquareName) {
         
-        var candidateSquare = chessBoard.GetSquare(candidateSquareName);
+        var candidateSquare = chessPosition.GetSquare(candidateSquareName);
         if (candidateSquare?.Piece == null) {
             return (true, true);
         } else {

@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.CommandLine;
 using Honlsoft.Chess;
 using Honlsoft.Chess.Console;
 using Honlsoft.Chess.Engine;
@@ -10,7 +11,6 @@ var game = gameFactory.CreateStandardGame();
 
 var randomGameEngine = new RandomEngine(game);
 
-
 // start playing
 MoveResult lastMoveResult = MoveResult.ValidMove;
 
@@ -18,7 +18,7 @@ MoveResult lastMoveResult = MoveResult.ValidMove;
 while (game.GameState is ChessGameState.Check or ChessGameState.PlayerToMove) {
     
     AnsiConsole.Console.Clear();
-    var view = new ChessBoardView(game.CurrentBoard);
+    var view = new ChessBoardView(game.CurrentPosition);
     AnsiConsole.Write(view);
     if (lastMoveResult != MoveResult.ValidMove) {
         AnsiConsole.Write(new Paragraph(lastMoveResult + "\n", new Style(Color.White, Color.DarkRed)));
@@ -31,8 +31,7 @@ while (game.GameState is ChessGameState.Check or ChessGameState.PlayerToMove) {
         lastMoveResult = game.MovePiece(from, to, promotionPiece);
     } else {
         var move = await randomGameEngine.SuggestMoveAsync(CancellationToken.None);
-        PieceType? promotionPiece = move.RequiresPromotion ? PieceType.Queen : null;
-        var engineError = game.MovePiece(move.From, move.To, promotionPiece);
+        var engineError = game.MovePiece(move.From, move.To, null);
     }
 }
 

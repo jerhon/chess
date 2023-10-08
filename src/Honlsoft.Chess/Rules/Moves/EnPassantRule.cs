@@ -2,33 +2,29 @@
 
 public class EnPassantRule : IMoveRule {
 
-    public bool IsApplicable(IChessBoard chessBoard, SquareName from) {
-        var currentSquare = chessBoard.GetSquare(from);
-        return currentSquare is { Piece: { Type: PieceType.Pawn } } && chessBoard.EnPassantTarget is not null;
+    public bool IsApplicable(IChessPosition chessPosition, SquareName from) {
+        var currentSquare = chessPosition.GetSquare(from);
+        return currentSquare is { Piece: { Type: PieceType.Pawn } } && chessPosition.EnPassantTarget is not null;
     }
     
-    public ChessMove[] GetCandidateMoves(IChessBoard chessBoard, SquareName from) {
+    public IChessMove[] GetCandidateMoves(IChessPosition chessPosition, SquareName from) {
 
-        if (!IsApplicable(chessBoard, from)) {
-            return Array.Empty<ChessMove>();
+        if (!IsApplicable(chessPosition, from)) {
+            return [];
         }
 
-        var currentSquare = chessBoard.GetSquare(from);
+        var currentSquare = chessPosition.GetSquare(from);
         var direction = currentSquare!.Piece!.Color == PieceColor.White ? 1 : -1;
 
-        if (currentSquare.Name.Add( 1, direction) == chessBoard.EnPassantTarget
-            || currentSquare.Name.Add(-1, direction) == chessBoard.EnPassantTarget) {
+        if (chessPosition.EnPassantTarget != null && (
+            currentSquare.Name.Add( 1, direction) == chessPosition.EnPassantTarget
+            || currentSquare.Name.Add(-1, direction) == chessPosition.EnPassantTarget)) {
 
-            var enPassantCapture = new SquareName(chessBoard.EnPassantTarget.File, from.Rank);
-            
-            return new[] {
-                new ChessMove(from, chessBoard!.EnPassantTarget)
-                {
-                    EnPassantCapture = enPassantCapture
-                }
-            };
+            return [
+                new SimpleMove(from, chessPosition!.EnPassantTarget)
+            ];
         }
 
-        return Array.Empty<ChessMove>();
+        return [];
     }
 }

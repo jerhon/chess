@@ -15,7 +15,7 @@ public class PawnMoveRuleTests {
 
     [Fact]
     public void GetPossibleMoves_InitialPositionSuccess() {
-        var chessBoard = new FakeChessBoard().AddPieces("Pb2");
+        var chessBoard = new FakeChessPosition().AddPieces("Pb2");
 
         var pawnMoveRule = new PawnMoveRule();
 
@@ -24,13 +24,13 @@ public class PawnMoveRuleTests {
         var from = SquareName.Parse("b2");
         candidateMoves.Should().BeEquivalentTo(new object[] {
             new { From = from, To = SquareName.Parse("b3") },
-            new { From = from, To = SquareName.Parse("b4"), EnPassantTarget = SquareName.Parse("b3") },
+            new { From = from, To = SquareName.Parse("b4") },
         });
     }
     
     [Fact]
     public void GetPossibleMoves_InitialPositionWithCaptures() {
-        var chessBoard = new FakeChessBoard().AddPieces("Pb2", "pa3", "pc3");
+        var chessBoard = new FakeChessPosition().AddPieces("Pb2", "pa3", "pc3");
 
         var pawnMoveRule = new PawnMoveRule();
 
@@ -39,7 +39,7 @@ public class PawnMoveRuleTests {
         var from = SquareName.Parse("b2");
         candidateMoves.Should().BeEquivalentTo(new object[] {
             new { From = from, To = SquareName.Parse("b3") },
-            new { From = from, To = SquareName.Parse("b4"), EnPassantTarget = SquareName.Parse("b3") },
+            new { From = from, To = SquareName.Parse("b4") },
             new { From = from, To = SquareName.Parse("a3") },
             new { From = from, To = SquareName.Parse("c3") },
         });
