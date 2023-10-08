@@ -17,7 +17,7 @@ public class PgnSerializerTests {
         get {
             TheoryData<string, PgnAttribute> data = new TheoryData<string, PgnAttribute>();
             data.Add("[Name \"William Riker\"]", new PgnAttribute("Name", "William Riker", string.Empty));
-            data.Add("[Starship  \t  \"Enterprise\\\"Class D\\\"\"", new PgnAttribute("Starship", "Enterprise \"Class D\"", string.Empty));
+            data.Add("[Starship  \t  \"Enterprise \\\"Class D\\\"\"]", new PgnAttribute("Starship", "Enterprise \"Class D\"", string.Empty));
             return data;
         }
     }

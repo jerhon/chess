@@ -119,8 +119,8 @@ public class PgnSerializer {
     private (int Line, int Offset) GetLineOffset(string pgnText, int index) {
         var line = pgnText.Take(index).Count((c) => c == '\n');
         int lastLineEnding = 0;
-        if (index >= 0) {
-            var tempLineEnding = pgnText.LastIndexOf('\n', index);
+        if (index > 0) {
+            var tempLineEnding = pgnText.LastIndexOf('\n', index - 1);
             if (tempLineEnding >= 0) {
                 lastLineEnding = tempLineEnding;
             }
