@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="Rules\States\" />
+    <Folder Include="Serialization\Pgn\" />
   </ItemGroup>
 
 </Project>
