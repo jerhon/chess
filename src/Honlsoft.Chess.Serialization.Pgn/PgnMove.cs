@@ -1,9 +1,10 @@
-﻿namespace Honlsoft.Chess.Serialization; 
+﻿using Honlsoft.Chess.Serialization.Pgn;
 
-public class PgnMove {
+namespace Honlsoft.Chess.Serialization; 
 
-    
-    
-    
-    
+/// <summary>
+/// Wraps a PGN move to indicate w
+/// </summary>
+public record PgnMovePart {
+
 }

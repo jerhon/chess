@@ -13,3 +13,4 @@ I'm focused on building out the domain model for the game.
 
 * [Stockfish Protocol Documentation](https://disservin.github.io/stockfish-docs/pages/Commands.html)
 * [UCI Documentation](https://backscattering.de/chess/uci/)
+* [PGN Documentation](http://www.saremba.de/chessgml/standards/pgn/pgn-complete.htm)
