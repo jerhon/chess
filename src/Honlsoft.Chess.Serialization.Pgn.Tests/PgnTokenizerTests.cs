@@ -16,6 +16,14 @@ public class PgnTokenizerTests {
         actualToken.Should().Be(expectedToken);
     }
 
+    [Fact]
+    public void ReadAllTokens_Success() {
+        PgnTokenizer tokenizer = new PgnTokenizer("[tag \"value\"]");
+        var tokens = tokenizer.ReadAllTokens();
+
+        tokens.Should().HaveCount(4);
+    }
+    
     public static TheoryData<string, Token> SimpleTokens {
         get {
             TheoryData<string, Token> data = new TheoryData<string, Token>() {
@@ -29,4 +37,6 @@ public class PgnTokenizerTests {
             return data;
         }
     }
+    
+    
 }

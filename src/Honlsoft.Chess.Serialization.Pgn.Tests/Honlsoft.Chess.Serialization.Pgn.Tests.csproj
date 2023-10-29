@@ -27,4 +27,8 @@
       <ProjectReference Include="..\Honlsoft.Chess.Serialization.Pgn\Honlsoft.Chess.Serialization.Pgn.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Samples\" />
+    </ItemGroup>
+
 </Project>

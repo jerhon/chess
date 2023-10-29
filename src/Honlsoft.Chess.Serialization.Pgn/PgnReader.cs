@@ -19,18 +19,18 @@ public class PgnReader(PgnTokenizer tokenizer) {
             ExpectToken(TokenType.RightSquareBracket, "Unable to parse an attribute. ");
 
             var comment = PeekToken();
-            if (TokenType.Comment == comment.Type) {
+            if (comment is { Type: TokenType.Comment }) {
                 Advance(1);
             }
             
-            return new PgnTag(name.Value, value.Value, comment.Value);
+            return new PgnTag(name.Value, value.Value, comment?.Value);
         }
 
         return null;
     }
 
 
-    public PgnMovePart ReadMovePart() {
+    public PgnMovePart? ReadMovePart() {
         if (PeekToken() is { Type: TokenType.Integer }) {
 
             Token number = ReadToken();
@@ -66,6 +66,18 @@ public class PgnReader(PgnTokenizer tokenizer) {
         }
 
         return tags.ToArray();
+    }
+    
+    public PgnMovePart[] ReadMoveParts() {
+        var moveParts = new List<PgnMovePart>();
+        var pgnMovePart = ReadMovePart();
+
+        while (pgnMovePart != null) {
+            moveParts.Add(pgnMovePart);
+            pgnMovePart = ReadMovePart();
+        }
+
+        return moveParts.ToArray();
     }
 
     public PgnChessMatch Read() {

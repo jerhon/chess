@@ -30,6 +30,8 @@ public class PgnTokenizer(string pgnString) {
         var token = ReadNextToken();
         while (token is not null) {
             yield return token;
+
+            token = ReadNextToken();
         }
     }
 
@@ -107,7 +109,7 @@ public class PgnTokenizer(string pgnString) {
         StringBuilder value = new();
         StringState stringState = StringState.InQuotes;
 
-        var c = PeekChar();
+        var c = Read();
         if (c == null) {
             return string.Empty;
         }
@@ -116,7 +118,6 @@ public class PgnTokenizer(string pgnString) {
             
             if (stringState == StringState.EscapeCharacter) {
                 value.Append(c);
-                Advance(1);
                 stringState = StringState.InQuotes;
             }
             else if (c == '\\') {
@@ -125,11 +126,10 @@ public class PgnTokenizer(string pgnString) {
                 return value.ToString();
             } else {
                 value.Append(c);
-                Advance(1);
                 stringState = StringState.InQuotes;
             }
 
-            c = PeekChar();
+            c = Read();
         }
 
         return value.ToString();
