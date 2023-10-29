@@ -25,7 +25,7 @@ public class FakeUciInterface : IUciInputOutput {
 
     public void ReadResponses(string fileName) {
         string basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
-        string actualPath = Path.Combine(fileName);
+        string actualPath = Path.Combine(fileName.Replace("\\", Path.DirectorySeparatorChar.ToString()).Replace("/", Path.DirectorySeparatorChar.ToString()));
 
         var lines = File.ReadAllLines(actualPath);
         var uciSerializer = new UciCommandSerializer();
