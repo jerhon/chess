@@ -33,18 +33,18 @@ public record SimpleMove(SquareName From, SquareName To) : IChessMove {
         
         
         if (chessPosition.EnPassantTarget == To) {
-            var captureSquare = new SquareName(To.File, From.Rank);
+            var captureSquare = new SquareName(To.SquareFile, From.SquareRank);
             chessPosition.RemovePiece(captureSquare);
         }
 
         
         // En-passant
         if (fromSquare is { Piece: { Type: PieceType.Pawn } }) {
-            if (fromSquare.Name.Rank == Rank.Rank2 && toSquare.Name.Rank == Rank.Rank4) {
-                chessPosition.WithEnPassantTarget(fromSquare.Name with { Rank = Rank.Rank3 });
+            if (fromSquare.Name.SquareRank == SquareRank.Rank2 && toSquare.Name.SquareRank == SquareRank.Rank4) {
+                chessPosition.WithEnPassantTarget(fromSquare.Name with { SquareRank = SquareRank.Rank3 });
             }
-            else if (fromSquare.Name.Rank == Rank.Rank7 && fromSquare.Name.Rank == Rank.Rank5) {
-                chessPosition.WithEnPassantTarget(fromSquare.Name with { Rank = Rank.Rank6 });
+            else if (fromSquare.Name.SquareRank == SquareRank.Rank7 && fromSquare.Name.SquareRank == SquareRank.Rank5) {
+                chessPosition.WithEnPassantTarget(fromSquare.Name with { SquareRank = SquareRank.Rank6 });
             }
         }
 
@@ -68,11 +68,11 @@ public record SimpleMove(SquareName From, SquareName To) : IChessMove {
             return false;
         }
 
-        if (from.File != File.a) {
+        if (from.SquareFile != SquareFile.a) {
             return false;
         }
 
-        return from.Rank == Rank.Rank1 || from.Rank == Rank.Rank8;
+        return from.SquareRank == SquareRank.Rank1 || from.SquareRank == SquareRank.Rank8;
     }
     
     public bool IsKingsideRook(IChessPosition chessPosition, SquareName from) {
@@ -81,11 +81,11 @@ public record SimpleMove(SquareName From, SquareName To) : IChessMove {
             return false;
         }
 
-        if (from.File != File.h) {
+        if (from.SquareFile != SquareFile.h) {
             return false;
         }
 
-        return from.Rank == Rank.Rank1 || from.Rank == Rank.Rank8;
+        return from.SquareRank == SquareRank.Rank1 || from.SquareRank == SquareRank.Rank8;
     }
 
     public bool IsKing(IChessPosition chessPosition, SquareName from) {

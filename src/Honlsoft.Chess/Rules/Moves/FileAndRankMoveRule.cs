@@ -27,11 +27,11 @@ public class FileAndRankMoveRule : IMoveRule {
         var originalSquare = chessPosition.GetSquare(from);
         
         
-        var leftSquares = from.Rank.ToStart().Select((rank) => new SquareName(from.File, rank));
-        var rightSquares = from.Rank.ToEnd().Select((rank) => new SquareName(from.File, rank));
+        var leftSquares = from.SquareRank.ToStart().Select((rank) => new SquareName(from.SquareFile, rank));
+        var rightSquares = from.SquareRank.ToEnd().Select((rank) => new SquareName(from.SquareFile, rank));
 
-        var topSquares = from.File.ToStart().Select((file) => new SquareName(file, from.Rank));
-        var bottomSquares = from.File.ToEnd().Select((file) => new SquareName(file, from.Rank));
+        var topSquares = from.SquareFile.ToStart().Select((file) => new SquareName(file, from.SquareRank));
+        var bottomSquares = from.SquareFile.ToEnd().Select((file) => new SquareName(file, from.SquareRank));
         
         foreach (var squareEnum in new [] { leftSquares, rightSquares, topSquares, bottomSquares }) {
             foreach (var square in squareEnum) {

@@ -45,14 +45,16 @@ public class PgnReader(PgnTokenizer tokenizer) {
             return new PgnMoveNumber(int.Parse(number.Value), periodCount);
         }
         else if (PeekToken() is { Type: TokenType.Symbol }) {
-
-            Token moveText = ReadToken();
-
-            return new PgnMoveText(moveText.Value);
+            Token token = ReadToken();
+            PgnMoveText moveText = PgnMoveText.Parse(token.Value);
+            return moveText;
         }
 
         return null;
     }
+
+
+
     
 
 

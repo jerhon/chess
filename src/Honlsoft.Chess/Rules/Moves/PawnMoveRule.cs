@@ -68,23 +68,23 @@ public class PawnMoveRule : IMoveRule {
 
 
     private bool IsPromotionSquare(SquareName squareName, PieceColor color) {
-        return (squareName.Rank == Rank.Rank1 && color == PieceColor.Black)
-               || (squareName.Rank == Rank.Rank8 && color == PieceColor.White);
+        return (squareName.SquareRank == SquareRank.Rank1 && color == PieceColor.Black)
+               || (squareName.SquareRank == SquareRank.Rank8 && color == PieceColor.White);
     }
 
     private SquareName? GetEnPassantTarget(SquareName from, SquareName to) {
-        if (from.Rank.Distance(to.Rank) > 1) {
-            return new SquareName(from.File, from.Rank.Add(1));
+        if (from.SquareRank.Distance(to.SquareRank) > 1) {
+            return new SquareName(from.SquareFile, from.SquareRank.Add(1));
         }
-        if (from.Rank.Distance(to.Rank) > 1) {
-            return new SquareName(from.File, from.Rank.Add(-1));
+        if (from.SquareRank.Distance(to.SquareRank) > 1) {
+            return new SquareName(from.SquareFile, from.SquareRank.Add(-1));
         }
         return null;
     }
 
     private bool IsInStartingPosition(Square square)
     {
-        return square is { Name: { Rank: { Number: 2 } }, Piece: { Color: PieceColor.White } }
-            or { Name: {Rank: { Number: 7 } }, Piece: { Color: PieceColor.Black } };
+        return square is { Name: { SquareRank: { Number: 2 } }, Piece: { Color: PieceColor.White } }
+            or { Name: {SquareRank: { Number: 7 } }, Piece: { Color: PieceColor.Black } };
     }
 }

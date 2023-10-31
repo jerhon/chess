@@ -18,10 +18,10 @@ public class ChessBoardView : Renderable {
         List<Segment> lines = new List<Segment>(); 
         
         Grid grid = new Grid();
-        foreach (var rank in Rank.AllRanks.Reverse()) {
+        foreach (var rank in SquareRank.AllRanks.Reverse()) {
             
             lines.Add(new Segment(rank + " "));
-            foreach (var file in File.AllFiles) {
+            foreach (var file in SquareFile.AllFiles) {
                 var square = _chessPosition.GetSquare(new SquareName(file, rank));
                 var style = MapStyle( square );
                 lines.Add(new Segment(GetPieceString(square.Piece), style));
@@ -30,7 +30,7 @@ public class ChessBoardView : Renderable {
         }
         
         lines.Add(new Segment("  "));
-        foreach (var file in File.AllFiles) {
+        foreach (var file in SquareFile.AllFiles) {
             lines.Add(new Segment(" " + file.ToString() + " "));
         }
         

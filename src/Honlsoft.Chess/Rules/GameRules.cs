@@ -87,7 +87,7 @@ public class GameRules(MoveRules moveRules) {
     private bool IsPromotingPawn(IChessPosition position, SquareName from, SquareName to) {
         var square = position.GetSquare(from);
         if (square is { Piece: { Type: Chess.PieceType.Pawn }}) {
-            return to.Rank == Rank.Rank1 || to.Rank == Rank.Rank8;
+            return to.SquareRank == SquareRank.Rank1 || to.SquareRank == SquareRank.Rank8;
         }
         return false;
     }

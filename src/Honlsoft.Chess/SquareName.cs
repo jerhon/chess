@@ -3,10 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Honlsoft.Chess; 
 
-public record SquareName(File File, Rank Rank) : IParsable<SquareName?> {
+public record SquareName(SquareFile SquareFile, SquareRank SquareRank) : IParsable<SquareName?> {
     
     public override string ToString() {
-        return $"{File}{Rank}";
+        return $"{SquareFile}{SquareRank}";
     }
 
     public static SquareName Parse(string s, IFormatProvider? provider = null) {
@@ -40,18 +40,21 @@ public record SquareName(File File, Rank Rank) : IParsable<SquareName?> {
             return false;
         }
 
+        SquareFile squareFile = SquareFile.Parse(fileChar);
+        
+
         if (!int.TryParse(rankChar.ToString(), out int rank)) {
             return false;
         }
 
-        result = new SquareName(new File(fileChar), new Rank(rank));
+        result = new SquareName(new SquareFile(fileChar), new SquareRank(rank));
         return true;
     }
 
 
     public SquareName? Add(int file, int rank) {
-        var newFile = File.Add(file);
-        var newRank = Rank.Add(rank);
+        var newFile = SquareFile.Add(file);
+        var newRank = SquareRank.Add(rank);
 
         if (newFile == null || newRank == null) {
             return null;
@@ -61,8 +64,8 @@ public record SquareName(File File, Rank Rank) : IParsable<SquareName?> {
     }
 
     public static IEnumerable<SquareName> AllSquares() {
-        return Chess.Rank.AllRanks.SelectMany((rank) => Chess.File.AllFiles.Select((file) => new SquareName(file, rank)));
+        return Chess.SquareRank.AllRanks.SelectMany((rank) => Chess.SquareFile.AllFiles.Select((file) => new SquareName(file, rank)));
     }
 
-    public SquareColor Color => Rank.Index % 2 == File.Index % 2 ? SquareColor.Dark : SquareColor.Light;
+    public SquareColor Color => SquareRank.Index % 2 == SquareFile.Index % 2 ? SquareColor.Dark : SquareColor.Light;
 }

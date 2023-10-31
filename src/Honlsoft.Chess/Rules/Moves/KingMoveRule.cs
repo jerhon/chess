@@ -23,8 +23,8 @@ public class KingMoveRule : IMoveRule {
                     continue;
                 }
                 
-                var toSquareFile = from.File.Add(fileOffset);
-                var toSquareRank = from.Rank.Add(rankOffset);
+                var toSquareFile = from.SquareFile.Add(fileOffset);
+                var toSquareRank = from.SquareRank.Add(rankOffset);
 
                 if (toSquareFile == null || toSquareRank == null) {
                     continue;
@@ -42,8 +42,8 @@ public class KingMoveRule : IMoveRule {
 
         Square square = chessPosition.GetSquare(from);
         PieceColor color = square.Piece.Color;
-        if (from.File == File.e) {
-            if (from.Rank == Rank.Rank1 || from.Rank == Rank.Rank8) {
+        if (from.SquareFile == SquareFile.e) {
+            if (from.SquareRank == SquareRank.Rank1 || from.SquareRank == SquareRank.Rank8) {
                 if (chessPosition.CanCastle(color, CastlingSide.Queenside)) {
                     moves.Add(new CastlingMoveRule(color, CastlingSide.Queenside));
                 }

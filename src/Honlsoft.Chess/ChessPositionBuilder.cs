@@ -141,7 +141,7 @@ public class ChessPositionBuilder : IChessPosition {
     }
     
     private static PieceType? GetInitialPieceType(SquareName position) =>
-        (position.File.Name, position.Rank.Number) switch {
+        (position.SquareFile.Name, position.SquareRank.Number) switch {
             ('a' or 'h', 1 or 8) => PieceType.Rook,
             ('b' or 'g', 1 or 8) => PieceType.Knight,
             ('c' or 'f', 1 or 8) => PieceType.Bishop,
@@ -152,7 +152,7 @@ public class ChessPositionBuilder : IChessPosition {
         };
 
     private static PieceColor? GetInitialColor(SquareName position) =>
-        position.Rank.Number switch {
+        position.SquareRank.Number switch {
             1 or 2 => PieceColor.White,
             7 or 8 => PieceColor.Black,
             _ => null

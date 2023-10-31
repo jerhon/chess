@@ -12,8 +12,8 @@ public class SimpleSerializer {
     
     public string Serialize(IChessPosition chessPosition) {
         StringBuilder sb = new StringBuilder();
-        foreach (var file in File.AllFiles) {
-            foreach (var rank in Rank.AllRanks) {
+        foreach (var file in SquareFile.AllFiles) {
+            foreach (var rank in SquareRank.AllRanks) {
                 var square = chessPosition.GetSquare(new SquareName(file, rank));
                 if (square?.Piece != null) {
                     sb.Append(square.Piece);

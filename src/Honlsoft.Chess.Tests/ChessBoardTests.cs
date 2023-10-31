@@ -10,13 +10,13 @@ public class ChessBoardTests {
     public void NewStandardGame_MatchesExpected() 
     {
         var chessBoard = ChessPositionBuilder.StandardGame;
-        foreach (var file in File.AllFiles) {
-            Square square = chessBoard.GetSquare(new SquareName(file, Rank.Rank7));
+        foreach (var file in SquareFile.AllFiles) {
+            Square square = chessBoard.GetSquare(new SquareName(file, SquareRank.Rank7));
             Assert.Equal(PieceType.Pawn, square!.Piece!.Type);
             Assert.Equal(PieceColor.Black, square!.Piece!.Color);
             
             
-            square = chessBoard.GetSquare(new SquareName(file, Rank.Rank2));
+            square = chessBoard.GetSquare(new SquareName(file, SquareRank.Rank2));
             Assert.Equal(PieceType.Pawn, square!.Piece!.Type);
             Assert.Equal(PieceColor.White, square!.Piece!.Color);
         }
@@ -43,8 +43,8 @@ public class ChessBoardTests {
         
         // Check all the pieces in the middle
 
-        foreach (var file in File.AllFiles) {
-            foreach (var rank in new[] { Rank.Rank3, Rank.Rank4, Rank.Rank5, Rank.Rank6 }) {
+        foreach (var file in SquareFile.AllFiles) {
+            foreach (var rank in new[] { SquareRank.Rank3, SquareRank.Rank4, SquareRank.Rank5, SquareRank.Rank6 }) {
                 var square = chessBoard.GetSquare(new SquareName(file, rank));
                 
                 Assert.Null(square.Piece);

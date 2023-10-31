@@ -69,11 +69,11 @@ public class PawnMoveRuleTests {
         Assert.True(actual);
 
 
-        foreach (var file in File.AllFiles) {
-            actual = rule.IsApplicable(chessBoard, new SquareName(file, Rank.Rank1));
+        foreach (var file in SquareFile.AllFiles) {
+            actual = rule.IsApplicable(chessBoard, new SquareName(file, SquareRank.Rank1));
             Assert.False(actual);
 
-            actual = rule.IsApplicable(chessBoard, new SquareName(file, Rank.Rank2));
+            actual = rule.IsApplicable(chessBoard, new SquareName(file, SquareRank.Rank2));
             Assert.False(actual);
         }
         

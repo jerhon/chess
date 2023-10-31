@@ -6,9 +6,9 @@ public class FenSerializer {
     
     public string Serialize(IChessPosition chessPosition) {
         StringBuilder builder = new StringBuilder();
-        foreach (var rank in Rank.Rank1.ToEnd(true).Reverse()) {
+        foreach (var rank in SquareRank.Rank1.ToEnd(true).Reverse()) {
             int emptySpaces = 0;
-            foreach (var file in File.a.ToEnd(true)) {
+            foreach (var file in SquareFile.a.ToEnd(true)) {
                 var square = chessPosition.GetSquare(new SquareName(file, rank));
                 if (square.Piece != null) {
                     if (emptySpaces > 0) {

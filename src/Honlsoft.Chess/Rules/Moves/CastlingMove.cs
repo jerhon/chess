@@ -6,8 +6,8 @@ public record CastlingMoveRule(PieceColor Color, CastlingSide Side) : IChessMove
 
     public SquareName From {
         get {
-            Rank rank = Color is PieceColor.Black ? Rank.Rank8 : Rank.Rank1;
-            SquareName kingSquare = new SquareName(File.e, rank);
+            SquareRank squareRank = Color is PieceColor.Black ? SquareRank.Rank8 : SquareRank.Rank1;
+            SquareName kingSquare = new SquareName(SquareFile.e, squareRank);
             return kingSquare;
         }
     }
@@ -15,10 +15,10 @@ public record CastlingMoveRule(PieceColor Color, CastlingSide Side) : IChessMove
 
     public SquareName To {
         get {
-            Rank rank = Color is PieceColor.Black ? Rank.Rank8 : Rank.Rank1;
-            File kingFinalFile = Side is CastlingSide.Queenside ? File.c : File.g;
+            SquareRank squareRank = Color is PieceColor.Black ? SquareRank.Rank8 : SquareRank.Rank1;
+            SquareFile kingFinalSquareFile = Side is CastlingSide.Queenside ? SquareFile.c : SquareFile.g;
         
-            SquareName kingToSquare = new SquareName(kingFinalFile, rank);
+            SquareName kingToSquare = new SquareName(kingFinalSquareFile, squareRank);
             return kingToSquare;
         }
     }
@@ -30,16 +30,16 @@ public record CastlingMoveRule(PieceColor Color, CastlingSide Side) : IChessMove
             throw new InvalidOperationException("Trying to castle when it's not allowed.");
         }
 
-        Rank rank = Color is PieceColor.Black ? Rank.Rank8 : Rank.Rank1;
-        File rookFile = Side is CastlingSide.Queenside ? File.a : File.h;
+        SquareRank squareRank = Color is PieceColor.Black ? SquareRank.Rank8 : SquareRank.Rank1;
+        SquareFile rookSquareFile = Side is CastlingSide.Queenside ? SquareFile.a : SquareFile.h;
 
-        File rookFinalFile = Side is CastlingSide.Queenside ? File.d : File.f;
-        File kingFinalFile = Side is CastlingSide.Queenside ? File.c : File.g;
+        SquareFile rookFinalSquareFile = Side is CastlingSide.Queenside ? SquareFile.d : SquareFile.f;
+        SquareFile kingFinalSquareFile = Side is CastlingSide.Queenside ? SquareFile.c : SquareFile.g;
         
-        SquareName kingSquare = new SquareName(File.e, rank);
-        SquareName rookSquare = new SquareName(rookFile, rank);
-        SquareName kingToSquare = new SquareName(kingFinalFile, rank);
-        SquareName rookToSquare = new SquareName(rookFinalFile, rank);
+        SquareName kingSquare = new SquareName(SquareFile.e, squareRank);
+        SquareName rookSquare = new SquareName(rookSquareFile, squareRank);
+        SquareName kingToSquare = new SquareName(kingFinalSquareFile, squareRank);
+        SquareName rookToSquare = new SquareName(rookFinalSquareFile, squareRank);
         
         chessPosition.Move(kingSquare, kingToSquare);
         chessPosition.Move(rookSquare, rookToSquare);

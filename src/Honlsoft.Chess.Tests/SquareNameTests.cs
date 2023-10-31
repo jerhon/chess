@@ -11,8 +11,8 @@ public class SquareNameTests {
 
         var squareName = SquareName.Parse(value, null);
         
-        Assert.Equal(file, squareName.File.Name);
-        Assert.Equal(rank, squareName.Rank.Number);
+        Assert.Equal(file, squareName.SquareFile.Name);
+        Assert.Equal(rank, squareName.SquareRank.Number);
     }
 
 
@@ -20,7 +20,7 @@ public class SquareNameTests {
     [InlineData('a', 1, "a1")]
     public void ToString_ReturnsProperValue(char file, int rank, string result) {
 
-        var squareName = new SquareName(new File(file), new Rank(rank));
+        var squareName = new SquareName(new SquareFile(file), new SquareRank(rank));
         
         Assert.Equal(result, squareName.ToString());
     }

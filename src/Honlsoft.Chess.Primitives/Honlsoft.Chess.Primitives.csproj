@@ -6,8 +6,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Honlsoft.Chess\Honlsoft.Chess.csproj" />
-    </ItemGroup>
-
 </Project>
