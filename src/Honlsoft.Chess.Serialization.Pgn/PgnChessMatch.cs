@@ -1,10 +1,5 @@
-﻿namespace Honlsoft.Chess.Serialization; 
+﻿namespace Honlsoft.Chess.Serialization;
 
-public class PgnChessMatch(IEnumerable<PgnTag> attributes) {
+public record PgnChessMatch(PgnTag[] Tags, PgnMovePart[] Moves) {
 
-    public List<PgnTag> Tags { get; } = new(attributes);
-
-    public List<PgnMovePart> Moves { get; } = new();
-
-    public string Result { get; set; }
 }

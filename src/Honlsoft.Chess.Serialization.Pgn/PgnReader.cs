@@ -83,8 +83,9 @@ public class PgnReader(PgnTokenizer tokenizer) {
     public PgnChessMatch Read() {
 
         var tags = ReadTagSection();
+        var moves = ReadMoveParts();
 
-        PgnChessMatch chessMatch = new(tags);
+        PgnChessMatch chessMatch = new(tags, moves);
 
         return chessMatch;
 

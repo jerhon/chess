@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Honlsoft.Chess.Serialization.Pgn.Tests.Samples;
 
 namespace Honlsoft.Chess.Serialization.Pgn.Tests;
 
@@ -18,6 +19,17 @@ public class PgnReaderTests {
         var serializer = new PgnReader(new PgnTokenizer(pgnText));
         var actualResult = serializer.ReadMovePart();
         actualResult.Should().Be(expectedResult);
+    }
+
+    [Fact]
+    public void ReadPgnGame() {
+        var serializer = new PgnReader(new PgnTokenizer(PgnSample.Read("game001.pgn")));
+
+        var actualResult = serializer.Read();
+
+        actualResult.Should().NotBeNull();
+        actualResult.Moves.Should().HaveCount(147);
+
     }
 
     public static TheoryData<string, PgnMovePart> ValidMoveParts {

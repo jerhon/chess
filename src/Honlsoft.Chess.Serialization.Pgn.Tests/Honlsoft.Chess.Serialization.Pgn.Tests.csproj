@@ -26,9 +26,9 @@
     <ItemGroup>
       <ProjectReference Include="..\Honlsoft.Chess.Serialization.Pgn\Honlsoft.Chess.Serialization.Pgn.csproj" />
     </ItemGroup>
-
+    
     <ItemGroup>
-      <Folder Include="Samples\" />
+        <None Include="Samples\*.pgn" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>
