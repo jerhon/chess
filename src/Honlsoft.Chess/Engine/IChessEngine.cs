@@ -10,12 +10,18 @@ namespace Honlsoft.Chess.Engine;
 public interface IChessEngine {
     
     /// <summary>
-    /// Starts a game with the position set out by the chess board.
+    /// Starts a game, gives the engine a chance to initialize if necessary.
     /// </summary>
-    /// <param name="chessBoard">The chess board.</param>
-    /// <param name="moves">The moves.</param>
+    public Task InitializeAsync(CancellationToken cancellationToken);
+
+
+    // TODO: should have something better for movestring
+    
+    /// <summary>
+    /// Sends a move to the engine.
+    /// </summary>
     /// <returns></returns>
-    public Task StartGameAsync(CancellationToken cancellationToken);
+    public Task DoMoveAsync(string moveString, CancellationToken cancellationToken);
     
     /// <summary>
     /// Suggests a move from the engine.

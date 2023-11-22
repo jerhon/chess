@@ -64,6 +64,22 @@ public class UciCommandSerializerTests {
 
         actual.Should().Be(expected);
     }
+
+    [Fact]
+    public void Deserialize_bestmove() {
+        var serializer = NewObj();
+
+        var actual = serializer.DeserializeCommand("bestmove e2e4 ponder e7e5");
+
+        UciCommand expected = new UciCommand("bestmove",
+            [
+                new UciParameter(null, "e2e4"),
+                new UciParameter("ponder", "e7e5")
+            ]
+        );
+
+        actual.Should().BeEquivalentTo(expected);
+    }
     
     
     
@@ -72,11 +88,11 @@ public class UciCommandSerializerTests {
             TheoryData<string, UciCommand> data = new TheoryData<string, UciCommand>();
 
             // Option for a Debug Log File
-            UciCommand command = new UciCommand("option", new[] {
+            UciCommand command = new UciCommand("option", [
                 new UciParameter("name", "Debug Log File"),
                 new UciParameter("type", "string"),
                 new UciParameter("default", "")
-            });
+            ]);
             data.Add("option name Debug Log File type string default", command);
 
             return data;

@@ -1,4 +1,6 @@
-﻿namespace Honlsoft.Chess.Uci.Client.Commands; 
+﻿using System.Diagnostics;
+
+namespace Honlsoft.Chess.Uci.Client.Commands; 
 
 public class UciCommandSerializer {
     
@@ -52,6 +54,8 @@ public class UciCommandSerializer {
             return ParseComplexCommand(rawCommand, "searchmoves", "ponder", "wtime", "btime", "winc", "binc", "movestogo", "depth", "nodes", "mate",
                 "movetime",
                 "infinite");
+        } else if (command is "bestmove") {
+            return ParseComplexCommand(rawCommand, "ponder");
         }
 
         var remainder = rawCommand.Length > command.Length + 1
@@ -98,7 +102,7 @@ public class UciCommandSerializer {
         
         // the command is the first part...
         var command = rawCommand.Substring(0, nextSpace);
-        var parameters = GetUciParameters(rawCommand, nextSpace, parameterKeys);
+        var parameters = GetUciParameters(rawCommand, nextSpace + 1, parameterKeys);
         
         return new UciCommand(command, parameters);
     }
@@ -116,6 +120,7 @@ public class UciCommandSerializer {
 
             int spaceIdx = rawParameter.IndexOf(' ');
             if (spaceIdx > 0) {
+                
                 var name = rawParameter.Substring(0, spaceIdx);
                 var value = rawParameter.Substring(spaceIdx + 1);
                 return new UciParameter(name, value);
@@ -133,14 +138,14 @@ public class UciCommandSerializer {
         var keywordPositions = GetKeyPositions(rawCommand, startingIdx, parameterKeys);
         List<string> parameters = new List<string>();
 
-        for (int i = 0; i < keywordPositions.Count - 1; i++) {
+        for (int i = 0; i < keywordPositions.Length - 1; i++) {
             var currentPosition = keywordPositions[i];
             var nextPosition = keywordPositions[i + 1];
             
             parameters.Add(rawCommand.Substring(currentPosition, nextPosition - currentPosition).Trim());
         }
 
-        if (keywordPositions.Count > 0 && rawCommand.Length > keywordPositions[^1]) {
+        if (keywordPositions.Length > 0 && rawCommand.Length > keywordPositions[^1]) {
             parameters.Add(rawCommand.Substring(keywordPositions[^1]));
         }
 
@@ -149,16 +154,25 @@ public class UciCommandSerializer {
     
     
 
-    private List<int> GetKeyPositions(string rawCommand, int startIdx, string[] parameterKeys) {
-        List<int> keywordPositions = new List<int>();
-        int idx = startIdx;
-        while (idx >= 0) {
-            if (parameterKeys.Any((k) => EqualsAt(rawCommand, idx + 1, k))) {
-                keywordPositions.Add(idx + 1);
-            }
+    private int[] GetKeyPositions(string rawCommand, int startIdx, string[] parameterKeys) {
 
-            idx = rawCommand.IndexOf(' ', idx + 1);
+
+        if (startIdx >= rawCommand.Length) {
+            return [];
         }
-        return keywordPositions;
+        
+        List<int> indexes = new List<int>();
+        
+        // Can some parameters be repeated, assuming no for now.
+        var keywords = parameterKeys.Select((k) => rawCommand.IndexOf(k, startIdx, StringComparison.Ordinal))
+            .Where(k => k >= 0)
+            .Order()
+            .ToArray();
+
+        if (startIdx != keywords.FirstOrDefault()) {
+            return [startIdx, ..keywords];
+        }
+
+        return keywords;
     }
 }

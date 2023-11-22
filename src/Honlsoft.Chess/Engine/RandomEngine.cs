@@ -9,16 +9,17 @@ public class RandomEngine(ChessGame chessGame) : IChessEngine {
     
 
     /// <summary>
-    /// 
+    /// Initialize the chess engine.
     /// </summary>
-    /// <param name="chessBoard"></param>
-    /// <param name="moves"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public Task StartGameAsync(CancellationToken cancellationToken) {
+    public Task InitializeAsync(CancellationToken cancellationToken) {
         return Task.CompletedTask;
     }
-    
+    public Task DoMoveAsync(string moveString, CancellationToken cancellationToken) {
+        return Task.CompletedTask;
+    }
+
     public Task<EngineSuggestion> SuggestMoveAsync(CancellationToken cancellationToken) {
 
         var chessBoard = chessGame.CurrentPosition;
@@ -27,7 +28,8 @@ public class RandomEngine(ChessGame chessGame) : IChessEngine {
         
         // TODO: need to take additional steps into consideration (player is in check, etc)
         
-        // Find all moves for the curent player
+        
+        // Find all moves for the current player
         var allCandidateMoves = SquareName.AllSquares()
             .Select(square => chessBoard.GetSquare(square))
             .Where(s => s?.Piece?.Color == currentPlayer)

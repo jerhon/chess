@@ -1,19 +1,21 @@
 ﻿using System.Diagnostics;
 using Honlsoft.Chess.Uci.Client.Commands;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Honlsoft.Chess.Uci.Client; 
 
-public class UciProcess(string executablePath) {
-    
+public class UciProcess(string executablePath, IServiceProvider serviceProvider) {
+
     private Process? _currentProcess;
 
     public void Start() {
 
-        ProcessStartInfo startInfo = new ProcessStartInfo(executablePath); /* {
+        ProcessStartInfo startInfo = new ProcessStartInfo(executablePath) {
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             CreateNoWindow = true,
-        };*/
+        };
 
         _currentProcess = Process.Start(startInfo);
         
@@ -21,7 +23,7 @@ public class UciProcess(string executablePath) {
             throw new InvalidOperationException("Unable to start process.");
         }
         
-        Interface = new StreamUciInputOutput(new UciCommandSerializer(), _currentProcess.StandardOutput, _currentProcess.StandardInput);
+        Interface = new StreamUciInputOutput(new UciCommandSerializer(), _currentProcess.StandardOutput, _currentProcess.StandardInput, serviceProvider.GetRequiredService<ILogger<StreamUciInputOutput>>());
     }
 
     public void Stop() {

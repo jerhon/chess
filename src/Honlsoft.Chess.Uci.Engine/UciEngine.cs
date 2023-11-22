@@ -20,7 +20,7 @@ public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
         await client.IsReadyAsync(cancellationToken);
     }
     
-    public async Task StartGameAsync(CancellationToken cancellationToken) {
+    public async Task InitializeAsync(CancellationToken cancellationToken) {
 
         FenSerializer fenSerializer = new FenSerializer();
         string fenString = fenSerializer.Serialize(chessGame.CurrentPosition);
@@ -28,7 +28,11 @@ public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
         await client.UciNewGameAsync(cancellationToken);
         await client.SetFenPositionAsync(fenString, [], cancellationToken);
     }
-    
+
+    public async Task DoMoveAsync(string moveString, CancellationToken cancellationToken) {
+        await client.SetMovePositionAsync(new[] { moveString }, cancellationToken);
+    }
+
     public Task SendMoveAsync(EngineSuggestion move, CancellationToken cancelToken) {
         var uciMove = MapChessMoveToUciMove(move);
         return client.SetMovePositionAsync([uciMove], cancelToken);
@@ -38,7 +42,9 @@ public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
         // TODO: Need to send current position
         
         
-        var bestMove = await client.GoAsync(new GoParameters(), cancelToken);
+        var bestMove = await client.GoAsync(new GoParameters {
+            MoveTime = TimeSpan.FromSeconds(5)
+        }, cancelToken);
 
         return MapUciMoveToChessMove(bestMove.Move);
     }

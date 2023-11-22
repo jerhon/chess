@@ -100,7 +100,7 @@ public class UciClient {
             commandBuilder.WithParameter("infinite", null);
         }
 
-        await _inputOutput.SendCommandAsync(new UciCommand("go"), cancellationToken);
+        await _inputOutput.SendCommandAsync(commandBuilder.Build(), cancellationToken);
 
         // TODO add a way to singal stopping
         
