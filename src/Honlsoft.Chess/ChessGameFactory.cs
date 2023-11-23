@@ -13,10 +13,10 @@ public class ChessGameFactory {
     }
     
     public ChessGame CreateStandardGame() {
-        return new ChessGame(ChessPositionBuilder.StandardGame, PieceColor.White, CreateGameRules());
+        return new ChessGame(ChessPositionBuilder.StandardGame, CreateGameRules());
     }
     
     public ChessGame CreateGameFromPosition(IChessPosition initialPosition, PieceColor playerToMove) {
-        return new ChessGame(initialPosition, playerToMove, CreateGameRules());
+        return new ChessGame(initialPosition, CreateGameRules());
     }
 }

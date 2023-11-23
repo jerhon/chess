@@ -16,27 +16,22 @@ public class ChessGame : IChessGame {
     private readonly List<PlayerTurn> _gameMoves = new();
     private readonly ChessPositionBuilder _chessPosition;
     
-    public PieceColor CurrentPlayer { get; private set; } = PieceColor.White;
-
     public IChessPosition CurrentPosition => _chessPosition;
-    
-    public SquareName? EnPassantTarget { get; private set; }
 
     public ChessGameState GameState { get; private set; }
 
     
-    public ChessGame(IChessPosition initialChessPosition, PieceColor playerToMove,  GameRules rules) {
+    public ChessGame(IChessPosition initialChessPosition,  GameRules rules) {
         _rules = rules;
 
         _chessPosition = new ChessPositionBuilder()
             .FromBoard(initialChessPosition);
         
-        GameState = rules.CalculateState(initialChessPosition, playerToMove);
+        GameState = rules.CalculateState(initialChessPosition);
         
-        CurrentPlayer = playerToMove;
     }
 
-    public ChessGame(GameRules gameRules) : this(ChessPositionBuilder.StandardGame, PieceColor.White, gameRules) { }
+    public ChessGame(GameRules gameRules) : this(ChessPositionBuilder.StandardGame, gameRules) { }
     
     /// <summary>
     /// Trys to move a piece in the game.
@@ -64,11 +59,11 @@ public class ChessGame : IChessGame {
         
         // If this is a promotion, then promote it
         if (promotionPiece != null) {
-            _chessPosition.SetSquare(toName, promotionPiece.Value, CurrentPlayer);
+            _chessPosition.SetSquare(toName, promotionPiece.Value, _chessPosition.PlayerToMove);
         }
         
         // Full move counter increments when black moves
-        if (CurrentPlayer == PieceColor.Black) {
+        if (_chessPosition.PlayerToMove == PieceColor.Black) {
             _chessPosition.IncrementFullMoves();
         }
         
@@ -76,10 +71,10 @@ public class ChessGame : IChessGame {
         _chessPosition.SwitchColor();
 
         // Calculate the current state of the game
-        GameState = _rules.CalculateState(_chessPosition, CurrentPlayer);
+        GameState = _rules.CalculateState(_chessPosition);
         
         // Record the turn
-        _gameMoves.Add(new PlayerTurn(_chessPosition.Build(), move, CurrentPlayer));
+        _gameMoves.Add(new PlayerTurn(_chessPosition.Build(), move, _chessPosition.PlayerToMove));
         
         
         return validationResult;
@@ -163,7 +158,7 @@ public class ChessGame : IChessGame {
     private void DoEnPassantCapture(SquareName fromName, SquareName toName) {
         
         // If this is the en-passant target, and the moving piece is a pawn
-        if (EnPassantTarget == toName && _chessPosition.IsPawn(toName)) {
+        if (_chessPosition.EnPassantTarget == toName && _chessPosition.IsPawn(toName)) {
             var captureSquare = new SquareName(toName.SquareFile, fromName.SquareRank);
             _chessPosition.RemovePiece(captureSquare);
             _chessPosition.WithEnPassantTarget(null);

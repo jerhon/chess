@@ -52,18 +52,20 @@ while (game.GameState is ChessGameState.Check or ChessGameState.PlayerToMove) {
     if (lastMoveResult != MoveResult.ValidMove) {
         AnsiConsole.Write(new Paragraph(lastMoveResult + "\n", new Style(Color.White, Color.DarkRed)));
     }
-    AnsiConsole.WriteLine(game.CurrentPlayer + " to move.");
+    AnsiConsole.WriteLine(game.CurrentPosition.PlayerToMove + " to move.");
     
-    if (game.CurrentPlayer == PieceColor.White) {
+    if (game.CurrentPosition.PlayerToMove == PieceColor.White) {
         var from = AnsiConsole.Console.AskPickAPiece();
         var (to, promotionPiece) = AnsiConsole.Console.AskMoveTo();
         lastMoveResult = game.Move(from, to, promotionPiece);
         if (lastMoveResult == MoveResult.ValidMove) {
-            await uciChessEngine.DoMoveAsync(from.ToString() + to, CancellationToken.None);
+            uciChessEngine.AddMove(from.ToString() + to);
+            await uciChessEngine.UpdatePositionAsync(CancellationToken.None);
         }
     } else {
         var move = await uciChessEngine.SuggestMoveAsync(CancellationToken.None);
         var engineError = game.Move(move.From, move.To, null);
+        uciChessEngine.AddMove(move.From.ToString() + move.To);
     }
 }
 

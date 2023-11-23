@@ -4,10 +4,10 @@ namespace Honlsoft.Chess;
 
 public class GameRules(MoveRules moveRules) {
 
-    public ChessGameState CalculateState(IChessPosition chessPosition, PieceColor playerToMove) {
+    public ChessGameState CalculateState(IChessPosition chessPosition) {
         
-        var currentPlayerMoves = moveRules.GetThreatCounter(chessPosition, playerToMove);
-        var otherPlayerMoves = moveRules.GetThreatCounter(chessPosition, playerToMove);
+        var currentPlayerMoves = moveRules.GetThreatCounter(chessPosition, chessPosition.PlayerToMove);
+        var otherPlayerMoves = moveRules.GetThreatCounter(chessPosition, chessPosition.PlayerToMove);
         var kingSquare = currentPlayerMoves.GetKingSquare();
         var kingMoves = moveRules.GetMoves(chessPosition, kingSquare.Name);
 
@@ -47,7 +47,7 @@ public class GameRules(MoveRules moveRules) {
     public (MoveResult, IChessMove?) IsValidMove(IChessGame gameState, SquareName from, SquareName to, PieceType? promotionPiece) {
 
         
-        var gameResult = CalculateState(gameState.CurrentPosition, gameState.CurrentPosition.PlayerToMove);
+        var gameResult = CalculateState(gameState.CurrentPosition);
         if (gameResult == ChessGameState.Checkmate || gameResult == ChessGameState.Stalemate) {
             return (MoveResult.GameOver, null);
         }

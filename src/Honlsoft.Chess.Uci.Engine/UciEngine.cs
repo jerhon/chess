@@ -10,7 +10,9 @@ namespace Honlsoft.Chess.Uci.Engine;
 /// </summary>
 public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
 
-
+    private List<string> _moves = new List<string>();
+    
+    
     /// <summary>
     /// Runs initialization for the underlying chess engine.
     /// </summary>
@@ -20,7 +22,7 @@ public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
         await client.IsReadyAsync(cancellationToken);
     }
     
-    public async Task InitializeAsync(CancellationToken cancellationToken) {
+    public async Task StartGameAsync(CancellationToken cancellationToken) {
 
         FenSerializer fenSerializer = new FenSerializer();
         string fenString = fenSerializer.Serialize(chessGame.CurrentPosition);
@@ -29,16 +31,15 @@ public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
         await client.SetFenPositionAsync(fenString, [], cancellationToken);
     }
 
-    public async Task DoMoveAsync(string moveString, CancellationToken cancellationToken) {
-        await client.SetMovePositionAsync(new[] { moveString }, cancellationToken);
-        await client.IsReadyAsync(cancellationToken);
-    }
-
-    public Task SendMoveAsync(EngineSuggestion move, CancellationToken cancelToken) {
-        var uciMove = MapChessMoveToUciMove(move);
-        return client.SetMovePositionAsync( [uciMove], cancelToken);
+    public void AddMove(string moveString) 
+    {
+        _moves.Add(moveString);
     }
     
+    public async Task UpdatePositionAsync(CancellationToken cancellationToken) {
+        await client.SetStartingPositionAsync(_moves.ToArray(), cancellationToken);
+        await client.IsReadyAsync(cancellationToken);
+    }
     
     public async Task<EngineSuggestion> SuggestMoveAsync(CancellationToken cancelToken) {
         // TODO: Need to send current position

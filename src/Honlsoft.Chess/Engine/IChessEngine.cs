@@ -12,16 +12,18 @@ public interface IChessEngine {
     /// <summary>
     /// Starts a game, gives the engine a chance to initialize if necessary.
     /// </summary>
-    public Task InitializeAsync(CancellationToken cancellationToken);
+    public Task StartGameAsync(CancellationToken cancellationToken);
 
 
     // TODO: should have something better for movestring
+
+    public void AddMove(string moveString);
     
     /// <summary>
     /// Sends a move to the engine.
     /// </summary>
     /// <returns></returns>
-    public Task DoMoveAsync(string moveString, CancellationToken cancellationToken);
+    public Task UpdatePositionAsync(CancellationToken cancellationToken);
     
     /// <summary>
     /// Suggests a move from the engine.

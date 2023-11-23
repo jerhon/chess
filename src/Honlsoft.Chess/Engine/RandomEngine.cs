@@ -13,17 +13,23 @@ public class RandomEngine(ChessGame chessGame) : IChessEngine {
     /// </summary>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public Task InitializeAsync(CancellationToken cancellationToken) {
+    public Task StartGameAsync(CancellationToken cancellationToken) {
         return Task.CompletedTask;
     }
-    public Task DoMoveAsync(string moveString, CancellationToken cancellationToken) {
+    public void AddMove(string moveString) {
+        
+    }
+    public Task UpdatePositionAsync(CancellationToken cancellationToken) {
+        return Task.CompletedTask;
+    }
+    public Task UpdatePositionAsync(string moveString, CancellationToken cancellationToken) {
         return Task.CompletedTask;
     }
 
     public Task<EngineSuggestion> SuggestMoveAsync(CancellationToken cancellationToken) {
 
         var chessBoard = chessGame.CurrentPosition;
-        var currentPlayer = chessGame.CurrentPlayer;
+        var currentPlayer = chessGame.CurrentPosition.PlayerToMove;
         
         
         // TODO: need to take additional steps into consideration (player is in check, etc)
