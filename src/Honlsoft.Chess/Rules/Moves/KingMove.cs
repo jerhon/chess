@@ -2,14 +2,9 @@
 
 public record KingMove(SquareName From, SquareName To) : IChessMove, IKingMove {
     
-    public void ApplyMove(ChessPositionBuilder chessPosition) {
+    public void Move(IChessGame chessGame) {
 
-        var color = chessPosition.GetSquare(From)!.Piece!.Color;
-        
-        chessPosition.Move(From, To);
-        
-        chessPosition.WithCastlingRights(color, CastlingSide.Kingside, false);
-        chessPosition.WithCastlingRights(color, CastlingSide.Queenside, false);
+        chessGame.Move(From, To, null);
     }
     
     public SquareName[] GetThreateningSquares() {

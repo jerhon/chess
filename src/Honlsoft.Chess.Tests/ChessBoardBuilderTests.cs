@@ -9,8 +9,8 @@ public class ChessBoardBuilderTests {
         var chessBoardBuilder = new ChessPositionBuilder();
 
         chessBoardBuilder
-            .WithSquare("Pb4")
-            .WithSquare("pc4");
+            .SetSquare("Pb4")
+            .SetSquare("pc4");
 
         var chessBoard = chessBoardBuilder.Build();
 

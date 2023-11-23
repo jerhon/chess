@@ -31,12 +31,14 @@ public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
 
     public async Task DoMoveAsync(string moveString, CancellationToken cancellationToken) {
         await client.SetMovePositionAsync(new[] { moveString }, cancellationToken);
+        await client.IsReadyAsync(cancellationToken);
     }
 
     public Task SendMoveAsync(EngineSuggestion move, CancellationToken cancelToken) {
         var uciMove = MapChessMoveToUciMove(move);
-        return client.SetMovePositionAsync([uciMove], cancelToken);
+        return client.SetMovePositionAsync( [uciMove], cancelToken);
     }
+    
     
     public async Task<EngineSuggestion> SuggestMoveAsync(CancellationToken cancelToken) {
         // TODO: Need to send current position

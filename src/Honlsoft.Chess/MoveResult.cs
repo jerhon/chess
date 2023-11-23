@@ -7,5 +7,6 @@ public enum MoveResult {
     InCheckMustMoveKing,
     NotALegalMove,
     RequiresPromotion,
+    CastlingNotAllowed,
     NotAValidPromotion,
 }

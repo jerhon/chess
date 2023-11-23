@@ -13,7 +13,21 @@ public interface IChessPosition {
      /// The square a pawn has moved over in the last move. 
      /// </summary>
      SquareName? EnPassantTarget { get; }
+     
+     /// <summary>
+     /// The current player to move.
+     /// </summary>
+     PieceColor PlayerToMove { get; }
+     
+     /// <summary>
+     /// Moves in the games.
+     /// </summary>
+     int FullMoves { get; }
 
+     /// <summary>
+     /// Half moves (player moves since the last pawn or piece capture).
+     /// </summary>
+     int HalfMoves { get; }
 
      /// <summary>
      /// Returns whether a player still has castling rights.

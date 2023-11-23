@@ -47,7 +47,7 @@ public class GameRules(MoveRules moveRules) {
     public (MoveResult, IChessMove?) IsValidMove(IChessGame gameState, SquareName from, SquareName to, PieceType? promotionPiece) {
 
         
-        var gameResult = CalculateState(gameState.CurrentPosition, gameState.CurrentPlayer);
+        var gameResult = CalculateState(gameState.CurrentPosition, gameState.CurrentPosition.PlayerToMove);
         if (gameResult == ChessGameState.Checkmate || gameResult == ChessGameState.Stalemate) {
             return (MoveResult.GameOver, null);
         }
@@ -60,7 +60,7 @@ public class GameRules(MoveRules moveRules) {
         // Is player in check, can only move the king.
         if (gameResult == ChessGameState.Check) {
             var square = gameState.CurrentPosition.GetSquare(from);
-            if (square is not { Piece: {Type: PieceType.King }} || square?.Piece?.Color != gameState.CurrentPlayer) {
+            if (square is not { Piece: {Type: PieceType.King }} || square?.Piece?.Color != gameState.CurrentPosition.PlayerToMove) {
                 return (MoveResult.InCheckMustMoveKing, null);
             }
         }
@@ -99,6 +99,6 @@ public class GameRules(MoveRules moveRules) {
     
     private bool IsCurrentPlayerPiece(IChessGame gameState, SquareName from) {
         var square = gameState.CurrentPosition.GetSquare(from);
-        return square.Piece?.Color == gameState.CurrentPlayer;
+        return square.Piece?.Color == gameState.CurrentPosition.PlayerToMove;
     }
 }

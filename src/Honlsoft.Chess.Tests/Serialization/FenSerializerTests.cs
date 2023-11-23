@@ -10,7 +10,7 @@ public class FenSerializerTests {
         FenSerializer serialzer = new FenSerializer();
         string standardFen = serialzer.Serialize(ChessPositionBuilder.StandardGame);
 
-        Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", standardFen);
+        Assert.Equal("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0", standardFen);
     }
 
     [Fact]

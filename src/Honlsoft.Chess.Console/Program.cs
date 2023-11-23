@@ -57,13 +57,13 @@ while (game.GameState is ChessGameState.Check or ChessGameState.PlayerToMove) {
     if (game.CurrentPlayer == PieceColor.White) {
         var from = AnsiConsole.Console.AskPickAPiece();
         var (to, promotionPiece) = AnsiConsole.Console.AskMoveTo();
-        lastMoveResult = game.MovePiece(from, to, promotionPiece);
+        lastMoveResult = game.Move(from, to, promotionPiece);
         if (lastMoveResult == MoveResult.ValidMove) {
             await uciChessEngine.DoMoveAsync(from.ToString() + to, CancellationToken.None);
         }
     } else {
         var move = await uciChessEngine.SuggestMoveAsync(CancellationToken.None);
-        var engineError = game.MovePiece(move.From, move.To, null);
+        var engineError = game.Move(move.From, move.To, null);
     }
 }
 

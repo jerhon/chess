@@ -22,7 +22,7 @@ public interface IChessMove {
     /// <summary>
     /// Applies a move to a chess board.
     /// </summary>
-    /// <param name="chessPosition">The chess board to apply the move to.</param>
-    void ApplyMove(ChessPositionBuilder chessPosition);
+    /// <param name="chessGame">The chess game to apply the move to.</param>
+    void Move(IChessGame chessGame);
     
 }

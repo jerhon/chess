@@ -33,7 +33,7 @@ public class SimpleSerializer {
         var squareStrings = serializedChessBoard.Split(DividerCharacter);
         foreach (var squareString in squareStrings) {
             var square = Square.Parse(squareString);
-            chessBoardBuilder.WithSquare(square);
+            chessBoardBuilder.SetSquare(square);
         }
         return chessBoardBuilder.Build();
     }

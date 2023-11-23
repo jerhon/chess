@@ -22,7 +22,10 @@ public class FakeChessPosition : IChessPosition {
     }
     
     public SquareName? EnPassantTarget { get; set; }
-    
+    public PieceColor PlayerToMove { get; set; }
+    public int FullMoves { get; set;  }
+    public int HalfMoves { get; set; }
+
     public bool CanCastle(PieceColor playerColor, CastlingSide castleSide) {
         throw new NotImplementedException();
     }
