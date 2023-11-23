@@ -91,6 +91,11 @@ public class ChessPositionBuilder : IChessPosition {
         return this;
     }
 
+    public ChessPositionBuilder WithPlayerToMove(PieceColor color) {
+        PlayerToMove = color;
+        return this;
+    }
+
     public ChessPositionBuilder RemoveCastlingRights(CastlingSide side) {
         _castlingRights.Remove((PlayerToMove, side));
         return this;

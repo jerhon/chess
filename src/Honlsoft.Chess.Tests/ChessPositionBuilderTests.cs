@@ -1,13 +1,33 @@
-﻿using System.Net.NetworkInformation;
+﻿namespace Honlsoft.Chess.Tests; 
 
-namespace Honlsoft.Chess.Tests; 
+public class ChessPositionBuilderTests {
 
-public class ChessBoardTests {
+
+    [Fact]
+    public void WithSquare_AddsSquare_BuildsChessBoard() {
+
+        var chessBoardBuilder = new ChessPositionBuilder();
+
+        chessBoardBuilder
+            .SetSquare("Pb4")
+            .SetSquare("pc4");
+
+        var chessBoard = chessBoardBuilder.Build();
+
+        var squarePb4 = chessBoard.GetSquare(SquareName.Parse("b4"));
+        var squarepc4 = chessBoard.GetSquare(SquareName.Parse("c4"));
+        var squareg5 = chessBoard.GetSquare(SquareName.Parse("g5"));
+        
+        squarePb4.Should().NotBeNull().And.BeEquivalentTo(Square.Parse("Pb4"));
+        squarepc4.Should().NotBeNull().And.BeEquivalentTo(Square.Parse("pc4"));
+        squareg5.Should().NotBeNull().And.BeEquivalentTo(Square.Parse("g5"));
+
+    }
     
     
 
     [Fact]
-    public void NewStandardGame_MatchesExpected() 
+    public void StandardGame_MatchesExpected() 
     {
         var chessBoard = ChessPositionBuilder.StandardGame;
         foreach (var file in SquareFile.AllFiles) {
@@ -67,5 +87,4 @@ public class ChessBoardTests {
             Assert.Fail("Invalid chess position");
         }
     }
-
 }

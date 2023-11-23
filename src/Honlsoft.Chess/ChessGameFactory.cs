@@ -16,7 +16,7 @@ public class ChessGameFactory {
         return new ChessGame(ChessPositionBuilder.StandardGame, CreateGameRules());
     }
     
-    public ChessGame CreateGameFromPosition(IChessPosition initialPosition, PieceColor playerToMove) {
+    public ChessGame CreateGameFromPosition(IChessPosition initialPosition) {
         return new ChessGame(initialPosition, CreateGameRules());
     }
 }

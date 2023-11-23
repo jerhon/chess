@@ -9,6 +9,10 @@ public record SquareName(SquareFile SquareFile, SquareRank SquareRank) : IParsab
         return $"{SquareFile}{SquareRank}";
     }
 
+    public static SquareName From(char file, int rank) {
+        return new SquareName(new SquareFile(file), new SquareRank(rank));
+    }
+
     public static SquareName Parse(string s, IFormatProvider? provider = null) {
         if (TryParse(s, null, out var squareName)) {
             return squareName!;
