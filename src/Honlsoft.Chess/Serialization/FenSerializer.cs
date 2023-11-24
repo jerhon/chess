@@ -160,10 +160,10 @@ public class FenSerializer {
             'k' => PieceType.King,
             'q' => PieceType.Queen,
             'b' => PieceType.Bishop,
-            'n' => PieceType.King,
+            'n' => PieceType.Knight,
             'r' => PieceType.Rook,
             'p' => PieceType.Pawn,
-            _ => throw new NotImplementedException("Unknown piece character " + c)
+            _ => throw new NotImplementedException("Unknown chess piece representation " + c)
         };
 
         var pieceColor = Char.IsLower(c) ? PieceColor.Black : PieceColor.White;

@@ -8,6 +8,7 @@ public record Square(SquareName Name, Piece? Piece) {
 
 
     public static Square Parse(string name) {
+        
         if (name.Length == 2) {
             var squareName = SquareName.Parse(name);
             return new Square(squareName, null);
