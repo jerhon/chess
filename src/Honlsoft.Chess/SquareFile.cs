@@ -82,7 +82,7 @@ public record SquareFile(char Name) {
             'f' => Chess.SquareFile.f,
             'g' => Chess.SquareFile.g,
             'h' => Chess.SquareFile.h,
-            _ => null
+            _ => throw new FormatException($"{fileChar} not a valid file.")
         };
     }
 
