@@ -5,30 +5,47 @@ namespace Honlsoft.Chess.Serialization;
 public class SanSerializer {
 
     
-    private static Regex sanRegex = new Regex("^(?<piece>[KQRBN])?(?<fromFile>[a-h])?(?<fromRank>[1-8])?(?<capture>[x])?(?<toSquare>[a-h][1-8])?(?<promotion>[=][QRBN])?(?<check>[+#])?$", RegexOptions.Compiled);
+    private static Regex sanRegex = new Regex("^(?<piece>[KQRBN])?(?<fromFile>[a-h])?(?<fromRank>[1-8])?(?<capture>[x])?(?<toSquare>[a-h][1-8])(?<promotion>[=][QRBN])?(?<check>[+#])?$", RegexOptions.Compiled);
 
 
-    public string SerializeSanFrom(San sanPiece) {
-        var pieceType = SerializePieceType(sanPiece.FromPiece);
-        var rank = sanPiece.FromRank?.ToString() ?? "";
-        var file = sanPiece.FromFile?.ToString() ?? "";
+    public string Serialize(San san) {
+        if (san is SanCastle sanCastle) {
+            return SerializeSanCastle(sanCastle);
+        } else if (san is SanMove sanMove) {
+            return SerializeSanMove(sanMove);
+        }
 
-        return $"{pieceType}{rank}{file}";
+        throw new InvalidOperationException("Unknown type " + san.GetType().Name);
+    }
+    
+    public string SerializeSanCastle(SanCastle sanCastle) {
+        return sanCastle.Side switch {
+            CastlingSide.Kingside => "0-0",
+            CastlingSide.Queenside => "0-0-0"
+        };
     }
 
-    public string SerializeSanTo(San sanPiece) {
-        var rank = sanPiece.ToRank?.ToString() ?? "";
-        var file = sanPiece.ToRank?.ToString() ?? "";
+    public string SerializeSanFrom(SanMove sanMovePiece) {
+        var pieceType = SerializePieceType(sanMovePiece.FromPiece);
+        var rank = sanMovePiece.FromRank?.ToString() ?? "";
+        var file = sanMovePiece.FromFile?.ToString() ?? "";
 
-        return $"{rank}{file}";
+        return $"{pieceType}{file}{rank}";
     }
 
-    public string SerializeSan(San san) {
-        var from = SerializeSanFrom(san);
-        var capture = san.Capture ? "x" : "";
-        var to = SerializeSanTo(san);
-        var check = SerializeCheckType(san.Check);
-        var promotion = san.PromotionPiece != null ? "=="  + SerializePieceType(san.PromotionPiece) : "";
+    public string SerializeSanTo(SanMove sanMovePiece) {
+        var rank = sanMovePiece.ToRank?.ToString() ?? "";
+        var file = sanMovePiece.ToFile?.ToString() ?? "";
+
+        return $"{file}{rank}";
+    }
+
+    public string SerializeSanMove(SanMove sanMove) {
+        var from = SerializeSanFrom(sanMove);
+        var capture = sanMove.Capture ? "x" : "";
+        var to = SerializeSanTo(sanMove);
+        var check = SerializeCheckType(sanMove.Check);
+        var promotion = sanMove.PromotionPiece != null ? "=="  + SerializePieceType(sanMove.PromotionPiece) : "";
         
         return $"{from}{capture}{to}{check}{promotion}";
     }
@@ -56,8 +73,16 @@ public class SanSerializer {
 
     
     public San Deserialize(string sanExpression) {
-        var matchedSan = sanRegex.Match(sanExpression);
+
+        if (sanExpression == "0-0") {
+            return new SanCastle { Side = CastlingSide.Kingside };
+        }
         
+        if (sanExpression == "0-0-0") {
+            return new SanCastle { Side = CastlingSide.Queenside };
+        }
+        
+        var matchedSan = sanRegex.Match(sanExpression);
         if (matchedSan.Success) {
 
             PieceType? pieceType = null;
@@ -96,7 +121,7 @@ public class SanSerializer {
                 }
             }
             
-            return new San {
+            return new SanMove {
                 FromFile = fromFile,
                 FromPiece = pieceType,
                 FromRank = fromRank,
@@ -105,12 +130,9 @@ public class SanSerializer {
                 Capture = capture,
                 Check = checkType
             };
-
         }
-        else 
-        {
-            throw new FormatException("Does not match a SAN expression.");
-        }
+        
+        throw new FormatException("Does not match a SAN expression.");
     }
 
 

@@ -24,5 +24,4 @@ public interface IChessMove {
     /// </summary>
     /// <param name="chessGame">The chess game to apply the move to.</param>
     void Move(IChessGame chessGame);
-    
 }

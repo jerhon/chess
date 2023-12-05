@@ -7,32 +7,34 @@ public class SanSerializerTests {
 
     [Theory]
     [MemberData(nameof(GetAlgebraicNotations))]
-    public void Deserialize_WithValidExpression_ShouldMatch(string rawSan, San expectedSan) {
+    public void Deserialize_WithValidExpression_ShouldMatch(string rawSan, San expectedSanMove) {
         SanSerializer serializer = new SanSerializer();
-        San actualSan = serializer.Deserialize(rawSan);
+        San actualSanMove = serializer.Deserialize(rawSan);
 
-        actualSan.Should().BeEquivalentTo(expectedSan);
+        actualSanMove.Should().Be(expectedSanMove);
     }
 
 
     [Theory]
     [MemberData(nameof(GetAlgebraicNotations))]
-    public void Serialize_WithValidExpression_ShouldMatch(string expectRawSan, San expectedSan) {
+    public void Serialize_WithValidExpression_ShouldMatch(string expectRawSan, San expectedSanMove) {
         SanSerializer serializer = new SanSerializer();
-        string actualRawSan = serializer.SerializeSan(expectedSan);
+        string actualRawSan = serializer.Serialize(expectedSanMove);
 
-        actualRawSan.Equals(expectRawSan);
+        actualRawSan.Should().Be(expectRawSan);
     }
 
 
     public static TheoryData<string, San> GetAlgebraicNotations() {
         TheoryData<string, San> data = new();
-        data.Add("b4", new San { FromFile = SquareFile.b, FromRank = SquareRank.Rank4 });
-        data.Add("Nc6", new San { FromFile = SquareFile.c, FromRank = SquareRank.Rank6, FromPiece = PieceType.Knight });
-        data.Add("Qd8+", new San{ FromFile = SquareFile.d, FromRank = SquareRank.Rank8, FromPiece = PieceType.Queen, Check = SanCheckType.Check });
-        data.Add("Kd8#", new San{ FromFile = SquareFile.d, FromRank = SquareRank.Rank8, FromPiece = PieceType.King, Check = SanCheckType.Checkmate });
-        data.Add("Ba1c4", new San{ FromFile = SquareFile.a, FromRank = SquareRank.Rank1, FromPiece = PieceType.Bishop, ToFile = SquareFile.c, ToRank = SquareRank.Rank4});
-        data.Add("Rh1xh8", new San{ FromFile = SquareFile.h, FromRank = SquareRank.Rank1, FromPiece = PieceType.Rook, ToFile = SquareFile.h, ToRank = SquareRank.Rank8, Capture = true});
+        data.Add("b4", new SanMove { ToFile = SquareFile.b, ToRank = SquareRank.Rank4 });
+        data.Add("Nc6", new SanMove { ToFile = SquareFile.c, ToRank = SquareRank.Rank6, FromPiece = PieceType.Knight });
+        data.Add("Qd8+", new SanMove{ ToFile = SquareFile.d, ToRank = SquareRank.Rank8, FromPiece = PieceType.Queen, Check = SanCheckType.Check });
+        data.Add("Kd8#", new SanMove{ ToFile = SquareFile.d, ToRank = SquareRank.Rank8, FromPiece = PieceType.King, Check = SanCheckType.Checkmate });
+        data.Add("Ba1c4", new SanMove{ FromFile = SquareFile.a, FromRank = SquareRank.Rank1, FromPiece = PieceType.Bishop, ToFile = SquareFile.c, ToRank = SquareRank.Rank4});
+        data.Add("Rh1xh8", new SanMove{ FromFile = SquareFile.h, FromRank = SquareRank.Rank1, FromPiece = PieceType.Rook, ToFile = SquareFile.h, ToRank = SquareRank.Rank8, Capture = true});
+        data.Add("0-0", new SanCastle{ Side=CastlingSide.Kingside });
+        data.Add("0-0-0", new SanCastle{ Side = CastlingSide.Queenside });
         return data;
     }
 }

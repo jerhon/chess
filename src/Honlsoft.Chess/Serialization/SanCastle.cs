@@ -1,0 +1,7 @@
+﻿namespace Honlsoft.Chess.Serialization;
+
+public record SanCastle : San {
+    
+    public required CastlingSide Side { get; init; }
+    
+}

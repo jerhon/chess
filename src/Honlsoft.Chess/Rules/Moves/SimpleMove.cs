@@ -12,7 +12,7 @@ public record SimpleMove(SquareName From, SquareName To) : IChessMove {
         chessGame.Move(From, To, null);
         
     }
-    
+
     public SquareName[] GetTargetedSquares() {
         return [To];
     }
