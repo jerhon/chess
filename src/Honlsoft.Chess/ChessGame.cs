@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
 using Honlsoft.Chess.Rules;
+using Honlsoft.Chess.Serialization;
 
 
 // TODO: Promotion, En passant, Stalemate Due to Repetition, Stalemate Due to Move Count, others?
@@ -79,7 +80,23 @@ public class ChessGame : IChessGame {
         
         return validationResult;
     }
-    
+
+
+    /// <summary>
+    /// Moves a piece from a SAN move description.
+    /// </summary>
+    /// <param name="sanMove"></param>
+    /// <returns></returns>
+    public MoveResult Move(San sanMove) {
+
+        // TODO: promotion square
+        // TODO: castle
+        
+        var move = GetSanMove(sanMove);
+
+        return Move(move.From, move.To, null);
+
+    }
 
     public MoveResult Castle(CastlingSide side) {
         
@@ -163,6 +180,41 @@ public class ChessGame : IChessGame {
             _chessPosition.RemovePiece(captureSquare);
             _chessPosition.WithEnPassantTarget(null);
         }
+    }
+
+    public IChessMove GetSanMove(San san) {
+        var playerSquares = SquareName.AllSquares().Select((s) => _chessPosition.GetSquare(s))
+            .Where((s) => s.Piece?.Color == _chessPosition.PlayerToMove);
+        
+        // TODO: deal with castling
+        if (san is SanMove sanMove) {
+
+            // If it narrows down by piece, use that
+            if (sanMove.FromPiece != null) {
+                playerSquares = playerSquares.Where((ps) => ps.Piece?.Type == sanMove.FromPiece);
+            }
+                    
+            var candidateMoves = playerSquares.SelectMany((s) => _rules.GetMoves(_chessPosition, s.Name));
+
+            
+            var possibleMoves = candidateMoves.Where((m) => m.To.SquareFile == sanMove.ToFile && m.To.SquareRank == sanMove.ToRank);
+            if (!possibleMoves.Any()) {
+                throw new InvalidOperationException("Invalid move.");
+            }
+            else if (possibleMoves.Count() == 1) {
+                var move = possibleMoves.First();
+                return move;
+            } else {
+                if (sanMove.FromFile != null) {
+                    possibleMoves = possibleMoves.Where((pm) => pm.From.SquareFile == sanMove.FromFile);
+                }
+                if (sanMove.FromRank != null) {
+                    possibleMoves = possibleMoves.Where((pm) => pm.From.SquareRank == sanMove.FromRank);
+                }
+            }
+        }
+
+        throw new InvalidOperationException("Unsupported SAN type.");
     }
 
     public SquareName[] GetCandidateMoves(SquareName squareName)  => _rules.GetMoves(_chessPosition, squareName).Select((m) => m.To).ToArray();
