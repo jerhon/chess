@@ -37,7 +37,12 @@ public class PgnReaderTests {
             TheoryData<string, PgnMovePart> data = new();
             data.Add("1.", new PgnMoveNumber(1, 1));
             data.Add("1...", new PgnMoveNumber(1, 3));
-            data.Add("e2e4", new PgnMoveText(null, SquareFile.e, SquareRank.Rank2, false, SquareFile.e, SquareRank.Rank4, null, false, false, ""));
+            data.Add("e2e4", new PgnMoveText(new SanMove {
+                FromFile = SquareFile.e, 
+                FromRank = SquareRank.Rank2,
+                ToFile = SquareFile.e,
+                ToRank = SquareRank.Rank4
+            }));
             return data;
         }
     }

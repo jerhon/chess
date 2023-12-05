@@ -74,11 +74,11 @@ public class SanSerializer {
     
     public San Deserialize(string sanExpression) {
 
-        if (sanExpression == "0-0") {
+        if (sanExpression is "0-0" or "O-O") {
             return new SanCastle { Side = CastlingSide.Kingside };
         }
         
-        if (sanExpression == "0-0-0") {
+        if (sanExpression is "0-0-0" or "O-O-O") {
             return new SanCastle { Side = CastlingSide.Queenside };
         }
         
@@ -132,7 +132,7 @@ public class SanSerializer {
             };
         }
         
-        throw new FormatException("Does not match a SAN expression.");
+        throw new FormatException($"Does not match a SAN expression = '{sanExpression}'.");
     }
 
 
