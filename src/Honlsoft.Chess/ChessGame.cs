@@ -87,15 +87,21 @@ public class ChessGame : IChessGame {
     /// </summary>
     /// <param name="sanMove"></param>
     /// <returns></returns>
-    public MoveResult Move(San sanMove) {
+    public MoveResult Move(San san) {
 
-        // TODO: promotion square
-        // TODO: castle
-        
-        var move = GetSanMove(sanMove);
-
-        return Move(move.From, move.To, null);
-
+        if (san is SanCastle sanCastle) 
+        {
+            return this.Castle(sanCastle.Side);
+        }
+        else if (san is SanMove sanMove)
+        {
+            var chessMove = GetSanMove(sanMove);
+            return Move(chessMove.From, chessMove.To, sanMove.PromotionPiece);
+        }
+        else
+        {
+            throw new NotImplementedException("No implementation is ");
+        }
     }
 
     public MoveResult Castle(CastlingSide side) {
