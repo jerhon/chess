@@ -104,8 +104,8 @@ public class FenSerializer {
         }
 
         if (fenParts.Length > 5) {
-            if (int.TryParse(fenParts[5], out int halfMoves)) {
-                positionBuilder.WithHalfMoves(halfMoves);
+            if (int.TryParse(fenParts[5], out int fullMoves)) {
+                positionBuilder.WithFullMoves(fullMoves);
             } else {
                 throw new FormatException("The half moves of the FEN string is not a valid integer.");
             }

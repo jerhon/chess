@@ -20,8 +20,8 @@ public class SanSerializer {
     
     public string SerializeSanCastle(SanCastle sanCastle) {
         return sanCastle.Side switch {
-            CastlingSide.Kingside => "0-0",
-            CastlingSide.Queenside => "0-0-0"
+            CastlingSide.Kingside => "O-O",
+            CastlingSide.Queenside => "O-O-O"
         };
     }
 
