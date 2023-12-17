@@ -52,10 +52,8 @@ app.MapPost("/game/{gameId}/move", (IMemoryCache cache, Guid gameId, [FromBody] 
 
             SanSerializer serializer = new();
             San san = serializer.Deserialize(move.Move);
-
-            // TODO: need to parse movetext and apply it...
+            
             var result = game.Move(san);
-
             FenSerializer fenSerializer = new FenSerializer();
             string fen = fenSerializer.Serialize(game.CurrentPosition);
             return Results.Ok(new GameMoveResponse(result, fen));

@@ -5,7 +5,7 @@ namespace Honlsoft.Chess.Serialization;
 public class SanSerializer {
 
     
-    private static Regex sanRegex = new Regex("^(?<piece>[KQRBN])?(?<fromFile>[a-h])?(?<fromRank>[1-8])?(?<capture>[x])?(?<toSquare>[a-h][1-8])(?<promotion>[=][QRBN])?(?<check>[+#])?$", RegexOptions.Compiled);
+    private static readonly Regex sanRegex = new Regex("^(?<piece>[KQRBN])?(?<fromFile>[a-h])?(?<fromRank>[1-8])?(?<capture>[x])?(?<toSquare>[a-h][1-8])(?<promotion>[=]+[QRBN])?(?<check>[+#])?$", RegexOptions.Compiled);
 
 
     public string Serialize(San san) {
@@ -88,6 +88,7 @@ public class SanSerializer {
             PieceType? pieceType = null;
             SquareRank? fromRank = null;
             SquareFile? fromFile = null;
+            PieceType? promotionPiece = null;
             
             if (matchedSan.Groups["piece"].Success) {
                 pieceType = ParsePiece(matchedSan.Groups["piece"].Value);
@@ -120,6 +121,11 @@ public class SanSerializer {
                     checkType = SanCheckType.Checkmate;
                 }
             }
+
+            if (matchedSan.Groups["promotion"].Success) {
+                var promotionValue = matchedSan.Groups["promotion"].Value.TrimStart('=');
+                promotionPiece = ParsePiece(promotionValue);
+            }
             
             return new SanMove {
                 FromFile = fromFile,
@@ -128,7 +134,8 @@ public class SanSerializer {
                 ToFile = toFile,
                 ToRank = toRank,
                 Capture = capture,
-                Check = checkType
+                Check = checkType,
+                PromotionPiece = promotionPiece
             };
         }
         

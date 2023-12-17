@@ -96,11 +96,14 @@ public class ChessGame : IChessGame {
         else if (san is SanMove sanMove)
         {
             var chessMove = GetSanMove(sanMove);
+            if (chessMove == null) {
+                return MoveResult.NotALegalMove;
+            }
             return Move(chessMove.From, chessMove.To, sanMove.PromotionPiece);
         }
         else
         {
-            throw new NotImplementedException("No implementation is ");
+            throw new ArgumentException("The type of San move passed in cannot be used as a move.", nameof(san));
         }
     }
 
@@ -110,8 +113,6 @@ public class ChessGame : IChessGame {
             return MoveResult.CastlingNotAllowed;
         }
 
-        // TODO: add validation that squares are empty...
-        
         SquareRank squareRank = _chessPosition.PlayerToMove is PieceColor.Black ? SquareRank.Rank8 : SquareRank.Rank1;
         SquareFile rookSquareFile = side is CastlingSide.Queenside ? SquareFile.a : SquareFile.h;
 
@@ -122,6 +123,13 @@ public class ChessGame : IChessGame {
         SquareName rookSquare = new SquareName(rookSquareFile, squareRank);
         SquareName kingToSquare = new SquareName(kingFinalSquareFile, squareRank);
         SquareName rookToSquare = new SquareName(rookFinalSquareFile, squareRank);
+
+        if (_chessPosition.GetSquare(kingToSquare).HasPiece) {
+            return MoveResult.NotALegalMove;
+        }
+        if (_chessPosition.GetSquare(rookToSquare).HasPiece) {
+            return MoveResult.NotALegalMove;
+        }
 
         _chessPosition.Move(kingSquare, kingToSquare)
                 .Move(rookSquare, rookToSquare)
@@ -188,11 +196,10 @@ public class ChessGame : IChessGame {
         }
     }
 
-    public IChessMove GetSanMove(San san) {
+    public IChessMove? GetSanMove(San san) {
         var playerSquares = SquareName.AllSquares().Select((s) => _chessPosition.GetSquare(s))
             .Where((s) => s.Piece?.Color == _chessPosition.PlayerToMove);
         
-        // TODO: deal with castling
         if (san is SanMove sanMove) {
 
             // If it narrows down by piece, use that
@@ -216,7 +223,7 @@ public class ChessGame : IChessGame {
                 }
                 if (sanMove.FromRank != null) {
                     possibleMoves = possibleMoves.Where((pm) => pm.From.SquareRank == sanMove.FromRank);
-                }
+                } else return null;
             }
         }
 

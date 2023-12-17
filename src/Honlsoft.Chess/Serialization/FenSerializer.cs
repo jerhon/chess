@@ -12,7 +12,7 @@ public class FenSerializer {
                 var square = chessPosition.GetSquare(new SquareName(file, rank));
                 if (square.Piece != null) {
                     if (emptySpaces > 0) {
-                        builder.Append(emptySpaces.ToString());
+                        builder.Append(emptySpaces);
                         emptySpaces = 0;
                     }
                     builder.Append(square.Piece.ToString());
@@ -77,8 +77,6 @@ public class FenSerializer {
             DeserializePieces(positionBuilder, fenParts[0]);
         }
         
-        // rnbqkbnr/2p2p2/1p4p1/p2pp2p/P2PP2P/1P4P1/2P2P2/RNBQKBNR w KQkq - 0 1
-
         if (fenParts.Length > 1) {
             var color = DeserializeColor(fenParts[1]);
             positionBuilder.WithPlayerToMove(color);
@@ -86,7 +84,7 @@ public class FenSerializer {
 
         if (fenParts.Length > 2) {
             if (fenParts[2] != "-") {
-                DeserializeCastlingRights(positionBuilder, fenParts[1]);
+                DeserializeCastlingRights(positionBuilder, fenParts[2]);
             }
         }
 
@@ -98,13 +96,19 @@ public class FenSerializer {
         }
 
         if (fenParts.Length > 4) {
-            int halfMoves = int.Parse(fenParts[4]);
-            positionBuilder.WithHalfMoves(halfMoves);
+            if (int.TryParse(fenParts[4], out int halfMoves)) {
+                positionBuilder.WithHalfMoves(halfMoves);
+            } else {
+                throw new FormatException("The half moves of the FEN string is not a valid integer.");
+            }
         }
 
         if (fenParts.Length > 5) {
-            int fullMoves = int.Parse(fenParts[5]);
-            positionBuilder.WithFullMoves(fullMoves);
+            if (int.TryParse(fenParts[5], out int halfMoves)) {
+                positionBuilder.WithHalfMoves(halfMoves);
+            } else {
+                throw new FormatException("The half moves of the FEN string is not a valid integer.");
+            }
         }
         
         return positionBuilder;
@@ -128,6 +132,18 @@ public class FenSerializer {
         }
     }
 
+    /// <summary>
+    /// Deserializes a FEN position string and updates the ChessPositionBuilder object with the corresponding chess position.
+    /// </summary>
+    /// <param name="builder">The ChessPositionBuilder object to update.</param>
+    /// <param name="boardString">The FEN position string representing the chess position.</param>
+    /// <exception cref="FormatException">Thrown when the FEN position string does not contain all 8 ranks.</exception>
+    /// <remarks>
+    /// The FEN position string should follow the standard FEN notation for chess positions.
+    /// The method splits the FEN position string into rows and iterates through each row and column to update the ChessPositionBuilder object.
+    /// It uses the '//' symbol to split the rows and the letters 'a' to 'h' to represent the columns.
+    /// The method handles both piece characters and numeric characters to update the corresponding chess squares.
+    /// </remarks>
     public void DeserializePieces(ChessPositionBuilder builder, string boardString) {
         var rows = boardString.Split("/");
         if (rows.Length != 8) {
