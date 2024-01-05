@@ -43,7 +43,7 @@ public class KnightMoveRule : IMoveRule {
             return false;
         }
         var square = chessPosition.GetSquare(squareName);
-        return square.Piece == null || (square?.Piece?.IsOpponent(color) ?? false);
+        return square.Piece == null || (square.Piece?.IsOpponent(color) ?? false);
     }
     
 }

@@ -65,6 +65,20 @@ app.MapPost("/game/{gameId}/move", (IMemoryCache cache, Guid gameId, [FromBody] 
     .WithOpenApi();
 
 
+// TODO: will move some of those over to the web...
+app.MapGet("/game/{gameId}/move/{fromSquare}", (IMemoryCache cache, Guid gameId, string fromSquare) => {
+    if (cache.TryGetValue(gameId, out ChessGame game)) {
+        var fromSquareName = SquareName.Parse(fromSquare);
+        if (game.CurrentPosition.GetSquare(fromSquareName).Piece?.Color != game.CurrentPosition.PlayerToMove) {
+            return Results.Ok(new CandidateMoves([]));
+        }
+        var candidateMoves = game.GetCandidateMoves(fromSquareName);
+        return Results.Ok( new CandidateMoves(candidateMoves.Select((cm) => cm.ToString()).ToArray()));
+    } else {
+        return Results.NotFound();
+    }   
+});
+
 app.Run();
 
 
@@ -84,3 +98,5 @@ record GameMoveRequest(string Move) {
 record GameMoveResponse(MoveResult Result, string Fen) {
     
 }
+
+record CandidateMoves(string[] ToSquares);

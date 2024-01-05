@@ -1,4 +1,6 @@
-﻿namespace Honlsoft.Chess.Rules; 
+﻿using Honlsoft.Chess.Serialization;
+
+namespace Honlsoft.Chess.Rules; 
 
 public record CastlingMoveRule(PieceColor Color, CastlingSide Side) : IChessMove, IKingMove {
     
@@ -25,6 +27,10 @@ public record CastlingMoveRule(PieceColor Color, CastlingSide Side) : IChessMove
         chessGame.Castle(Side);
     }
     
+    public San ToSan() {
+        return new SanCastle() { Side = this.Side };
+    }
+
     public PieceColor? GetPlayer(IChessPosition chessPosition) {
         return Color;
     }
@@ -32,4 +38,5 @@ public record CastlingMoveRule(PieceColor Color, CastlingSide Side) : IChessMove
     public SquareName[] GetThreateningSquares() {
         return [From, To];
     }
+
 }

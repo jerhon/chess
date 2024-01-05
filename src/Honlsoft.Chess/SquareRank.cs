@@ -107,4 +107,18 @@ public record SquareRank(int Number)
             _ => null       
         };
     }
+
+    public static SquareRank? Parse(int rankNumber) {
+        return rankNumber switch {
+            1 => Rank1,
+            2 => Rank2,
+            3 => Rank3,
+            4 => Rank4,
+            5 => Rank5,
+            6 => Rank6,
+            7 => Rank7,
+            8 => Rank8,
+            _ => null       
+        }; 
+    }
 }

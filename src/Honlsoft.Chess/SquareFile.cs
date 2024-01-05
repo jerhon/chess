@@ -16,6 +16,8 @@ public record SquareFile(char Name) {
     public static SquareFile h = new SquareFile('h');
     
     public static SquareFile[] AllFiles = { a,b,c,d,e,f,g,h };
+
+
     
     /// <summary>
     /// Adds a number to a file.
@@ -28,7 +30,7 @@ public record SquareFile(char Name) {
         if (name > 'h' || name < 'a') {
             return null;
         }
-        return new SquareFile(name);
+        return Parse(name);
     }
     
     /// <summary>
@@ -74,14 +76,14 @@ public record SquareFile(char Name) {
 
     public static SquareFile? Parse(char fileChar) {
         return fileChar switch {
-            'a' => Chess.SquareFile.a,
-            'b' => Chess.SquareFile.b,
-            'c' => Chess.SquareFile.c,
-            'd' => Chess.SquareFile.d,
-            'e' => Chess.SquareFile.e,
-            'f' => Chess.SquareFile.f,
-            'g' => Chess.SquareFile.g,
-            'h' => Chess.SquareFile.h,
+            'a' => a,
+            'b' => b,
+            'c' => c,
+            'd' => d,
+            'e' => e,
+            'f' => f,
+            'g' => g,
+            'h' => h,
             _ => throw new FormatException($"{fileChar} not a valid file.")
         };
     }

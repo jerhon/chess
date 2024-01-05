@@ -221,12 +221,22 @@ public class ChessGame : IChessGame {
                 if (sanMove.FromFile != null) {
                     possibleMoves = possibleMoves.Where((pm) => pm.From.SquareFile == sanMove.FromFile);
                 }
+                if (possibleMoves.Count() == 1) {
+                    return possibleMoves.First();
+                }
                 if (sanMove.FromRank != null) {
                     possibleMoves = possibleMoves.Where((pm) => pm.From.SquareRank == sanMove.FromRank);
-                } else return null;
+                }
+                if (possibleMoves.Count() == 1) {
+                    return possibleMoves.First();
+                }
             }
+            
+            // Couldn't find a move from the Standard Algebraic Notation
+            return null;
         }
-
+        
+        
         throw new InvalidOperationException("Unsupported SAN type.");
     }
 
