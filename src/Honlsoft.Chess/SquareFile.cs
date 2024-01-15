@@ -1,7 +1,7 @@
 ﻿namespace Honlsoft.Chess; 
 
 /// <summary>
-/// The chess file.
+/// The chess file. This is the horizontal axis of the chess board. It is represented by a letter from a-h.
 /// </summary>
 /// <param name="Name">the name of the file</param>
 public record SquareFile(char Name) {
@@ -60,6 +60,12 @@ public record SquareFile(char Name) {
         return ToRange(-8, inclusive);
     }
 
+    /// <summary>
+    /// Returns a range of chess files.
+    /// </summary>
+    /// <param name="limit"></param>
+    /// <param name="inclusive"></param>
+    /// <returns></returns>
     public IEnumerable<SquareFile> ToRange(int limit, bool inclusive = false) {
         int i = 0;
         SquareFile? file = this;
@@ -74,6 +80,12 @@ public record SquareFile(char Name) {
         }
     }
 
+    /// <summary>
+    /// Parses a file based on a character.
+    /// </summary>
+    /// <param name="fileChar"></param>
+    /// <returns></returns>
+    /// <exception cref="FormatException"></exception>
     public static SquareFile? Parse(char fileChar) {
         return fileChar switch {
             'a' => a,
@@ -88,5 +100,8 @@ public record SquareFile(char Name) {
         };
     }
 
+    /// <summary>
+    /// The zero based index of the file.
+    /// </summary>
     public int Index => Name - 'a';
 }

@@ -1,0 +1,116 @@
+﻿openapi: 3.0.3
+info:
+  title: Chess.com API
+  description: The Chess.com API provides read and write access to various data
+    on the Chess.com site.
+  version: 1.0.0
+servers:
+    - url: https://api.chess.com/pub
+      description: Chess.com API server
+paths:
+  /player/{username}/games/archives:
+    get:
+      summary: List of monthly archives availalbe for the user.
+      parameters:
+        - name: username
+          in: path
+          description: The username of the player
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  archives:
+                    type: array
+                    items:
+                      type: string 
+  /player/{username}/games/{year}/{month}:
+    get:
+      summary: Get monthly archives
+      description: Get monthly archives
+      operationId: getMonthlyArchives
+      parameters:
+        - name: username
+          in: path
+          description: The username of the player
+          required: true
+          schema:
+            type: string
+        - name: year
+          in: path
+          description: The year of the archive
+          required: true
+          schema:
+            type: integer
+        - name: month
+          in: path
+          description: The month of the archive
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  games:
+                    type: array
+                    items:
+                      type: object
+                      properties: 
+                        url:
+                          type: string
+                        pgn:
+                            type: string
+                        time_control:
+                            type: string
+                        end_time:
+                            type: integer
+                        rated:
+                            type: boolean
+                        tcn:
+                          type: string
+                        uuid:
+                          type: string
+                        initial_setup:
+                          type: string
+                        fen:
+                            type: string
+                        start_time:
+                            type: integer
+                        time_class:
+                          type: string
+                        rules:
+                          type: string
+                        white:
+                          properties:
+                            rating:
+                              type: integer
+                            result:
+                              type: string
+                            username:
+                              type: string
+                            uuid:
+                              type: string
+                        black:
+                          properties:
+                            rating:
+                              type: integer
+                            result:
+                              type: string
+                            username:
+                              type: string
+                            uuid:
+                              type: string
+        '404':
+          description: Not Found
+          content: {}

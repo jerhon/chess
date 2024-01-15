@@ -1,4 +1,5 @@
 ﻿using Honlsoft.Chess.Rules;
+using Honlsoft.Chess.Serialization;
 
 namespace Honlsoft.Chess; 
 
@@ -18,5 +19,13 @@ public class ChessGameFactory {
     
     public ChessGame CreateGameFromPosition(IChessPosition initialPosition) {
         return new ChessGame(initialPosition, CreateGameRules());
+    }
+    
+    public ChessGame CreateGameFromFen(string fen) {
+        
+        var fenSerializer = new FenSerializer();
+        var position = fenSerializer.Deserialize(fen);
+        
+        return new ChessGame(position, CreateGameRules());
     }
 }

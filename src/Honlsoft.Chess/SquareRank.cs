@@ -1,7 +1,7 @@
 ﻿namespace Honlsoft.Chess; 
 
 /// <summary>
-/// The Rank for the Chess board.
+/// The Rank for the Chess board. This is the vertical axis of the board. It is represented by a number from 1-8.
 /// </summary>
 /// <param name="Number">The number of the Rank.</param>
 public record SquareRank(int Number)
@@ -108,6 +108,11 @@ public record SquareRank(int Number)
         };
     }
 
+    /// <summary>
+    /// Parses the chess rank.
+    /// </summary>
+    /// <param name="rankNumber">The number of the rank</param>
+    /// <returns>A SquareRank object representing the rank number.</returns>
     public static SquareRank? Parse(int rankNumber) {
         return rankNumber switch {
             1 => Rank1,

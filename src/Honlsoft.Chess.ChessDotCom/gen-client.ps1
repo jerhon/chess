@@ -1,0 +1,1 @@
+﻿kiota generate -l CSharp -c ChessDotComClient -n Honlsoft.Chess.ChessDotCom -d ./chessdotcom.yaml -o ./Client
