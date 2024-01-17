@@ -7,10 +7,66 @@ info:
 servers:
     - url: https://api.chess.com/pub
       description: Chess.com API server
+externalDocs: 
+  description: Chess.com API Docs
+  url: https://www.chess.com/news/view/published-data-api
 paths:
+  /player/{username}:
+    get:
+      summary: Get player information
+      description: Get player information
+      operationId: getPlayer
+      parameters:
+        - name: username
+          in: path
+          description: The username of the player
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  player_id:
+                    type: integer
+                  url:
+                    type: string
+                  name:
+                    type: string
+                  username:
+                    type: string
+                  title:
+                    type: string
+                  followers:
+                    type: integer
+                  country:
+                    type: string
+                  location:
+                    type: string
+                  last_online:
+                    type: integer
+                  joined:
+                    type: integer
+                  status:
+                    type: string
+                  is_streamer:
+                    type: boolean
+                  twitch_url:
+                    type: string
+                  fide:
+                    type: integer
+                  avatar:
+                    type: string
+                  "@id":
+                    type: string
+                  
   /player/{username}/games/archives:
     get:
-      summary: List of monthly archives availalbe for the user.
+      summary: List of monthly archives available for the user.
       parameters:
         - name: username
           in: path
@@ -111,6 +167,3 @@ paths:
                               type: string
                             uuid:
                               type: string
-        '404':
-          description: Not Found
-          content: {}

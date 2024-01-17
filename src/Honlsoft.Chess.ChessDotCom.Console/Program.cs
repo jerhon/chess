@@ -3,12 +3,18 @@
 
 
 using System.CommandLine;
+using Honlsoft.Chess.ChessDotCom.Client;
 using Honlsoft.Chess.ChessDotCom.Console.UseCases;
 
 RootCommand command = new RootCommand();
 
 Command gamesCommand = new Command("games", "Commands for working with chess.com games.");
-Command importCommand = new Command("import", "Import games from chess.com.");
+Command exportGames = new Command("export", "export games from chess.com.");
+
+Option<string> contactInfoOpt = new Option<string>("--contact-info", "The contact information to use from chess.com for the request.");
+contactInfoOpt.IsRequired = true;
+
+command.AddOption(contactInfoOpt);
 
 Option<DirectoryInfo> outDirOption = new Option<DirectoryInfo>("--out-dir", "The directory to output the games to.");
 outDirOption.IsRequired = true;
@@ -22,17 +28,17 @@ yearOption.IsRequired = true;
 Option<string> monthOption = new Option<string>("--month", "The month to import games for.");
 monthOption.IsRequired = true;
 
-importCommand.AddOption(outDirOption);
-importCommand.AddOption(userNameOption);
-importCommand.AddOption(yearOption);
-importCommand.AddOption(monthOption);
+exportGames.AddOption(outDirOption);
+exportGames.AddOption(userNameOption);
+exportGames.AddOption(yearOption);
+exportGames.AddOption(monthOption);
 
-gamesCommand.AddCommand(importCommand);
+gamesCommand.AddCommand(exportGames);
 
 command.AddCommand(gamesCommand);
 
-importCommand.SetHandler(async (DirectoryInfo outDir, string userName, string year, string month) => {
-    await new ImportGames().ImportGamesAsync(outDir, userName, year, month);
-}, outDirOption, userNameOption, yearOption, monthOption);
+exportGames.SetHandler(async (string contactInfo, DirectoryInfo outDir, string userName, string year, string month) => {
+    await new ExportGames(new ChessDotComClientFactory()).ImportGamesAsync(outDir, contactInfo, userName, year, month);
+}, contactInfoOpt, outDirOption, userNameOption, yearOption, monthOption);
 
 return await command.InvokeAsync(args);
