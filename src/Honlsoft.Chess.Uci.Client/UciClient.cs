@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Threading.Channels;
 using Honlsoft.Chess.Uci.Client.Commands;
 
 namespace Honlsoft.Chess.Uci.Client; 
@@ -90,7 +91,13 @@ public class UciClient {
         await _inputOutput.SendCommandAsync(new UciCommand("ucinewgame"), cancellationToken);
     }
 
-    public async Task<BestMove> GoAsync(GoParameters parameters, CancellationToken cancellationToken) {
+    /// <summary>
+    /// Sends a UCI go command returning a channel with the data UCI commands it responds with.
+    /// </summary>
+    /// <param name="parameters">The parameters for the go command.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the go command.</param>
+    /// <returns></returns>
+    public async Task<Channel<UciCommand>> GoAsync(GoParameters parameters, CancellationToken cancellationToken) {
         UciCommandBuilder commandBuilder = new UciCommandBuilder();
         commandBuilder.WithCommand("go");
         if (parameters.MoveTime.HasValue) {
@@ -102,13 +109,39 @@ public class UciClient {
 
         await _inputOutput.SendCommandAsync(commandBuilder.Build(), cancellationToken);
 
-        // TODO add a way to singal stopping
-        
-        var bestMove = await WaitForCommandAsync("bestmove", cancellationToken);
-        var ret = new BestMove() { Move = bestMove.Parameters[0].Value, PonderMove = bestMove?.Parameters?[1]?.Value };
-        return ret;
+        UciCommand? command = null;
+        Channel<UciCommand> commandChannel = Channel.CreateUnbounded<UciCommand>();
+
+
+        // This runs in the background as the goal is to have it wait for the bestmove command to go through.
+ #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+        Task.Run(async () => {
+ #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+            try {
+                while (command?.Command != "bestmove") {
+
+                    command = await _inputOutput.ReadCommandAsync(cancellationToken);
+                    if (command != null) {
+                        await commandChannel.Writer.WriteAsync(command, cancellationToken);
+                    }
+                }
+            }
+            catch (Exception ex) {
+                commandChannel.Writer.Complete(ex);
+            }
+            finally {
+                commandChannel.Writer.Complete();
+            }
+        });
+
+        return commandChannel;
     }
 
+    public async Task StopAsync(CancellationToken cancellationToken) {
+        await _inputOutput.SendCommandAsync(new UciCommand("stop"), cancellationToken);
+    }
+    
     private async Task<UciCommand?> WaitForCommandAsync(string commandName, CancellationToken cancellationToken) {
         UciCommand? command = null;
         while (command?.Command != commandName) {

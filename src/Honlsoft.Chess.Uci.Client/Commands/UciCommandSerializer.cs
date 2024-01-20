@@ -56,6 +56,8 @@ public class UciCommandSerializer {
                 "infinite");
         } else if (command is "bestmove") {
             return ParseComplexCommand(rawCommand, "ponder");
+        } else if (command is "info") {
+            return ParseComplexCommand(rawCommand, "depth", "seldepth", "time", "nodes", "pv", "multipv", "score", "cp", "mate", "lowerbound", "upperbound", "currmove", "currmovenumber", "hashfull", "nps", "tbhits", "sbhits", "cpuload", "refutation", "currline");
         }
 
         var remainder = rawCommand.Length > command.Length + 1

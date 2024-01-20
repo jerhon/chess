@@ -2,6 +2,7 @@
 using Honlsoft.Chess.Rules;
 using Honlsoft.Chess.Serialization;
 using Honlsoft.Chess.Uci.Client;
+using Honlsoft.Chess.Uci.Client.Commands;
 
 namespace Honlsoft.Chess.Uci.Engine;
 
@@ -42,14 +43,20 @@ public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
     }
     
     public async Task<EngineSuggestion> SuggestMoveAsync(CancellationToken cancelToken) {
-        // TODO: Need to send current position
         
-        
-        var bestMove = await client.GoAsync(new GoParameters {
+        var commandChannel = await client.GoAsync(new GoParameters {
             MoveTime = TimeSpan.FromSeconds(5)
         }, cancelToken);
 
-        return MapUciMoveToChessMove(bestMove.Move);
+        UciCommand? bestMove = null;
+        while (await commandChannel.Reader.WaitToReadAsync(cancelToken)) {
+            var command = await commandChannel.Reader.ReadAsync(cancelToken);
+            if (command.Command == "bestmove") {
+                bestMove = command;
+            }
+        }
+        
+        return MapUciMoveToChessMove(bestMove!.Parameters[0].Value!);
     }
 
     public static EngineSuggestion MapUciMoveToChessMove(string uciMove) {
