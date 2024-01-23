@@ -95,7 +95,7 @@ public class ChessGame : IChessGame {
         }
         else if (san is SanMove sanMove)
         {
-            var chessMove = GetSanMove(sanMove);
+            var chessMove = GetMoveFromSan(sanMove);
             if (chessMove == null) {
                 return MoveResult.NotALegalMove;
             }
@@ -196,7 +196,7 @@ public class ChessGame : IChessGame {
         }
     }
 
-    public IChessMove? GetSanMove(San san) {
+    public IChessMove? GetMoveFromSan(San san) {
         var playerSquares = SquareName.AllSquares().Select((s) => _chessPosition.GetSquare(s))
             .Where((s) => s.Piece?.Color == _chessPosition.PlayerToMove);
         
@@ -240,6 +240,6 @@ public class ChessGame : IChessGame {
         throw new InvalidOperationException("Unsupported SAN type.");
     }
 
-    public SquareName[] GetCandidateMoves(SquareName squareName)  => _rules.GetMoves(_chessPosition, squareName).Select((m) => m.To).ToArray();
+    public San[] GetCandidateMoves(SquareName squareName)  => _rules.GetMoves(_chessPosition, squareName).Select((m) => m.ToSan()).ToArray();
     
 }

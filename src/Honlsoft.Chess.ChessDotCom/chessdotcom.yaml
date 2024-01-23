@@ -5,9 +5,9 @@ info:
     on the Chess.com site.
   version: 1.0.0
 servers:
-    - url: https://api.chess.com/pub
-      description: Chess.com API server
-externalDocs: 
+  - url: https://api.chess.com/pub
+    description: Chess.com API server
+externalDocs:
   description: Chess.com API Docs
   url: https://www.chess.com/news/view/published-data-api
 paths:
@@ -63,7 +63,7 @@ paths:
                     type: string
                   "@id":
                     type: string
-                  
+  
   /player/{username}/games/archives:
     get:
       summary: List of monthly archives available for the user.
@@ -85,7 +85,101 @@ paths:
                   archives:
                     type: array
                     items:
-                      type: string 
+                      type: string
+  /titled/{title}:
+    get:
+      summary: Get list of players with a given title
+      description: Get list of players with a given title
+      operationId: getTitledPlayers
+      parameters:
+        - name: title
+          in: path
+          description: The title of the player
+          required: true
+          schema:
+            type: string
+            enum:
+              - GM
+              - WGM
+              - IM
+              - WIM
+              - FM
+              - WFM
+              - NM
+              - WNM
+              - CM
+              - WCM
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  players:
+                    type: array
+                    items:
+                      type: string
+  /player/{username}/stats:
+    get:
+      summary: Get player stats
+      description: Get player stats
+      operationId: getPlayerStats
+      parameters:
+        - name: username
+          in: path
+          description: The username of the player
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  chess_daily:
+                    $ref: '#/components/schemas/stats'
+                  chess960_daily:
+                    $ref: '#/components/schemas/stats'
+                  chess_rapid:
+                    $ref: '#/components/schemas/stats'
+                  chess_bullet:
+                    $ref: '#/components/schemas/stats'
+                  chess_blitz:
+                    $ref: '#/components/schemas/stats'
+                  fide:
+                    type: integer
+                  tactics:
+                    type: object
+                    properties: 
+                      highest:
+                        type: object
+                        properties:
+                          rating:
+                            type: integer
+                          date:
+                            type: integer
+                      lowest:
+                        type: object
+                        properties:
+                          rating:
+                            type: integer
+                          date:
+                            type: integer
+                  puzzle_rush:
+                    type: object
+                    properties:
+                      best:
+                        type: object
+                        properties:
+                          score:
+                            type: integer
+                          total_attempts:
+                            type: integer
   /player/{username}/games/{year}/{month}:
     get:
       summary: Get monthly archives
@@ -122,17 +216,17 @@ paths:
                     type: array
                     items:
                       type: object
-                      properties: 
+                      properties:
                         url:
                           type: string
                         pgn:
-                            type: string
+                          type: string
                         time_control:
-                            type: string
+                          type: string
                         end_time:
-                            type: integer
+                          type: integer
                         rated:
-                            type: boolean
+                          type: boolean
                         tcn:
                           type: string
                         uuid:
@@ -140,9 +234,9 @@ paths:
                         initial_setup:
                           type: string
                         fen:
-                            type: string
+                          type: string
                         start_time:
-                            type: integer
+                          type: integer
                         time_class:
                           type: string
                         rules:
@@ -167,3 +261,46 @@ paths:
                               type: string
                             uuid:
                               type: string
+
+components:
+  schemas:
+    stats:
+      properties:
+        last:
+          type: object
+          properties:
+            rating:
+              type: integer
+            date:
+              type: integer
+            rd:
+              type: integer
+        best:
+            type: object
+            properties:
+              rating:
+                type: integer
+              date:
+                type: integer
+              game:
+                type: string
+        record:
+          type: object
+          properties:
+            win:
+              type: integer
+            loss:
+              type: integer
+            draw:
+              type: integer        
+        tournament:
+          type: object
+          properties:
+            count:
+              type: integer
+            highest_finish:
+              type: integer
+            withdraw:
+              type: integer
+            points:
+              type: integer

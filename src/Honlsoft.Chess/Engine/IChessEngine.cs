@@ -1,4 +1,5 @@
-﻿using Honlsoft.Chess.Rules;
+﻿using System.Threading.Channels;
+using Honlsoft.Chess.Rules;
 
 namespace Honlsoft.Chess.Engine; 
 
@@ -26,10 +27,17 @@ public interface IChessEngine {
     public Task UpdatePositionAsync(CancellationToken cancellationToken);
     
     /// <summary>
-    /// Suggests a move from the engine.
+    /// Starts calculating, returning lines the engine has calculated.
     /// </summary>
     /// <returns></returns>
-    public Task<EngineSuggestion> SuggestMoveAsync(CancellationToken cancellationToken);
-    
-    
+    public Task<Channel<EngineLine>> StartCalculatingAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Stop calculating, returning the best move that was calculated.
+    /// </summary>
+    /// <param name="cancelToken">Cancel the stop.</param>
+    /// <returns>A task with the best move.</returns>
+    public Task<BestMove> StopCalculatingAsync(CancellationToken cancelToken);
+
+
 }

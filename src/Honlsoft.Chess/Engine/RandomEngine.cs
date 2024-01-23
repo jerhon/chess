@@ -1,4 +1,5 @@
-﻿using Honlsoft.Chess.Rules;
+﻿using System.Threading.Channels;
+using Honlsoft.Chess.Rules;
 
 namespace Honlsoft.Chess.Engine; 
 
@@ -26,25 +27,28 @@ public class RandomEngine(ChessGame chessGame) : IChessEngine {
         return Task.CompletedTask;
     }
 
-    public Task<EngineSuggestion> SuggestMoveAsync(CancellationToken cancellationToken) {
-
+    public Task<Channel<EngineSuggestion>> StartCalculatingAsync(CancellationToken cancellationToken) {
+        return Task.FromResult(Channel.CreateUnbounded<EngineSuggestion>());
+    }
+    
+    public Task<BestMove> StopCalculatingAsync() {
         var chessBoard = chessGame.CurrentPosition;
         var currentPlayer = chessGame.CurrentPosition.PlayerToMove;
         
         
         // TODO: need to take additional steps into consideration (player is in check, etc)
         
-        
         // Find all moves for the current player
         var allCandidateMoves = SquareName.AllSquares()
             .Select(square => chessBoard.GetSquare(square))
             .Where(s => s?.Piece?.Color == currentPlayer)
-            .SelectMany(s => chessGame.GetCandidateMoves(s.Name).Select((m) => new { From = s, To = m}))
+            .SelectMany(s => chessGame.GetCandidateMoves(s.Name))
             .ToArray();
 
         // Get a random square
         var move = Random.Shared.GetItems(allCandidateMoves, 1)[0];
 
-        return Task.FromResult(new EngineSuggestion(move.From.Name, move.To));
+        return Task.FromResult(new BestMove(move));
     }
+
 }

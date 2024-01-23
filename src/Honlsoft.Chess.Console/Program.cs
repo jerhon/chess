@@ -63,7 +63,7 @@ while (game.GameState is ChessGameState.Check or ChessGameState.PlayerToMove) {
             await uciChessEngine.UpdatePositionAsync(CancellationToken.None);
         }
     } else {
-        var move = await uciChessEngine.SuggestMoveAsync(CancellationToken.None);
+        var move = await uciChessEngine.StartCalculatingAsync(CancellationToken.None);
         var engineError = game.Move(move.From, move.To, null);
         uciChessEngine.AddMove(move.From.ToString() + move.To);
     }

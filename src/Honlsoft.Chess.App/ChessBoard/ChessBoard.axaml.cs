@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Honlsoft.Chess.Serialization;
 using Panel = Avalonia.Controls.Panel;
@@ -35,7 +36,12 @@ public partial class ChessBoard : UserControl
                 var squareName = new SquareName(file, rank);
                 square.Tag = squareName;
                 square.Classes.Add("square");
-                square.Children.Add(new TextBlock() {Text = squareName.ToString(), Foreground = Avalonia.Media.Brushes.Black});
+                square.Children.Add(new TextBlock() {
+                    Text = squareName.ToString(),
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+
+                    
+                });
                 _squareMap.Add(squareName, square);
                 
                 square.Background = (file.Index + rank.Index) % 2 == 0 ? Avalonia.Media.Brushes.White : Avalonia.Media.Brushes.LightGreen;
@@ -66,7 +72,12 @@ public partial class ChessBoard : UserControl
             var squarePanel = _squareMap[squareName];
             squarePanel.Children.Clear();
             if (square.Piece != null) {
-                var pieceText = new TextBlock() {Text = square.Piece.ToString(), Foreground = Avalonia.Media.Brushes.Black};
+                var pieceText = new TextBlock() {Text = square.Piece.ToString(),
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Stretch,
+                    Foreground = Avalonia.Media.Brushes.Black,
+                    FontSize= 20
+                };
                 squarePanel.Children.Add(pieceText);
             }
         }
