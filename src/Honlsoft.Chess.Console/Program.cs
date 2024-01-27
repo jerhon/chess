@@ -4,6 +4,7 @@ using System.CommandLine;
 using Honlsoft.Chess;
 using Honlsoft.Chess.Console;
 using Honlsoft.Chess.Engine;
+using Honlsoft.Chess.Serialization;
 using Honlsoft.Chess.Uci.Client;
 using Honlsoft.Chess.Uci.Engine;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,15 +58,18 @@ while (game.GameState is ChessGameState.Check or ChessGameState.PlayerToMove) {
     if (game.CurrentPosition.PlayerToMove == PieceColor.White) {
         var from = AnsiConsole.Console.AskPickAPiece();
         var (to, promotionPiece) = AnsiConsole.Console.AskMoveTo();
-        lastMoveResult = game.Move(from, to, promotionPiece);
+        var san = SanMove.From(from, to);
+        lastMoveResult = game.Move(san);
         if (lastMoveResult == MoveResult.ValidMove) {
-            uciChessEngine.AddMove(from.ToString() + to);
+            uciChessEngine.MakeMove(san);
             await uciChessEngine.UpdatePositionAsync(CancellationToken.None);
         }
     } else {
-        var move = await uciChessEngine.StartCalculatingAsync(CancellationToken.None);
-        var engineError = game.Move(move.From, move.To, null);
-        uciChessEngine.AddMove(move.From.ToString() + move.To);
+        var engineLines = await uciChessEngine.StartCalculatingAsync(CancellationToken.None);
+        var bestMove = await uciChessEngine.StopCalculatingAsync(CancellationToken.None);
+        
+        var engineError = game.Move(bestMove.Move);
+        uciChessEngine.MakeMove(bestMove.Move);
     }
 }
 

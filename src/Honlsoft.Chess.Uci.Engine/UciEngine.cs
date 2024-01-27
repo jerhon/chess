@@ -12,9 +12,11 @@ namespace Honlsoft.Chess.Uci.Engine;
 /// </summary>
 public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
 
-    private List<string> _moves = new List<string>();
+    private List<San> _moves = new List<San>();
     private Channel<UciCommand> _commandChannel = Channel.CreateUnbounded<UciCommand>();
     private bool _calculating = false;
+    private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+    private TaskCompletionSource<UciCommand> _bestMove;
     
     /// <summary>
     /// Runs initialization for the underlying chess engine.
@@ -34,9 +36,9 @@ public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
         await client.SetFenPositionAsync(fenString, [], cancellationToken);
     }
 
-    public void AddMove(string moveString) 
+    public void MakeMove(San sanMove) 
     {
-        _moves.Add(moveString);
+        _moves.Add(sanMove);
     }
     
     public async Task UpdatePositionAsync(CancellationToken cancellationToken) {
@@ -44,62 +46,55 @@ public class UciEngine(ChessGame chessGame, UciClient client) : IChessEngine {
         await client.IsReadyAsync(cancellationToken);
     }
     
-    Task<Channel<EngineSuggestion>> IChessEngine.StartCalculatingAsync(CancellationToken cancellationToken) {
-        throw new NotImplementedException();
-    }
-    
-    public Task<BestMove> StopCalculatingAsync(CancellationToken cancelToken) {
-        throw new NotImplementedException();
+    public async Task<BestMove> StopCalculatingAsync(CancellationToken cancelToken)
+    {
+        var bestMove = await _bestMove.Task;
+        var move = bestMove.Parameters[0];
+        var sanSerializer = new SanSerializer();
+        var san = sanSerializer.Deserialize(move.Value);
+        
+        return new BestMove(san);
     }
 
-    public async Task<Channel<EngineSuggestion>> StartCalculatingAsync(CancellationToken cancelToken) {
+    public async Task<Channel<EngineLine>> StartCalculatingAsync(CancellationToken cancelToken) {
 
+        if (_calculating)
+        {
+            throw new InvalidOperationException("Already calculating.");
+        }
+
+        _calculating = true;
+        
         var commandChannel = await client.GoAsync(new GoParameters(), cancelToken);
-        Channel<EngineSuggestion> suggestionChannel = Channel.CreateUnbounded<EngineSuggestion>();
+        Channel<EngineLine> engineLineChannel = Channel.CreateUnbounded<EngineLine>();
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         Task.Run(async () => {
-            
-            
-            UciCommand? bestMove = null;
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
             while (await commandChannel.Reader.WaitToReadAsync(cancelToken)) {
                 var command = await commandChannel.Reader.ReadAsync(cancelToken);
-                
-                
-                var engineSuggestion = new EngineSuggestion( )
-                
-                suggestionChannel.Writer.TryWrite(MapUciMoveToChessMove(command.GetParameter("bestmove")!));
-                
+                if (command.Command == "info")
+                {
+                    var uciInfo = new UciInfo(command);
+                    if (uciInfo.CentiPawns.HasValue && uciInfo.CurLine != null)
+                    {
+                        var engineLine = new EngineLine(uciInfo.CurLine, uciInfo.CentiPawns.Value);
+                        await engineLineChannel.Writer.WriteAsync(engineLine, CancellationToken.None);
+                    }
+                }
+                // if we end up getting a best move command, then send it
+                else if (command.Command == "bestmove")
+                {
+                    _calculating = false;
+                    _bestMove.SetResult(command);
+                    engineLineChannel.Writer.Complete();
+                    break;
+                }
             }
-            
-            suggestionChannel.Writer.Complete();
-
+            engineLineChannel.Writer.Complete();
         });
-        
-        if (_calculating) {
-            
 
-            Channel<EngineSuggestion> channel = Channel 
-            
-            
-
-            return MapUciMoveToChessMove(bestMove!.Parameters[0].Value!);
-        }
+        return engineLineChannel;
     }
-
-    public static EngineSuggestion MapUciMoveToChessMove(string uciMove) {
-        string firstPosition = uciMove.Substring(0, 2);
-        string secondPosition = uciMove.Substring(2, 2);
-        
-        SquareName startingSquare = SquareName.Parse(firstPosition);
-        SquareName endingSquare = SquareName.Parse(secondPosition);
-
-        return new EngineSuggestion(startingSquare, endingSquare);
-    }
-
-    public static string MapChessMoveToUciMove(EngineSuggestion chessMove) {
-        var from = chessMove.From.ToString();
-        var to = chessMove.To.ToString();
-
-        return "{from}{to}";
-    }
+    
 }

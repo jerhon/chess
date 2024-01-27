@@ -1,5 +1,6 @@
 ﻿using System.Threading.Channels;
 using Honlsoft.Chess.Rules;
+using Honlsoft.Chess.Serialization;
 
 namespace Honlsoft.Chess.Engine; 
 
@@ -8,7 +9,6 @@ namespace Honlsoft.Chess.Engine;
 /// </summary>
 public class RandomEngine(ChessGame chessGame) : IChessEngine {
     
-
     /// <summary>
     /// Initialize the chess engine.
     /// </summary>
@@ -17,7 +17,7 @@ public class RandomEngine(ChessGame chessGame) : IChessEngine {
     public Task StartGameAsync(CancellationToken cancellationToken) {
         return Task.CompletedTask;
     }
-    public void AddMove(string moveString) {
+    public void MakeMove(San san) {
         
     }
     public Task UpdatePositionAsync(CancellationToken cancellationToken) {
@@ -27,11 +27,11 @@ public class RandomEngine(ChessGame chessGame) : IChessEngine {
         return Task.CompletedTask;
     }
 
-    public Task<Channel<EngineSuggestion>> StartCalculatingAsync(CancellationToken cancellationToken) {
-        return Task.FromResult(Channel.CreateUnbounded<EngineSuggestion>());
+    public Task<Channel<EngineLine>> StartCalculatingAsync(CancellationToken cancellationToken) {
+        return Task.FromResult(Channel.CreateUnbounded<EngineLine>());
     }
     
-    public Task<BestMove> StopCalculatingAsync() {
+    public Task<BestMove> StopCalculatingAsync(CancellationToken cancellationToken) {
         var chessBoard = chessGame.CurrentPosition;
         var currentPlayer = chessGame.CurrentPosition.PlayerToMove;
         

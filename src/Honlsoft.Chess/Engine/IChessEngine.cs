@@ -1,5 +1,6 @@
 ﻿using System.Threading.Channels;
 using Honlsoft.Chess.Rules;
+using Honlsoft.Chess.Serialization;
 
 namespace Honlsoft.Chess.Engine; 
 
@@ -18,7 +19,7 @@ public interface IChessEngine {
 
     // TODO: should have something better for movestring
 
-    public void AddMove(string moveString);
+    public void MakeMove(San san);
     
     /// <summary>
     /// Sends a move to the engine.
@@ -38,6 +39,5 @@ public interface IChessEngine {
     /// <param name="cancelToken">Cancel the stop.</param>
     /// <returns>A task with the best move.</returns>
     public Task<BestMove> StopCalculatingAsync(CancellationToken cancelToken);
-
-
+    
 }

@@ -70,7 +70,6 @@ public class SanSerializer {
             null => ""
         };
     }
-
     
     public San Deserialize(string sanExpression) {
 
@@ -141,8 +140,7 @@ public class SanSerializer {
         
         throw new FormatException($"Does not match a SAN expression = '{sanExpression}'.");
     }
-
-
+    
     public PieceType ParsePiece(string pieceType) {
         return pieceType switch {
             "N" => PieceType.Knight,

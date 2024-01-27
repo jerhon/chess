@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Threading.Channels;
+using Honlsoft.Chess.Serialization;
 using Honlsoft.Chess.Uci.Client.Commands;
 
 namespace Honlsoft.Chess.Uci.Client; 
@@ -68,11 +69,11 @@ public class UciClient {
         await _inputOutput.SendCommandAsync(command, cancellationToken);
     }
 
-    public async Task SetStartingPositionAsync(string[] moves, CancellationToken cancellationToken) {
+    public async Task SetStartingPositionAsync(San[] moves, CancellationToken cancellationToken) {
         UciCommandBuilder builder = new();
         builder.WithCommand("position");
         builder.WithParameter("startpos", null);
-        builder.WithParameter("moves", string.Join(" ", moves));
+        builder.WithParameter("moves", string.Join(" ", moves.Select((m) => m.ToString())));
         UciCommand command = builder.Build();
 
         await _inputOutput.SendCommandAsync(command, cancellationToken);
@@ -142,7 +143,7 @@ public class UciClient {
         await _inputOutput.SendCommandAsync(new UciCommand("stop"), cancellationToken);
     }
     
-    private async Task<UciCommand?> WaitForCommandAsync(string commandName, CancellationToken cancellationToken) {
+    public async Task<UciCommand?> WaitForCommandAsync(string commandName, CancellationToken cancellationToken) {
         UciCommand? command = null;
         while (command?.Command != commandName) {
             command = await _inputOutput.ReadCommandAsync(cancellationToken);
