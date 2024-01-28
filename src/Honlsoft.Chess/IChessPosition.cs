@@ -28,6 +28,13 @@ public interface IChessPosition {
      /// Half moves (player moves since the last pawn or piece capture).
      /// </summary>
      int HalfMoves { get; }
+     
+     /// <summary>
+     /// Returns the castling rights for a player.
+     /// </summary>
+     /// <param name="playerColor">The player's piece color.</param>
+     /// <returns>The castling rights for the player.</returns>
+     CastlingSide[] GetCastlingRights(PieceColor playerColor);
 
      /// <summary>
      /// Returns whether a player still has castling rights.

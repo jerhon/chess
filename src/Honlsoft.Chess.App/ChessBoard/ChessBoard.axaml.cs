@@ -20,7 +20,7 @@ public partial class ChessBoard : UserControl
     
     private ChessGame _chessGame = new ChessGameFactory().CreateStandardGame();
     
-    Dictionary<SquareName, Panel> _squareMap = new Dictionary<SquareName, Panel>();
+    readonly Dictionary<SquareName, Panel> _squareMap = new ();
     
     public ChessBoard()
     {

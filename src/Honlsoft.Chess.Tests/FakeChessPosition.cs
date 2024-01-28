@@ -26,6 +26,11 @@ public class FakeChessPosition : IChessPosition {
     public int FullMoves { get; set;  }
     public int HalfMoves { get; set; }
 
+    public CastlingSide[] GetCastlingRights(PieceColor playerColor)
+    {
+        throw new NotImplementedException();
+    }
+
     public bool CanCastle(PieceColor playerColor, CastlingSide castleSide) {
         throw new NotImplementedException();
     }

@@ -9,7 +9,7 @@ namespace Honlsoft.Chess;
 public class ChessPositionBuilder : IChessPosition {
 
     private readonly Dictionary<SquareName, Square> _squares = new();
-    private readonly HashSet<(PieceColor, CastlingSide)> _castlingRights = [];
+    private readonly HashSet<(PieceColor Color, CastlingSide Side)> _castlingRights = [];
     
     public SquareName? EnPassantTarget { get; private set; }
     
@@ -18,7 +18,12 @@ public class ChessPositionBuilder : IChessPosition {
     public int HalfMoves { get; private set; }
     
     public PieceColor PlayerToMove { get; private set; }
-    
+
+    public CastlingSide[] GetCastlingRights(PieceColor playerColor)
+    {
+        return _castlingRights.Where(x => x.Color == playerColor).Select(x => x.Side).ToArray();
+    }
+
     public bool CanCastle(PieceColor playerColor, CastlingSide castleSide) {
 
         return _castlingRights.Contains((playerColor, castleSide));
