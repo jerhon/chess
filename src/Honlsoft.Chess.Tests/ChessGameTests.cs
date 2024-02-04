@@ -23,6 +23,18 @@ public class ChessGameTests {
         
         Assert.Equal(MoveResult.NotALegalMove, moveResult);
     }
+    
+    [Theory]
+    [MemberData(nameof(FenMoves))]
+    public void Move_WithFenAndSanMove_ReturnsProperFen(string startingFen, string move, string endingFen)
+    {
+        FenSerializer fenSerializer = new FenSerializer();
+        SanSerializer sanSerializer = new SanSerializer();
+        
+        ChessGame chessGame = FromFen(startingFen);
+        chessGame.Move(sanSerializer.Deserialize(move));
+        fenSerializer.Serialize(chessGame.CurrentPosition).Should().Be(endingFen);
+    }
 
 
     public static TheoryData<string, string> InvalidMoves() {
@@ -32,6 +44,13 @@ public class ChessGameTests {
         invalidMoves.Add("d1", "d6");
         invalidMoves.Add("e1", "f1");
         return invalidMoves;
+    }
+
+    public static TheoryData<string, string, string> FenMoves()
+    {
+        TheoryData<string, string, string> fenMoves = new();
+        fenMoves.Add("rnb1kb1r/ppp1pppp/8/8/3Pq3/8/PPP1BPPP/R1BQK1NR w - - 0 1", "Be3", "rnb1kb1r/ppp1pppp/8/8/3Pq3/8/PPP1BPPP/R1BQK1NR b - - 0 2");
+        return fenMoves;
     }
     
     

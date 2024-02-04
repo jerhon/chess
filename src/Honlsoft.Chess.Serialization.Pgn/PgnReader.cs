@@ -112,9 +112,10 @@ public class PgnReader(PgnTokenizer tokenizer) {
                 // If there was a previous san move, we're on to the next move... add it to the list.
                 if (sanMove != null)
                 {
-                    sanMove = null;
                     moves.Add(new PgnMove(currentMove, color, sanMove, comment));
                 }
+
+                sanMove = null;
                 currentMove = moveNumber.Number;
                 color = moveNumber.IsBlackMove() ? PieceColor.Black : PieceColor.White;
                 comment = null;

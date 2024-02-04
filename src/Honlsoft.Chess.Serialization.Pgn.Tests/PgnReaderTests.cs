@@ -31,6 +31,18 @@ public class PgnReaderTests {
         actualResult.Moves.Should().HaveCount(49);
 
     }
+   
+    [Fact]
+    public void ReadPgnGame_WithComments() {
+        var serializer = new PgnReader(new PgnTokenizer(PgnSample.Read("game002.pgn")));
+
+        var actualResult = serializer.Read();
+
+        actualResult.Should().NotBeNull();
+        actualResult.Moves.Should().HaveCount(63);
+        
+        // TODO: Check individual moves
+    }
 
     private PgnReader CreateReader(string pgnText) {
         return new PgnReader(new PgnTokenizer(pgnText));

@@ -89,6 +89,11 @@ public class ChessGame : IChessGame {
     /// <returns></returns>
     public MoveResult Move(San san) {
 
+        if (san == null)
+        {
+            throw new ArgumentNullException(nameof(san));
+        }
+        
         if (san is SanCastle sanCastle) 
         {
             return this.Castle(sanCastle.Side);
@@ -103,7 +108,7 @@ public class ChessGame : IChessGame {
         }
         else
         {
-            throw new ArgumentException("The type of San move passed in cannot be used as a move.", nameof(san));
+            throw new ArgumentException("The type of San move passed in cannot be used as a move. Type = " + san.GetType().Name, nameof(san));
         }
     }
 
@@ -211,8 +216,11 @@ public class ChessGame : IChessGame {
 
             
             var possibleMoves = candidateMoves.Where((m) => m.To.SquareFile == sanMove.ToFile && m.To.SquareRank == sanMove.ToRank);
-            if (!possibleMoves.Any()) {
-                throw new InvalidOperationException("Invalid move.");
+            if (!possibleMoves.Any())
+            {
+                FenSerializer serializer = new();
+                var fen = serializer.Serialize(_chessPosition);
+                throw new InvalidOperationException($"Invalid move. Move = {san} FEN = {fen}");
             }
             else if (possibleMoves.Count() == 1) {
                 var move = possibleMoves.First();

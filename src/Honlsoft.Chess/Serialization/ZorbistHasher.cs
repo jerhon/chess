@@ -84,6 +84,10 @@ public class ZorbistHasher
         foreach (var squareName in SquareName.AllSquares())
         {
             var square = chessPosition.GetSquare(squareName);
+            if (!square.HasPiece)
+            {
+                continue;
+            }
             var castlingRights = square.Piece.Color == PieceColor.White ? whiteCastlingRights : blackCastlingRights;
             var pieceIndex = GetPieceIndex(square, castlingRights, chessPosition.EnPassantTarget);
             currentHash ^= _hashKeys[pieceIndex.PositionIndex, pieceIndex.TypeIndex];
