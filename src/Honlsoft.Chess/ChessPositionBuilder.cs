@@ -50,8 +50,22 @@ public class ChessPositionBuilder : IChessPosition {
         return SetSquare(square);
     }
 
-    public ChessPositionBuilder FromBoard(IChessPosition chessPosition) {
+    public ChessPositionBuilder FromPosition(IChessPosition chessPosition) {
         this.EnPassantTarget = chessPosition.EnPassantTarget;
+        this.FullMoves = chessPosition.FullMoves;
+        this.HalfMoves = chessPosition.HalfMoves;
+
+        var whiteCastling = chessPosition.GetCastlingRights(PieceColor.White);
+        foreach (var castlingSide in whiteCastling)
+        {
+            this.WithCastlingRights(PieceColor.White, castlingSide, true);
+        }
+        var blackCastling = chessPosition.GetCastlingRights(PieceColor.Black);
+        foreach (var castlingSide in blackCastling)
+        {
+            this.WithCastlingRights(PieceColor.Black, castlingSide, true);
+        }
+        
         foreach (var squareName in SquareName.AllSquares()) {
             var square = chessPosition.GetSquare(squareName);
             if (square.HasPiece) {

@@ -6,9 +6,9 @@ public class FenSerializer {
     
     public string SerializePiecePositions(IChessPosition chessPosition) {
         StringBuilder builder = new StringBuilder();
-        foreach (var rank in SquareRank.Rank1.ToEnd(true).Reverse()) {
+        foreach (var rank in SquareRank.AllRanks.Reverse()) {
             int emptySpaces = 0;
-            foreach (var file in SquareFile.a.ToEnd(true)) {
+            foreach (var file in SquareFile.AllFiles) {
                 var square = chessPosition.GetSquare(new SquareName(file, rank));
                 if (square.Piece != null) {
                     if (emptySpaces > 0) {
@@ -51,8 +51,14 @@ public class FenSerializer {
     {
         var serializedWhitePieces = SerializePieceCastlingState(PieceColor.White, chessPosition);
         var serializedBlackPieces = SerializePieceCastlingState(PieceColor.Black, chessPosition);
+        var castlingState = $"{serializedWhitePieces}{serializedBlackPieces}"; 
     
-        return $"{serializedWhitePieces}{serializedBlackPieces}";
+        if (string.IsNullOrWhiteSpace(castlingState))
+        {
+            return "-";
+        }
+        
+        return castlingState;
     }
 
     private string SerializePieceCastlingState(PieceColor color, IChessPosition chessPosition)
@@ -159,7 +165,7 @@ public class FenSerializer {
                 }
                 char currentLetter = currentRow[currentLetterIdx];
                 if (Char.IsNumber(currentLetter)) {
-                    file += (char)int.Parse(currentLetter.ToString());
+                    file += (char)(int.Parse(currentLetter.ToString()) - 1);
                 } else {
                     var piece = CharToPiece(currentLetter);
                     builder.SetSquare(SquareName.From(file, rank), piece);

@@ -32,7 +32,8 @@ public class ChessGameTests {
         SanSerializer sanSerializer = new SanSerializer();
         
         ChessGame chessGame = FromFen(startingFen);
-        chessGame.Move(sanSerializer.Deserialize(move));
+        var moveResult = chessGame.Move(sanSerializer.Deserialize(move));
+        moveResult.Should().Be(MoveResult.ValidMove);
         fenSerializer.Serialize(chessGame.CurrentPosition).Should().Be(endingFen);
     }
 
@@ -49,7 +50,7 @@ public class ChessGameTests {
     public static TheoryData<string, string, string> FenMoves()
     {
         TheoryData<string, string, string> fenMoves = new();
-        fenMoves.Add("rnb1kb1r/ppp1pppp/8/8/3Pq3/8/PPP1BPPP/R1BQK1NR w - - 0 1", "Be3", "rnb1kb1r/ppp1pppp/8/8/3Pq3/8/PPP1BPPP/R1BQK1NR b - - 0 2");
+        fenMoves.Add("rnb1kb1r/ppp1pppp/8/8/3Pq3/8/PPP1BPPP/R1BQK1NR w - - 0 1", "Be3", "rnb1kb1r/ppp1pppp/8/8/3Pq3/4B3/PPP1BPPP/R2QK1NR b - - 1 1");
         return fenMoves;
     }
     

@@ -26,7 +26,7 @@ public class ChessGame : IChessGame {
         _rules = rules;
 
         _chessPosition = new ChessPositionBuilder()
-            .FromBoard(initialChessPosition);
+            .FromPosition(initialChessPosition);
         
         GameState = rules.CalculateState(initialChessPosition);
         
