@@ -32,6 +32,10 @@ public class PgnReaderTests {
 
     }
 
+    private PgnReader CreateReader(string pgnText) {
+        return new PgnReader(new PgnTokenizer(pgnText));
+    }
+
     public static TheoryData<string, PgnMovePart> ValidMoveParts {
         get {
             TheoryData<string, PgnMovePart> data = new();

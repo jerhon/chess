@@ -11,5 +11,5 @@ public enum TokenType {
     Integer,
     Comment,
     Astrix,
-    NumericAnnotationGlyph
+    NumericAnnotationGlyph,
 }

@@ -8,13 +8,12 @@ using Honlsoft.Chess.ChessDotCom.Console.UseCases;
 
 RootCommand command = new RootCommand();
 
+
 Command gamesCommand = new Command("games", "Commands for working with chess.com games.");
 Command exportGames = new Command("export", "export games from chess.com.");
 
 Option<string> contactInfoOpt = new Option<string>("--contact-info", "The contact information to use from chess.com for the request.");
 contactInfoOpt.IsRequired = true;
-
-command.AddOption(contactInfoOpt);
 
 Option<DirectoryInfo> outDirOption = new Option<DirectoryInfo>("--out-dir", "The directory to output the games to.");
 outDirOption.IsRequired = true;
@@ -32,6 +31,7 @@ exportGames.AddOption(outDirOption);
 exportGames.AddOption(userNameOption);
 exportGames.AddOption(yearOption);
 exportGames.AddOption(monthOption);
+exportGames.AddOption(contactInfoOpt);
 
 gamesCommand.AddCommand(exportGames);
 

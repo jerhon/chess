@@ -3,6 +3,8 @@
 using System.CommandLine;
 using Honlsoft.Chess;
 using Honlsoft.Chess.Console;
+using Honlsoft.Chess.Console.CommandLine;
+using Honlsoft.Chess.Console.UseCases;
 using Honlsoft.Chess.Engine;
 using Honlsoft.Chess.Serialization;
 using Honlsoft.Chess.Uci.Client;
@@ -27,5 +29,13 @@ collection.AddLogging((builder) => {
     builder.AddSerilog();
 });
 
-var serviceProvider = collection.BuildServiceProvider();
+collection.AddSingleton<PlayGame>();
+collection.AddSingleton<CommandLineFactory>();
+collection.AddSingleton<ImportGames>();
 
+var serviceProvider = collection.BuildServiceProvider();
+var commandLine = serviceProvider.GetRequiredService<CommandLineFactory>();
+
+var root = commandLine.CreateCommand();
+
+await root.InvokeAsync(args);

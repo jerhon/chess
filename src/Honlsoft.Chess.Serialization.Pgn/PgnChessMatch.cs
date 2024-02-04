@@ -1,5 +1,5 @@
-﻿namespace Honlsoft.Chess.Serialization;
+﻿using Honlsoft.Chess.Serialization.Pgn;
 
-public record PgnChessMatch(PgnTag[] Tags, PgnMovePart[] Moves) {
+namespace Honlsoft.Chess.Serialization;
 
-}
+public record PgnChessMatch(PgnTag[] Tags, PgnMove[] Moves);

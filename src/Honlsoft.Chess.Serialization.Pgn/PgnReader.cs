@@ -30,21 +30,30 @@ public class PgnReader(PgnTokenizer tokenizer) {
     }
 
 
-    public PgnMovePart? ReadMovePart() {
-        if (PeekToken() is { Type: TokenType.Integer }) {
-
+    public PgnMovePart? ReadMovePart()
+    {
+        var nextToken = PeekToken();
+        
+        if (nextToken is { Type: TokenType.Integer })
+        {
             Token number = ReadToken();
-            
+
             int periodCount = 0;
             Token? periodToken = PeekToken();
-            while (PeekToken() is { Type: TokenType.Period }) {
+            while (PeekToken() is { Type: TokenType.Period })
+            {
                 ReadToken();
                 periodCount++;
             }
 
             return new PgnMoveNumber(int.Parse(number.Value), periodCount);
         }
-        else if (PeekToken() is { Type: TokenType.Symbol }) {
+        else if (nextToken is { Type: TokenType.Comment })
+        {
+            return new PgnMoveComment(ReadToken().Value);
+        }
+        else if (nextToken is { Type: TokenType.Symbol })
+        {
             
             Token token = ReadToken();
 
@@ -61,14 +70,9 @@ public class PgnReader(PgnTokenizer tokenizer) {
             PgnMoveText moveText = PgnMoveText.Parse(token.Value);
             return moveText;
         }
-
         return null;
     }
-
-
     
-
-
     public PgnTag[] ReadTagSection() {
         var tags = new List<PgnTag>();
         var pgnTag = ReadTag();
@@ -93,11 +97,57 @@ public class PgnReader(PgnTokenizer tokenizer) {
         return moveParts.ToArray();
     }
 
+    private PgnMove[] ConvertMovePartsToMove(IEnumerable<PgnMovePart> moveParts)
+    {
+        List<PgnMove> moves = new List<PgnMove>();
+        
+        int currentMove = 0;
+        San? sanMove = null;
+        string? comment = null;
+        PieceColor color = PieceColor.White;
+        foreach (var movePart in moveParts)
+        {
+            if (movePart is PgnMoveNumber moveNumber)
+            {
+                // If there was a previous san move, we're on to the next move... add it to the list.
+                if (sanMove != null)
+                {
+                    sanMove = null;
+                    moves.Add(new PgnMove(currentMove, color, sanMove, comment));
+                }
+                currentMove = moveNumber.Number;
+                color = moveNumber.IsBlackMove() ? PieceColor.Black : PieceColor.White;
+                comment = null;
+            }
+            else if (movePart is PgnMoveText moveText)
+            {
+                if (sanMove != null)
+                {
+                    moves.Add(new PgnMove(currentMove, color, sanMove, comment));
+                    if (color == PieceColor.Black)
+                    {
+                        currentMove++;
+                    }
+                    color = color == PieceColor.White ? PieceColor.Black : PieceColor.White;
+                    sanMove = null;
+                    comment = null;
+                }
+            }
+            else if (movePart is PgnMoveComment moveComment)
+            {
+                comment = moveComment.Comment;
+            }
+        }
+        
+        return moves.ToArray();
+    }
+    
     public PgnChessMatch Read() {
 
         var tags = ReadTagSection();
-        var moves = ReadMoveParts();
-
+        var moveParts = ReadMoveParts();
+        var moves = ConvertMovePartsToMove(moveParts);
+        
         PgnChessMatch chessMatch = new(tags, moves);
 
         return chessMatch;

@@ -4,7 +4,7 @@ namespace Honlsoft.Chess.Serialization.Pgn;
 
 public class PgnTokenizer(string pgnString) {
 
-    private static Dictionary<char, TokenType> _individualSymbols = new() {
+    private static readonly Dictionary<char, TokenType> _individualSymbols = new() {
         {'[', TokenType.LeftSquareBracket},
         {']', TokenType.RightSquareBracket},
         {'(', TokenType.LeftRoundBracket},
@@ -67,6 +67,7 @@ public class PgnTokenizer(string pgnString) {
         if (c == '{') {
             Advance(1);
             var commentString = TakeWhile((c) => c != '}');
+            Advance(1);
             return new Token(TokenType.Comment, commentString, line, lineOffset);
         }
 

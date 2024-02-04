@@ -7,7 +7,7 @@ namespace Honlsoft.Chess.Serialization;
 /// <summary>
 /// This class is used to generate a zorbist hash for a given chess position.  This is used to detect if a position has been seen before.
 /// </summary>
-public class ZorbistHash
+public class ZorbistHasher
 {
     private enum Indexes : int
     {
@@ -61,7 +61,7 @@ public class ZorbistHash
     /// <summary>
     /// Create the zorbist hash from an initial chess position.
     /// </summary>
-    public ZorbistHash()
+    public ZorbistHasher()
     {
         GenerateKeys();
     }
@@ -72,7 +72,7 @@ public class ZorbistHash
     /// </summary>
     /// <param name="chessPosition">The chess position to calculate.</param>
     /// <returns>The hash value.</returns>
-    public ulong Calculate(IChessPosition chessPosition)
+    public ulong CalculateHash(IChessPosition chessPosition)
     {
         GenerateKeys();
         

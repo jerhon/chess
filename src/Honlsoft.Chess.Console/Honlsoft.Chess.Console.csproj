@@ -15,6 +15,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.1" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.1" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
       <PackageReference Include="Serilog" Version="3.1.1" />
       <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
@@ -24,6 +26,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Honlsoft.Chess.Database\Honlsoft.Chess.Database.csproj" />
+      <ProjectReference Include="..\Honlsoft.Chess.Serialization.Pgn\Honlsoft.Chess.Serialization.Pgn.csproj" />
       <ProjectReference Include="..\Honlsoft.Chess.Uci.Client\Honlsoft.Chess.Uci.Client.csproj" />
       <ProjectReference Include="..\Honlsoft.Chess.Uci.Engine\Honlsoft.Chess.Uci.Engine.csproj" />
       <ProjectReference Include="..\Honlsoft.Chess\Honlsoft.Chess.csproj" />
