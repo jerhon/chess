@@ -28,7 +28,7 @@ public class PgnReaderTests {
         var actualResult = serializer.Read();
 
         actualResult.Should().NotBeNull();
-        actualResult.Moves.Should().HaveCount(147);
+        actualResult.Moves.Should().HaveCount(49);
 
     }
 

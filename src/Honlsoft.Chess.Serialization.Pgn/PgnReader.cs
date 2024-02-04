@@ -132,11 +132,20 @@ public class PgnReader(PgnTokenizer tokenizer) {
                     sanMove = null;
                     comment = null;
                 }
+                else
+                {
+                    sanMove = moveText.SanMove;
+                }
             }
             else if (movePart is PgnMoveComment moveComment)
             {
                 comment = moveComment.Comment;
             }
+        }
+
+        if (sanMove != null)
+        {
+           moves.Add(new PgnMove(currentMove, color, sanMove, comment)); 
         }
         
         return moves.ToArray();
