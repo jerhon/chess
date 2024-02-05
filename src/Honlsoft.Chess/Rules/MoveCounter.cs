@@ -16,9 +16,9 @@ public class MoveCounter(IChessPosition chessPosition, IEnumerable<IMoveRule> mo
     /// <summary>
     /// Get the threat count associated with the square.
     /// </summary>
-    /// <param name="square"></param>
+    /// <param name="square">The square to check for moves.</param>
     /// <returns></returns>
-    public int GetThreatCount(SquareName square) {
+    public int GetMoveCount(SquareName square) {
         CalculateMoves();
         
         if (_moveCounts.TryGetValue(square, out var value)) {

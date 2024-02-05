@@ -18,7 +18,7 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
         
         // We need to evaluate the king specially, because it can't move into a threat, which is unique to it.
         if (square.Piece.Type == PieceType.King) {
-            var threatCounter = GetThreatCounter(chessPosition, Piece.GetOppositeColor(square.Piece.Color));
+            var threatCounter = GetMoveCounter(chessPosition, Piece.GetOppositeColor(square.Piece.Color));
             moves = moves.Where((move) => !IsThreatenedMove(threatCounter, move));
         }
 
@@ -34,7 +34,7 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
     private bool IsThreatenedMove(MoveCounter threats, IChessMove move) {
         if (move is IKingMove kingMove) {
             var squares = kingMove.GetThreateningSquares();
-            if (squares.Any((s) => threats.GetThreatCount(s) > 1)) {
+            if (squares.Any((s) => threats.GetMoveCount(s) > 1)) {
                 return true;
             }
         }
@@ -42,7 +42,7 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
     }
 
 
-    public MoveCounter GetThreatCounter(IChessPosition chessPosition, PieceColor player) {
+    public MoveCounter GetMoveCounter(IChessPosition chessPosition, PieceColor player) {
         return new MoveCounter(chessPosition, moveRules, player);
     }
     

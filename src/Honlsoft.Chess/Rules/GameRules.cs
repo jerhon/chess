@@ -5,9 +5,9 @@ namespace Honlsoft.Chess;
 public class GameRules(MoveRules moveRules) {
 
     public ChessGameState CalculateState(IChessPosition chessPosition) {
-        
-        var currentPlayerMoves = moveRules.GetThreatCounter(chessPosition, chessPosition.PlayerToMove);
-        var otherPlayerMoves = moveRules.GetThreatCounter(chessPosition, chessPosition.PlayerToMove);
+        var otherPlayerColor = Piece.GetOppositeColor(chessPosition.PlayerToMove);
+        var currentPlayerMoves = moveRules.GetMoveCounter(chessPosition, chessPosition.PlayerToMove);
+        var otherPlayerMoves = moveRules.GetMoveCounter(chessPosition, otherPlayerColor);
         var kingSquare = currentPlayerMoves.GetKingSquare();
         var kingMoves = moveRules.GetMoves(chessPosition, kingSquare.Name);
 
@@ -17,7 +17,11 @@ public class GameRules(MoveRules moveRules) {
                 : ChessGameState.Checkmate;
         }
 
-        return currentPlayerMoves.GetTotalMoves() == 0 ? ChessGameState.Stalemate : ChessGameState.PlayerToMove;
+        if (currentPlayerMoves.GetTotalMoves() == 0) {
+            return ChessGameState.Stalemate;
+        }
+        
+        return ChessGameState.PlayerToMove;
     }
 
     /// <summary>
@@ -82,7 +86,7 @@ public class GameRules(MoveRules moveRules) {
         return (MoveResult.ValidMove, chessMove);
     }
     
-    private bool IsKingInCheck(MoveCounter otherPlayerMoves, Square kingSquare) => otherPlayerMoves.GetThreatCount(kingSquare.Name) > 0;
+    private bool IsKingInCheck(MoveCounter otherPlayerMoves, Square kingSquare) => otherPlayerMoves.GetMoveCount(kingSquare.Name) > 0;
 
     private bool IsPromotingPawn(IChessPosition position, SquareName from, SquareName to) {
         var square = position.GetSquare(from);
@@ -94,7 +98,7 @@ public class GameRules(MoveRules moveRules) {
 
     
     private bool CanKingMoveSafely(MoveCounter otherPlayerMoves, IEnumerable<IChessMove> kingMoves) =>
-        kingMoves.Any(move => otherPlayerMoves.GetThreatCount(move.To) == 0);
+        kingMoves.Any(move => otherPlayerMoves.GetMoveCount(move.To) == 0);
 
     
     private bool IsCurrentPlayerPiece(IChessGame gameState, SquareName from) {
