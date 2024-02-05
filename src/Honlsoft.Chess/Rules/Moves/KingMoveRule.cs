@@ -30,9 +30,14 @@ public class KingMoveRule : IMoveRule {
                     continue;
                 }
 
-                var toSquare = new SquareName(toSquareFile, toSquareRank);
+                var fromSquare = chessPosition.GetSquare(from);
+                var toSquare = chessPosition.GetSquare(new SquareName(toSquareFile, toSquareRank));
 
-                moves.Add( new KingMove(from, toSquare));
+                if (toSquare.HasPiece && fromSquare.Piece.Color == toSquare.Piece.Color) {
+                    continue;
+                }
+
+                moves.Add( new KingMove(from, toSquare.Name));
             }
         }
 
