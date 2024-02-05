@@ -4,7 +4,7 @@ public enum MoveResult {
     ValidMove,
     GameOver,
     PieceWrongColor,
-    InCheckMustMoveKing,
+    MustMoveOutOfCheck,
     NotALegalMove,
     RequiresPromotion,
     CastlingNotAllowed,

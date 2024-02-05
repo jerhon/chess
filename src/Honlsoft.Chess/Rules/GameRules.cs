@@ -61,11 +61,21 @@ public class GameRules(MoveRules moveRules) {
             return (MoveResult.PieceWrongColor, null);
         }
 
-        // Is player in check, can only move the king.
+        // Is player in check, must move the king, or block the threat.
         if (gameResult == ChessGameState.Check) {
             var square = gameState.CurrentPosition.GetSquare(from);
-            if (square is not { Piece: {Type: PieceType.King }} || square?.Piece?.Color != gameState.CurrentPosition.PlayerToMove) {
-                return (MoveResult.InCheckMustMoveKing, null);
+            //if (square is not { Piece: {Type: PieceType.King }} || square?.Piece?.Color != gameState.CurrentPosition.PlayerToMove) {
+            //    return (MoveResult.InCheckMustMoveKing, null);
+            //}
+
+            var chessPositionBuilder = new ChessPositionBuilder()
+                .FromPosition(gameState.CurrentPosition)
+                .Move(from, to);
+
+            // Needs to move out of check...
+            var newResult = CalculateState(chessPositionBuilder);
+            if (newResult == ChessGameState.Check) {
+                return (MoveResult.MustMoveOutOfCheck, null);
             }
         }
         
