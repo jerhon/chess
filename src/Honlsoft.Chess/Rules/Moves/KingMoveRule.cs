@@ -32,10 +32,6 @@ public class KingMoveRule : IMoveRule {
 
                 var toSquare = new SquareName(toSquareFile, toSquareRank);
 
-                if (chessPosition.GetSquare(toSquare).HasPiece) {
-                    continue;
-                }
-
                 moves.Add( new KingMove(from, toSquare));
             }
         }
