@@ -54,6 +54,7 @@ public class ChessPositionBuilder : IChessPosition {
         this.EnPassantTarget = chessPosition.EnPassantTarget;
         this.FullMoves = chessPosition.FullMoves;
         this.HalfMoves = chessPosition.HalfMoves;
+        this.PlayerToMove = chessPosition.PlayerToMove;
 
         var whiteCastling = chessPosition.GetCastlingRights(PieceColor.White);
         foreach (var castlingSide in whiteCastling)
@@ -117,6 +118,11 @@ public class ChessPositionBuilder : IChessPosition {
 
     public ChessPositionBuilder RemoveCastlingRights(CastlingSide side) {
         _castlingRights.Remove((PlayerToMove, side));
+        return this;
+    }
+    
+    public ChessPositionBuilder RemoveCastlingRights(PieceColor pieceColor) {
+        _castlingRights.RemoveWhere(x => x.Color == pieceColor);
         return this;
     }
 

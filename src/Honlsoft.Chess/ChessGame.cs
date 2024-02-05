@@ -137,15 +137,18 @@ public class ChessGame : IChessGame {
         }
 
         _chessPosition.Move(kingSquare, kingToSquare)
+            .WithEnPassantTarget(null)
                 .Move(rookSquare, rookToSquare)
-                .WithCastlingRights(_chessPosition.PlayerToMove, side, false);
-
+                .RemoveCastlingRights(_chessPosition.PlayerToMove);
+        
         _chessPosition.IncrementHalfMoves();
 
         if (_chessPosition.PlayerToMove == PieceColor.Black) {
             _chessPosition.IncrementFullMoves();
         }
 
+        _chessPosition.SwitchColor();
+        
         return MoveResult.ValidMove;
     }
     
@@ -238,8 +241,42 @@ public class ChessGame : IChessGame {
                 if (possibleMoves.Count() == 1) {
                     return possibleMoves.First();
                 }
+                if (sanMove.FromPiece != null) {
+                    
+                    possibleMoves = possibleMoves.Where((pm) =>
+                    {
+                        var square = _chessPosition.GetSquare(pm.From);
+                        if (square.Piece?.Type == sanMove.FromPiece) {
+                            return true;
+                        }
+
+                        return false;
+                    });
+                }
+                if (possibleMoves.Count() == 1)
+                {
+                    return possibleMoves.First();
+                }
+
+                // If the piece isn't included, should assume it's a pawn
+                if (sanMove.FromPiece == null)
+                {
+                    possibleMoves = possibleMoves.Where((pm) =>
+                                        {
+                                            var square = _chessPosition.GetSquare(pm.From);
+                                            if (square.Piece?.Type == PieceType.Pawn) {
+                                                return true;
+                                            }
+                    
+                                            return false;
+                                        });
+                }
+                
+                if (possibleMoves.Count() == 1)
+                {
+                    return possibleMoves.First();
+                }
             }
-            
             // Couldn't find a move from the Standard Algebraic Notation
             return null;
         }

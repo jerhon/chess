@@ -36,12 +36,22 @@ public class ImportGames
         var fenSerializer = new FenSerializer();
         var zorbistHasher = new ZorbistHasher();
         
+        System.Console.WriteLine("Total Moves: " + chessMatch.Moves.Length);
+        
         // Perform each move, and output the position.
         foreach (var move in chessMatch.Moves)
         {
-            System.Console.WriteLine(move.Move);
+            // System.Console.WriteLine(move.Move);
             
-            game.Move(move.Move);
+            var initialFen = fenSerializer.Serialize(game.CurrentPosition);
+
+            System.Console.WriteLine($"{move.MoveNumber} {move.Move} - {initialFen}");
+            
+            var moveResult = game.Move(move.Move);
+            if (moveResult != MoveResult.ValidMove)
+            {
+                throw new InvalidOperationException("Invalid move: " + move.Move);
+            }
          
             var hash = zorbistHasher.CalculateHash(game.CurrentPosition);
             

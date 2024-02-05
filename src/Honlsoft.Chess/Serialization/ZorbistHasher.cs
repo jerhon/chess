@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Globalization;
+using System.Runtime.CompilerServices;
 
 namespace Honlsoft.Chess.Serialization;
 
@@ -31,24 +32,24 @@ public class ZorbistHasher
         BlackPawnEnPassantCapture,
     }
     
-    private static ulong _initialHash = 0xfedbbeb54c9392fb;
-    private static ulong[,]? _hashKeys = new ulong [64,18];
+    private const int IndexCount = 18;
+    
+    private static readonly ulong _initialHash = 0x3edbbeb54c9392fb;
+    private static ulong[] _hashKeys;
         
-    private void GenerateKeys()
+    public static ulong[] ReadHashes()
     {
-        if (_hashKeys == null)
+        List<ulong> hashes = new List<ulong>();
+        using var hashesStream = typeof(ZorbistHasher).Assembly.GetManifestResourceStream("Honlsoft.Chess.Serialization.ZorbistHashes.txt");
+        var reader = new StreamReader(hashesStream);
+        string line = reader.ReadLine();
+        while (!string.IsNullOrWhiteSpace(line)) 
         {
-            const int positionCount = 64;
-            const int pieceNumber = 18;
-            ulong[,] hashKeys = new ulong[64, 18];
-            for (int i = 0; i < 64; i++)
-            {
-                for (int j = 0; j < 18; j++)
-                {
-                    hashKeys[i, j] = NextUInt64();
-                }
-            }
+            hashes.Add(ulong.Parse(line, NumberStyles.HexNumber));
+            line = reader.ReadLine(); 
         }
+
+        return hashes.ToArray();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,7 +64,7 @@ public class ZorbistHasher
     /// </summary>
     public ZorbistHasher()
     {
-        GenerateKeys();
+        _hashKeys = ReadHashes();
     }
 
 
@@ -74,13 +75,11 @@ public class ZorbistHasher
     /// <returns>The hash value.</returns>
     public ulong CalculateHash(IChessPosition chessPosition)
     {
-        GenerateKeys();
-        
         ulong currentHash = _initialHash;
         
         var whiteCastlingRights = chessPosition.GetCastlingRights(PieceColor.White);
         var blackCastlingRights = chessPosition.GetCastlingRights(PieceColor.Black);
-        
+
         foreach (var squareName in SquareName.AllSquares())
         {
             var square = chessPosition.GetSquare(squareName);
@@ -88,9 +87,10 @@ public class ZorbistHasher
             {
                 continue;
             }
+
             var castlingRights = square.Piece.Color == PieceColor.White ? whiteCastlingRights : blackCastlingRights;
-            var pieceIndex = GetPieceIndex(square, castlingRights, chessPosition.EnPassantTarget);
-            currentHash ^= _hashKeys[pieceIndex.PositionIndex, pieceIndex.TypeIndex];
+            var pieceHash = GetPieceHash(square, castlingRights, chessPosition.EnPassantTarget);
+            currentHash ^= pieceHash;
         }
 
         return currentHash;
@@ -104,11 +104,11 @@ public class ZorbistHasher
     /// <param name="enPassantTarget">The en passant target.</param>
     public ulong UpdateHash(ulong hash, Square square, CastlingSide[]? castlingRights, SquareName enPassantTarget)
     {
-        var pieceIndex = GetPieceIndex(square, castlingRights, enPassantTarget);
-        return hash ^ _hashKeys[pieceIndex.PositionIndex, pieceIndex.TypeIndex];
+        var pieceHash = GetPieceHash(square, castlingRights, enPassantTarget);
+        return hash ^ pieceHash;
     }
     
-    private (int PositionIndex, int TypeIndex) GetPieceIndex(Square square, CastlingSide[]? castlingRights, SquareName enPassantTarget)
+    private ulong GetPieceHash(Square square, CastlingSide[]? castlingRights, SquareName enPassantTarget)
     {
         // need to double check I have this right, but not a big deal if they get rotated.
         int positionIndex = square.Name.SquareRank.Index * 8 + square.Name.SquareFile.Index;
@@ -144,7 +144,8 @@ public class ZorbistHasher
             pieceIndex = square.Piece.Color == PieceColor.White ? Indexes.WhitePawnEnPassantCapture : Indexes.BlackPawnEnPassantCapture;
         }
         
-        return (positionIndex, (int)pieceIndex);
+        return _hashKeys[ (positionIndex * IndexCount) + (int)pieceIndex ];
     }
     
+    public static ZorbistHasher Default { get; } = new ZorbistHasher();
 }

@@ -51,6 +51,8 @@ public class ChessGameTests {
     {
         TheoryData<string, string, string> fenMoves = new();
         fenMoves.Add("rnb1kb1r/ppp1pppp/8/8/3Pq3/8/PPP1BPPP/R1BQK1NR w - - 0 1", "Be3", "rnb1kb1r/ppp1pppp/8/8/3Pq3/4B3/PPP1BPPP/R2QK1NR b - - 1 1");
+        fenMoves.Add("rnb1kb1r/ppp1pppp/8/8/3Pq3/8/PPP1BPPP/R1BQK1NR b KQkq - 2 5", "e6", "rnb1kb1r/ppp2ppp/4p3/8/3Pq3/8/PPP1BPPP/R1BQK1NR w KQkq - 0 6");
+        fenMoves.Add("r1b1kb1r/p1p2ppp/2n1p3/1p6/3Pq3/4BN2/PPP1BPPP/R2QK2R w KQkq b6 0 8", "O-O", "r1b1kb1r/p1p2ppp/2n1p3/1p6/3Pq3/4BN2/PPP1BPPP/R2Q1RK1 b kq - 1 8");
         return fenMoves;
     }
     

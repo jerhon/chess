@@ -12,9 +12,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Serialization\Hashes.txt">
+    <None Remove="Serialization\Hashes.txt" />
+    <EmbeddedResource Include="Serialization\ZorbistHashes.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

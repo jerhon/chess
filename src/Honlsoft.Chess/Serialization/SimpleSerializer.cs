@@ -37,4 +37,6 @@ public class SimpleSerializer {
         }
         return chessBoardBuilder.Build();
     }
+
+    public static SanSerializer Default { get; } = new SanSerializer();
 }
