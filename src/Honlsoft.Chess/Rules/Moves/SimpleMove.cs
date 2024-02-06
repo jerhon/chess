@@ -10,16 +10,11 @@ namespace Honlsoft.Chess.Rules;
 public record SimpleMove(SquareName From, SquareName To) : IChessMove {
 
     public void Move(IChessGame chessGame) {
-        
         chessGame.Move(From, To, null);
-        
     }
+    
     public San ToSan() {
         return new SanMove{ FromFile = From.SquareFile, FromRank = From.SquareRank, ToFile = To.SquareFile, ToRank = To.SquareRank };
-    }
-
-    public SquareName[] GetTargetedSquares() {
-        return [To];
     }
     
     public PieceColor? GetPlayer(IChessPosition chessPosition) {

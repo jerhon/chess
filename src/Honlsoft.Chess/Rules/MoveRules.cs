@@ -19,7 +19,7 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
         // We need to evaluate the king specially, because it can't move into a threat, which is unique to it.
         if (square.Piece.Type == PieceType.King) {
             var threatCounter = GetMoveCounter(chessPosition, Piece.GetOppositeColor(square.Piece.Color));
-            moves = moves.Where((move) => !IsThreatenedMove(threatCounter, move));
+            moves = moves.Where((move) => !IsThreatened(threatCounter, move.From, move.To));
         }
 
         return moves;
@@ -30,17 +30,23 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
         return moves.FirstOrDefault((move) => move.To == to);
     }
 
-
-    private bool IsThreatenedMove(MoveCounter threats, IChessMove move) {
-        if (move is IKingMove kingMove) {
-            var squares = kingMove.GetThreateningSquares();
-            if (squares.Any((s) => threats.GetMoveCount(s) > 1)) {
-                return true;
+    public bool IsThreatened(MoveCounter threats, SquareName from, SquareName to)
+    {
+        // We need to evaluate the king specially, because it can't move into a threat, which is unique to it.
+        // Enumerate all the squares between from and to, and check if they are threatened.
+        foreach (var file in from.SquareFile.To(to.SquareFile, true))
+        {
+            foreach (var rank in from.SquareRank.To(to.SquareRank, true))
+            {
+                if (threats.GetMoveCount(new SquareName(file, rank)) > 0)
+                {
+                    return true;
+                }
             }
         }
+
         return false;
     }
-
 
     public MoveCounter GetMoveCounter(IChessPosition chessPosition, PieceColor player) {
         return new MoveCounter(chessPosition, moveRules, player);

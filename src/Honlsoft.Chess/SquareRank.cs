@@ -74,7 +74,10 @@ public record SquareRank(int Number)
     public IEnumerable<SquareRank> ToStart(bool inclusive = false) {
         return ToRange(-8, inclusive);
     }
-    
+   
+    public IEnumerable<SquareRank> To(SquareRank to, bool inclusive = false) {
+        return ToRange(to.Number - Number, inclusive);
+    }
     
     public IEnumerable<SquareRank> ToRange(int limit, bool inclusive = false) {
         int i = 0;

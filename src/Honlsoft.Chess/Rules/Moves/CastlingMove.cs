@@ -2,7 +2,7 @@
 
 namespace Honlsoft.Chess.Rules; 
 
-public record CastlingMoveRule(PieceColor Color, CastlingSide Side) : IChessMove, IKingMove {
+public record CastlingMoveRule(PieceColor Color, CastlingSide Side) : IChessMove {
     
     public SquareName From {
         get {

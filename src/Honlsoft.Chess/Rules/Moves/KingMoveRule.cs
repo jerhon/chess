@@ -37,7 +37,7 @@ public class KingMoveRule : IMoveRule {
                     continue;
                 }
 
-                moves.Add( new KingMove(from, toSquare.Name));
+                moves.Add( new SimpleMove(from, toSquare.Name));
             }
         }
 

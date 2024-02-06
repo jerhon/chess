@@ -60,6 +60,10 @@ public record SquareFile(char Name) {
         return ToRange(-8, inclusive);
     }
 
+    public IEnumerable<SquareFile> To(SquareFile to, bool inclusive = false) {
+        return ToRange(to.Index - Index, inclusive);
+    }
+    
     /// <summary>
     /// Returns a range of chess files.
     /// </summary>
