@@ -58,6 +58,8 @@ public class ChessGameTests {
         fenMoves.Add("1k6/1pp5/p7/r2b4/2K5/8/8/8 w - - 0 43", "Kb4", "1k6/1pp5/p7/r2b4/1K6/8/8/8 b - - 1 43");
         fenMoves.Add("rnbqkbnr/pp2pppp/8/1B1p4/8/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 3", "Bd7", "rn1qkbnr/pp1bpppp/8/1B1p4/8/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 4");
         fenMoves.Add("1k6/1p6/p7/1rpb4/K7/8/8/8 w - c6 0 45", "Ka3", "1k6/1p6/p7/1rpb4/8/K7/8/8 b - - 1 45");
+        fenMoves.Add("1k6/1pp4b/p7/3P4/r2K4/8/8/8 w - - 2 40", "Ke5", "1k6/1pp4b/p7/3PK3/r7/8/8/8 b - - 3 40" );
+        
         return fenMoves;
     }
     

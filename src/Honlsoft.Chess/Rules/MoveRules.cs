@@ -32,13 +32,16 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
 
     public bool IsThreatened(MoveCounter threats, SquareName from, SquareName to)
     {
-        // We need to evaluate the king specially, because it can't move into a threat, which is unique to it.
-        // Enumerate all the squares between from and to, and check if they are threatened.
-        foreach (var file in from.SquareFile.To(to.SquareFile, true))
+        if (threats.GetMoveCount(to) > 0) {
+            return true;
+        }
+        
+        // if this is a move with more than one square, it's a castle and we need to check in between squares.
+        if (from.SquareRank == to.SquareRank && Math.Abs(to.SquareFile.Index - from.SquareFile.Index) > 1)
         {
-            foreach (var rank in from.SquareRank.To(to.SquareRank, true))
+            foreach (var file in from.SquareFile.To(to.SquareFile))
             {
-                if (threats.GetMoveCount(new SquareName(file, rank)) > 0)
+                if (threats.GetMoveCount(new SquareName(file, from.SquareRank)) > 0)
                 {
                     return true;
                 }
