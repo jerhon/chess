@@ -51,12 +51,12 @@ public class ChessGame : IChessGame {
         
         DoCastlingRights(fromName);
         
-        DoEnPassantTarget(fromName, toName);
-        
         // Move the piece
         _chessPosition.Move(fromName, toName);
 
         DoEnPassantCapture(fromName, toName);
+        
+        DoEnPassantTarget(fromName, toName);
         
         // If this is a promotion, then promote it
         if (promotionPiece != null) {
