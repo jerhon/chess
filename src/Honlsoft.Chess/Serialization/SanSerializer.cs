@@ -19,10 +19,12 @@ public class SanSerializer {
     }
     
     public string SerializeSanCastle(SanCastle sanCastle) {
-        return sanCastle.Side switch {
+        var castle = sanCastle.Side switch {
             CastlingSide.Kingside => "O-O",
             CastlingSide.Queenside => "O-O-O"
         };
+        
+        return castle + SerializeCheckType(sanCastle.Check);
     }
 
     public string SerializeSanFrom(SanMove sanMovePiece) {
@@ -71,16 +73,28 @@ public class SanSerializer {
         };
     }
     
+    public SanCheckType? DeserializeCheckType(string checkType) {
+        return checkType switch {
+            "+" => SanCheckType.Check,
+            "#" => SanCheckType.Checkmate,
+            _ => null
+        };
+    }
+    
     public San Deserialize(string sanExpression) {
-
-        if (sanExpression is "0-0" or "O-O") {
-            return new SanCastle { Side = CastlingSide.Kingside };
+        if (sanExpression.StartsWith("0-0-0") || sanExpression.StartsWith( "O-O-O")) {
+            var postfix = sanExpression.Substring(5);
+            var checkType = DeserializeCheckType(postfix);
+            
+            return new SanCastle { Side = CastlingSide.Queenside, Check = checkType };
         }
-        
-        if (sanExpression is "0-0-0" or "O-O-O") {
-            return new SanCastle { Side = CastlingSide.Queenside };
-        }
-        
+        if (sanExpression.StartsWith( "0-0" ) || sanExpression.StartsWith("O-O")) {
+              
+              var postfix = sanExpression.Substring(3);
+              var checkType = DeserializeCheckType(postfix);
+              
+              return new SanCastle { Side = CastlingSide.Kingside, Check = checkType };
+        }      
         var matchedSan = sanRegex.Match(sanExpression);
         if (matchedSan.Success) {
 

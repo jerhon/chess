@@ -35,6 +35,9 @@ public class SanSerializerTests {
         data.Add("Rh1xh8", new SanMove{ FromFile = SquareFile.h, FromRank = SquareRank.Rank1, FromPiece = PieceType.Rook, ToFile = SquareFile.h, ToRank = SquareRank.Rank8, Capture = true});
         data.Add("O-O", new SanCastle{ Side=CastlingSide.Kingside });
         data.Add("O-O-O", new SanCastle{ Side = CastlingSide.Queenside });
+        data.Add("O-O+", new SanCastle{ Side = CastlingSide.Kingside, Check = SanCheckType.Check });
+        data.Add("O-O-O#", new SanCastle{ Side = CastlingSide.Queenside, Check = SanCheckType.Checkmate });
+        
         return data;
     }
 }
