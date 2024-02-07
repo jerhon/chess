@@ -101,7 +101,7 @@ public class PgnTokenizer(string pgnString) {
 
 
     private bool IsSymbolChar(char c) {
-        return (c is '_' or '+' or '#' or '=' or ':' or '-') || Char.IsDigit(c) || Char.IsLetter(c);
+        return (c is '_' or '+' or '#' or '=' or ':' or '-' or '/') || Char.IsDigit(c) || Char.IsLetter(c);
     }
 
 

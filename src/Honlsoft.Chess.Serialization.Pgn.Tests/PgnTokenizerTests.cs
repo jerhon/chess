@@ -38,7 +38,8 @@ public class PgnTokenizerTests {
                 { ".", new(TokenType.Period, ".", 0, 0) },
                 { "\"string\"", new Token(TokenType.String, "string", 0, 0) },
                 { "$0123", new Token(TokenType.NumericAnnotationGlyph, "0123", 0, 0) },
-                {"{comment}", new Token(TokenType.Comment, "comment", 0, 0) }
+                {"{comment}", new Token(TokenType.Comment, "comment", 0, 0) },
+                {"1/2-1/2", new Token(TokenType.Symbol, "1/2-1/2", 0, 0)}
             };
             return data;
         }
