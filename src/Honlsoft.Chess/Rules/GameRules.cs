@@ -11,8 +11,8 @@ public class GameRules(MoveRules moveRules) {
         var kingSquare = currentPlayerMoves.GetKingSquare();
         var kingMoves = moveRules.GetMoves(chessPosition, kingSquare.Name);
 
-        if (IsKingInCheck(otherPlayerMoves, kingSquare)) {
-            return CanKingMoveSafely(otherPlayerMoves, kingMoves)
+        if (IsKingInCheck(chessPosition)) {
+            return CanEvadeCheck(chessPosition)
                 ? ChessGameState.Check
                 : ChessGameState.Checkmate;
         }
@@ -49,10 +49,9 @@ public class GameRules(MoveRules moveRules) {
     /// <param name="promotionPiece">The piece to promote to, if it is eligible for promotion.</param>
     /// <returns>A tuple with two elements. The first is a boolean indicating whether the move is valid or not. If the move is invalid, the second string element contains the reason for its invalidity. If the move is valid, this element will be null.</returns>
     public (MoveResult, IChessMove?) IsValidMove(IChessGame gameState, SquareName from, SquareName to, PieceType? promotionPiece) {
-
         
         var gameResult = CalculateState(gameState.CurrentPosition);
-        if (gameResult == ChessGameState.Checkmate || gameResult == ChessGameState.Stalemate) {
+        if (gameResult == ChessGameState.Stalemate) {
             return (MoveResult.GameOver, null);
         }
         
@@ -61,8 +60,8 @@ public class GameRules(MoveRules moveRules) {
             return (MoveResult.PieceWrongColor, null);
         }
 
-        // Is player in check, must move the king, or block the threat.
-        if (gameResult == ChessGameState.Check) {
+        // Is player in check, see if the current move will move them out of check.
+        if (gameResult == ChessGameState.Check || gameResult == ChessGameState.Checkmate) {
             var square = gameState.CurrentPosition.GetSquare(from);
             //if (square is not { Piece: {Type: PieceType.King }} || square?.Piece?.Color != gameState.CurrentPosition.PlayerToMove) {
             //    return (MoveResult.InCheckMustMoveKing, null);
@@ -95,8 +94,14 @@ public class GameRules(MoveRules moveRules) {
         
         return (MoveResult.ValidMove, chessMove);
     }
-    
-    private bool IsKingInCheck(MoveCounter otherPlayerMoves, Square kingSquare) => otherPlayerMoves.GetMoveCount(kingSquare.Name) > 0;
+
+    private bool IsKingInCheck(IChessPosition chessPosition)
+    {
+        var opponentColor = Piece.GetOppositeColor(chessPosition.PlayerToMove);
+        var opponentMoves = moveRules.GetMoveCounter(chessPosition, opponentColor);
+        var kingSquare = opponentMoves.GetKingSquare();
+        return opponentMoves.GetMoveCount(kingSquare.Name) > 0;
+    }
 
     private bool IsPromotingPawn(IChessPosition position, SquareName from, SquareName to) {
         var square = position.GetSquare(from);
@@ -106,9 +111,17 @@ public class GameRules(MoveRules moveRules) {
         return false;
     }
 
-    
-    private bool CanKingMoveSafely(MoveCounter otherPlayerMoves, IEnumerable<IChessMove> kingMoves) =>
-        kingMoves.Any(move => otherPlayerMoves.GetMoveCount(move.To) == 0);
+
+    private bool CanEvadeCheck(IChessPosition chessPosition)
+    {
+        var moves = moveRules.GetMoves(chessPosition, chessPosition.PlayerToMove);
+        return moves.Any((move) => {
+            var newPosition = new ChessPositionBuilder()
+                .FromPosition(chessPosition)
+                .Move(move);
+            return !IsKingInCheck(newPosition);
+        });
+    }
 
     
     private bool IsCurrentPlayerPiece(IChessGame gameState, SquareName from) {

@@ -59,7 +59,10 @@ public class ChessGameTests {
         fenMoves.Add("rnbqkbnr/pp2pppp/8/1B1p4/8/5N2/PPPP1PPP/RNBQK2R b KQkq - 1 3", "Bd7", "rn1qkbnr/pp1bpppp/8/1B1p4/8/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 4");
         fenMoves.Add("1k6/1p6/p7/1rpb4/K7/8/8/8 w - c6 0 45", "Ka3", "1k6/1p6/p7/1rpb4/8/K7/8/8 b - - 1 45");
         fenMoves.Add("1k6/1pp4b/p7/3P4/r2K4/8/8/8 w - - 2 40", "Ke5", "1k6/1pp4b/p7/3PK3/r7/8/8/8 b - - 3 40" );
-        
+        fenMoves.Add("8/5pkp/2p1p1p1/8/3nB1PK/1p3P1P/3r4/8 w - - 0 44", "Kg5", "8/5pkp/2p1p1p1/6K1/3nB1P1/1p3P1P/3r4/8 b - - 1 44"); 
+        fenMoves.Add("2r3k1/5p1p/2p1p1p1/1p2q2n/8/1B5P/1NQ2PP1/3r2K1 w - - 0 34", "Qxd1", "2r3k1/5p1p/2p1p1p1/1p2q2n/8/1B5P/1N3PP1/3Q2K1 b - - 0 34");
+        // I got this move from a PGN export, but the SAN doesn't seem valid as both knights can jump to the same position
+        //fenMoves.Add("r1b1k2r/pp1p1ppp/1qn2n2/4p3/1b6/1PN1P1B1/P1P2PPP/R2QKBNR w KQkq - 1 8", "Ne2", "r1b1k2r/pp1p1ppp/1qn2n2/4p3/1b6/1PN1P1B1/P1P1NPPP/R2QKB1R b KQkq - 2 8");
         return fenMoves;
     }
     

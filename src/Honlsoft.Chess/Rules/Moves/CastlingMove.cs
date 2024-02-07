@@ -22,11 +22,25 @@ public record CastlingMoveRule(PieceColor Color, CastlingSide Side) : IChessMove
             return kingToSquare;
         }
     }
-    
+
     public void Move(IChessGame chessGame) {
         chessGame.Castle(Side);
     }
-    
+
+    public void Move(ChessPositionBuilder chessGame)
+    {
+        if (Side == CastlingSide.Kingside)
+        {
+            chessGame.Move(new SquareName(SquareFile.e, From.SquareRank), new SquareName(SquareFile.g, From.SquareRank));
+            chessGame.Move(new SquareName(SquareFile.h, From.SquareRank), new SquareName(SquareFile.f, From.SquareRank));
+        }
+        else
+        {
+            chessGame.Move(new SquareName(SquareFile.e, From.SquareRank), new SquareName(SquareFile.c, From.SquareRank));
+            chessGame.Move(new SquareName(SquareFile.a, From.SquareRank), new SquareName(SquareFile.d, From.SquareRank));
+        }
+    }
+
     public San ToSan() {
         return new SanCastle() { Side = this.Side };
     }

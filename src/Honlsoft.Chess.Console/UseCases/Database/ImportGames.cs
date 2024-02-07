@@ -50,7 +50,7 @@ public class ImportGames
             var moveResult = game.Move(move.Move);
             if (moveResult != MoveResult.ValidMove)
             {
-                throw new InvalidOperationException("Invalid move: " + move.Move);
+                throw new InvalidOperationException($"Move {move.Move} invalid. Reason = {moveResult}.");
             }
          
             var hash = zorbistHasher.CalculateHash(game.CurrentPosition);

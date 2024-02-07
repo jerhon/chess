@@ -20,12 +20,12 @@ public interface IChessMove {
     /// <param name="to">The to square.</param>
     /// <returns></returns>
     SquareName To { get; }
-
+    
     /// <summary>
     /// Applies a move to a chess board.
     /// </summary>
     /// <param name="chessGame">The chess game to apply the move to.</param>
-    void Move(IChessGame chessGame);
+    void Move(ChessPositionBuilder chessGame);
 
 
     public San ToSan();

@@ -12,7 +12,12 @@ public record SimpleMove(SquareName From, SquareName To) : IChessMove {
     public void Move(IChessGame chessGame) {
         chessGame.Move(From, To, null);
     }
-    
+
+    public void Move(ChessPositionBuilder chessGame)
+    {
+        chessGame.Move(From, To);
+    }
+
     public San ToSan() {
         return new SanMove{ FromFile = From.SquareFile, FromRank = From.SquareRank, ToFile = To.SquareFile, ToRank = To.SquareRank };
     }

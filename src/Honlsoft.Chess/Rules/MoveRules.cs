@@ -3,7 +3,15 @@
 namespace Honlsoft.Chess; 
 
 public class MoveRules(IEnumerable<IMoveRule> moveRules) {
-
+    
+    public IEnumerable<IChessMove> GetMoves(IChessPosition chessPosition, PieceColor colors)
+    {
+        return SquareName.AllSquares()
+            .Select((s) => chessPosition.GetSquare(s))
+            .Where((square) => square.Piece?.Color == colors)
+            .SelectMany((square) => GetMoves(chessPosition, square.Name));
+    }
+    
     public IEnumerable<IChessMove> GetMoves(IChessPosition chessPosition, SquareName from) {
         
         var square = chessPosition.GetSquare(from);
@@ -16,10 +24,18 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
             .SelectMany(movementRule => movementRule.GetCandidateMoves(chessPosition, from))
             .Distinct();
         
-        // We need to evaluate the king specially, because it can't move into a threat, which is unique to it.
+        // We need to evaluate the king specially, because it can't move into check
         if (square.Piece.Type == PieceType.King) {
-            var threatCounter = GetMoveCounter(chessPosition, Piece.GetOppositeColor(square.Piece.Color));
-            moves = moves.Where((move) => !IsThreatened(threatCounter, move.From, move.To));
+            moves = moves.Where((move) => !IsThreatened(chessPosition, move.From, move.To));
+        }
+        else {
+            // Need to remove any moves that if made would put the king in check.
+            moves = moves.Where((move) => {
+                var newPosition = new ChessPositionBuilder()
+                    .FromPosition(chessPosition)
+                    .Move(move);
+                return !IsKingInCheck(newPosition);
+            });
         }
 
         return moves;
@@ -30,8 +46,24 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
         return moves.FirstOrDefault((move) => move.To == to);
     }
 
-    public bool IsThreatened(MoveCounter threats, SquareName from, SquareName to)
+    public bool IsKingInCheck(IChessPosition position) {
+        MoveCounter myMoves = GetMoveCounter(position, position.PlayerToMove);
+        MoveCounter opponentMoves = GetMoveCounter(position, Piece.GetOppositeColor(position.PlayerToMove));
+        Square kingSquare = myMoves.GetKingSquare();
+        return opponentMoves.GetMoveCount(kingSquare.Name) > 0;
+    }
+
+    public bool IsThreatened(IChessPosition initialPosition, SquareName from, SquareName to)
     {
+        var opponent = Piece.GetOppositeColor(initialPosition.GetSquare(from).Piece.Color); 
+        
+        var chessPosition = new ChessPositionBuilder()
+                            .FromPosition(initialPosition)
+                            .Move(from, to);
+
+        var threats = GetMoveCounter(chessPosition, opponent); 
+        
+        // Check the initial threat in the position.
         if (threats.GetMoveCount(to) > 0) {
             return true;
         }
@@ -41,6 +73,14 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
         {
             foreach (var file in from.SquareFile.To(to.SquareFile))
             {
+                var newSquare = new SquareName(file, from.SquareRank);
+                
+                chessPosition = new ChessPositionBuilder()
+                    .FromPosition(initialPosition)
+                    .Move(from, newSquare);
+                
+                threats = GetMoveCounter(chessPosition, opponent);
+                
                 if (threats.GetMoveCount(new SquareName(file, from.SquareRank)) > 0)
                 {
                     return true;

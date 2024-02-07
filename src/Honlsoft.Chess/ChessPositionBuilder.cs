@@ -152,6 +152,12 @@ public class ChessPositionBuilder : IChessPosition {
         
         return this;
     }
+
+    public ChessPositionBuilder Move(IChessMove move)
+    {
+        move.Move(this);
+        return this;
+    }
     
     public IChessPosition Build() {
         
