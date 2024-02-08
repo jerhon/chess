@@ -24,7 +24,7 @@ public class ImportGames
         
         var rawPgnText = File.ReadAllText(pgnFile.FullName);
         PgnSerializer serializer = new PgnSerializer();
-        var chessMatch = serializer.DeserializePgnChessMatch(rawPgnText);
+        var chessMatch = serializer.Deserialize(rawPgnText);
         
         
         ChessGameFactory gameFactory = new ChessGameFactory();

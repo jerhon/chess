@@ -216,29 +216,28 @@ public class ChessGame : IChessGame {
             }
                     
             var candidateMoves = playerSquares.SelectMany((s) => _rules.GetMoves(_chessPosition, s.Name));
-
             
-            var possibleMoves = candidateMoves.Where((m) => m.To.SquareFile == sanMove.ToFile && m.To.SquareRank == sanMove.ToRank);
+            IEnumerable<IChessMove> possibleMoves = candidateMoves.Where((m) => m.To.SquareFile == sanMove.ToFile && m.To.SquareRank == sanMove.ToRank).ToArray();
             if (!possibleMoves.Any())
             {
                 FenSerializer serializer = new();
                 var fen = serializer.Serialize(_chessPosition);
                 throw new InvalidOperationException($"Invalid move. Move = {san} FEN = {fen}");
             }
-            else if (possibleMoves.Count() == 1) {
+            else if (possibleMoves.Take(2).Count() == 1) {
                 var move = possibleMoves.First();
                 return move;
             } else {
                 if (sanMove.FromFile != null) {
                     possibleMoves = possibleMoves.Where((pm) => pm.From.SquareFile == sanMove.FromFile);
                 }
-                if (possibleMoves.Count() == 1) {
+                if (possibleMoves.Take(2).Count() == 1) {
                     return possibleMoves.First();
                 }
                 if (sanMove.FromRank != null) {
                     possibleMoves = possibleMoves.Where((pm) => pm.From.SquareRank == sanMove.FromRank);
                 }
-                if (possibleMoves.Count() == 1) {
+                if (possibleMoves.Take(2).Count() == 1) {
                     return possibleMoves.First();
                 }
                 if (sanMove.FromPiece != null) {
@@ -253,7 +252,7 @@ public class ChessGame : IChessGame {
                         return false;
                     });
                 }
-                if (possibleMoves.Count() == 1)
+                if (possibleMoves.Take(2).Count() == 1)
                 {
                     return possibleMoves.First();
                 }
@@ -272,7 +271,7 @@ public class ChessGame : IChessGame {
                                         });
                 }
                 
-                if (possibleMoves.Count() == 1)
+                if (possibleMoves.Take(2).Count() == 1)
                 {
                     return possibleMoves.First();
                 }

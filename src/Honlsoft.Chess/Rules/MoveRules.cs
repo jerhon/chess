@@ -29,12 +29,15 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
             moves = moves.Where((move) => !IsThreatened(chessPosition, move.From, move.To));
         }
         else {
+            
+            var kingSquare = chessPosition.GetKingSquare(square.Piece.Color);
+            
             // Need to remove any moves that if made would put the king in check.
             moves = moves.Where((move) => {
                 var newPosition = new ChessPositionBuilder()
                     .FromPosition(chessPosition)
                     .Move(move);
-                return !IsKingInCheck(newPosition);
+                return !IsKingInCheck(newPosition, kingSquare);
             });
         }
 
@@ -46,11 +49,9 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
         return moves.FirstOrDefault((move) => move.To == to);
     }
 
-    public bool IsKingInCheck(IChessPosition position) {
-        MoveCounter myMoves = GetMoveCounter(position, position.PlayerToMove);
+    public bool IsKingInCheck(IChessPosition position, SquareName kingSquare) {
         MoveCounter opponentMoves = GetMoveCounter(position, Piece.GetOppositeColor(position.PlayerToMove));
-        Square kingSquare = myMoves.GetKingSquare();
-        return opponentMoves.GetMoveCount(kingSquare.Name) > 0;
+        return opponentMoves.GetMoveCount(kingSquare) > 0;
     }
 
     public bool IsThreatened(IChessPosition initialPosition, SquareName from, SquareName to)

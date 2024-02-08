@@ -66,10 +66,10 @@ public record SquareName(SquareFile SquareFile, SquareRank SquareRank) : IParsab
 
         return new SquareName(newFile, newRank);
     }
+    
+    private static IEnumerable<SquareName> _allSquares = Chess.SquareRank.AllRanks.SelectMany((rank) => Chess.SquareFile.AllFiles.Select((file) => new SquareName(file, rank)));
 
-    public static IEnumerable<SquareName> AllSquares() {
-        return Chess.SquareRank.AllRanks.SelectMany((rank) => Chess.SquareFile.AllFiles.Select((file) => new SquareName(file, rank)));
-    }
+    public static IEnumerable<SquareName> AllSquares() => _allSquares; 
 
     public SquareColor Color => SquareRank.Index % 2 == SquareFile.Index % 2 ? SquareColor.Dark : SquareColor.Light;
 }

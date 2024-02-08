@@ -9,11 +9,12 @@ namespace Honlsoft.Chess.Serialization;
 /// </summary>
 public class PgnSerializer {
     
-
-    public PgnChessMatch DeserializePgnChessMatch(string text) {
+    public PgnChessMatch Deserialize(string text) {
         PgnTokenizer tokenizer = new PgnTokenizer(text);
         PgnReader reader = new PgnReader(tokenizer);
 
         return reader.Read();
     }
+    
+    public static PgnSerializer Default { get; } = new PgnSerializer();
 }

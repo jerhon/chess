@@ -28,4 +28,6 @@ public class ChessGameFactory {
         
         return new ChessGame(position, CreateGameRules());
     }
+    
+    public static ChessGameFactory Default { get; } = new ChessGameFactory();
 }

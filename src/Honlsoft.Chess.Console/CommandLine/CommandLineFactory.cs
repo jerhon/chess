@@ -11,6 +11,7 @@ public class CommandLineFactory(IServiceProvider serviceProvider)
         
         rootCmd.AddCommand(CreateDatabaseCommands());
         rootCmd.AddCommand(CreatePlayGameCommands());
+        rootCmd.AddCommand(CreateTestCommand());
         
         return rootCmd;
     }
@@ -55,5 +56,24 @@ public class CommandLineFactory(IServiceProvider serviceProvider)
         }));
 
         return playGameCmd;
+    }
+
+    public Command CreateTestCommand() {
+        Command testCommand = new Command("test", "Test the chess engine against a set of PGN files.");
+        
+        var directoryOption = new Option<DirectoryInfo>("--directory", "The directory containing the PGN files to test.")
+        {
+            IsRequired = true
+        };
+        
+        testCommand.AddOption(directoryOption);
+        
+        testCommand.SetHandler(async (directory) =>
+        {
+            var tester = new Test();
+            await tester.TestAsync(directory);
+        }, directoryOption);
+        
+        return testCommand;
     }
 }

@@ -44,6 +44,14 @@ public class PgnReaderTests {
         // TODO: Check individual moves
     }
 
+    [Fact]
+    public void ReadPgnGame_EndingInDraw()
+    {
+        var serializer = new PgnReader(new PgnTokenizer(PgnSample.Read("game003.pgn")));
+
+        var actualResult = serializer.Read();
+    }
+
     private PgnReader CreateReader(string pgnText) {
         return new PgnReader(new PgnTokenizer(pgnText));
     }
