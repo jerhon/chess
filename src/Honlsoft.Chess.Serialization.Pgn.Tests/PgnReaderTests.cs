@@ -21,27 +21,16 @@ public class PgnReaderTests {
         actualResult.Should().Be(expectedResult);
     }
 
-    [Fact]
-    public void ReadPgnGame() {
-        var serializer = new PgnReader(new PgnTokenizer(PgnSample.Read("game001.pgn")));
+    [Theory]
+    [MemberData(nameof(PgnGames))]
+    public void ReadPgnGame(string fileName, int moves) {
+        var serializer = new PgnReader(new PgnTokenizer(PgnSample.Read(fileName)));
 
         var actualResult = serializer.Read();
 
         actualResult.Should().NotBeNull();
-        actualResult.Moves.Should().HaveCount(49);
+        actualResult.Moves.Should().HaveCount(moves);
 
-    }
-   
-    [Fact]
-    public void ReadPgnGame_WithComments() {
-        var serializer = new PgnReader(new PgnTokenizer(PgnSample.Read("game002.pgn")));
-
-        var actualResult = serializer.Read();
-
-        actualResult.Should().NotBeNull();
-        actualResult.Moves.Should().HaveCount(63);
-        
-        // TODO: Check individual moves
     }
 
     [Fact]
@@ -76,6 +65,17 @@ public class PgnReaderTests {
             TheoryData<string, PgnTag> data = new TheoryData<string, PgnTag>();
             data.Add("[Name \"William Riker\"]", new PgnTag("Name", "William Riker", null));
             data.Add("[Starship  \t  \"Enterprise \\\\ \\\"Class D\\\"\"]", new PgnTag("Starship", "Enterprise \\ \"Class D\"", null));
+            return data;
+        }
+    }
+
+    public static TheoryData<string, int> PgnGames {
+        get {
+            TheoryData<string, int> data = new();
+            data.Add("game001.pgn", 49);
+            data.Add("game002.pgn", 63);
+            data.Add("game003.pgn", 141);
+            data.Add("game004.pgn", 71);
             return data;
         }
     }

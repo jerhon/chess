@@ -284,5 +284,27 @@ public class ChessPositionBuilder : IChessPosition {
         }
     }
 
+    /// <summary>
+    /// Clones the chess position builder.
+    /// </summary>
+    /// <returns>The new chess position builder.</returns>
+    public ChessPositionBuilder Clone() {
+        ChessPositionBuilder builder = new ChessPositionBuilder();
+        builder.EnPassantTarget = EnPassantTarget;
+        builder.FullMoves = FullMoves;
+        builder.HalfMoves = HalfMoves;
+        builder.PlayerToMove = PlayerToMove;
+        
+        foreach (var square in _squares) {
+            builder.SetSquare(square.Value);
+        }
+        
+        foreach (var castle in _castlingRights) {
+            builder.WithCastlingRights(castle.Color, castle.Side, true);
+        }
+
+        return builder;
+    }
+
     public static IChessPosition StandardGame = new ChessPositionBuilder().AddStandardGamePieces().AddAllCastling().Build();
 }

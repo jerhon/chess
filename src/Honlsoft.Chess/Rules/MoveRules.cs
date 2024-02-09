@@ -31,12 +31,14 @@ public class MoveRules(IEnumerable<IMoveRule> moveRules) {
         else {
             
             var kingSquare = chessPosition.GetKingSquare(square.Piece.Color);
+            var initialBuilder = new ChessPositionBuilder().FromPosition(chessPosition);
             
             // Need to remove any moves that if made would put the king in check.
             moves = moves.Where((move) => {
-                var newPosition = new ChessPositionBuilder()
-                    .FromPosition(chessPosition)
+                var newPosition = initialBuilder
+                    .Clone()
                     .Move(move);
+                
                 return !IsKingInCheck(newPosition, kingSquare);
             });
         }

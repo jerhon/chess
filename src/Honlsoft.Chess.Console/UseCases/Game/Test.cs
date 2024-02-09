@@ -8,12 +8,14 @@ namespace Honlsoft.Chess.Console.UseCases;
 /// Imports PGNs from a directory and runs through each PGN to test the game engine.
 /// </summary>
 public class Test {
+
+    private record FailedMoves(string game, string fenString, string move);
     
     public async Task TestAsync(DirectoryInfo pgnDirectory)
     {
         var stopwatch = new Stopwatch();
         List<string> _passedFiles = new();
-        List<string> _failedFiles = new();
+        List<FailedMoves> _failedFiles = new();
         
         var pgnFiles = pgnDirectory.GetFiles("*.pgn");
         stopwatch.Start();
@@ -45,7 +47,7 @@ public class Test {
             else {
                 System.Console.ForegroundColor = ConsoleColor.Red;
                 System.Console.Write("F");
-                _failedFiles.Add(pgnFile.Name);
+                _failedFiles.Add(new FailedMoves(pgnFile.Name, FenSerializer.Default.Serialize(game.CurrentPosition), moves.Last().Move.ToString()));
             }
         }
         stopwatch.Stop();
@@ -59,8 +61,8 @@ public class Test {
         
         System.Console.ForegroundColor = ConsoleColor.Red;
         System.Console.WriteLine("Failed Files:");
-        foreach (var failedFile in _failedFiles) {
-            System.Console.WriteLine("\t" + failedFile);
+        foreach (var failedMove in _failedFiles) {
+            System.Console.WriteLine($"\t{failedMove.game}: {failedMove.fenString} {failedMove.move}");
         }
         
         System.Console.ForegroundColor = ConsoleColor.White;

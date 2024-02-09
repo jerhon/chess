@@ -12,6 +12,7 @@ public class CommandLineFactory(IServiceProvider serviceProvider)
         rootCmd.AddCommand(CreateDatabaseCommands());
         rootCmd.AddCommand(CreatePlayGameCommands());
         rootCmd.AddCommand(CreateTestCommand());
+        rootCmd.AddCommand(CreateReplayCommand());
         
         return rootCmd;
     }
@@ -75,5 +76,25 @@ public class CommandLineFactory(IServiceProvider serviceProvider)
         }, directoryOption);
         
         return testCommand;
+    }
+
+    public Command CreateReplayCommand() {
+        
+        Command replayCommand = new Command("replay", "Replay a PGN file.");
+        
+        var pgnOption = new Option<FileInfo>("--pgn", "The PGN file to replay.")
+        {
+            IsRequired = true
+        };
+        
+        replayCommand.AddOption(pgnOption);
+        
+        replayCommand.SetHandler(async (pgnFile) =>
+        {
+            var replay = new Replay();
+            await replay.ReplayAsync(pgnFile);
+        }, pgnOption);
+        
+        return replayCommand;
     }
 }

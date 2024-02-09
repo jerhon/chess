@@ -192,4 +192,6 @@ public class FenSerializer {
 
         return new Piece(pieceType, pieceColor);
     }
+    
+    public static FenSerializer Default { get; } = new FenSerializer();
 }
