@@ -3,7 +3,7 @@ using Spectre.Console;
 
 namespace Honlsoft.Chess.Console.UseCases;
 
-public class Replay {
+public class ReplayGame {
     
     public async Task ReplayAsync(FileInfo pgnFile)
     {
@@ -20,8 +20,10 @@ public class Replay {
                 break;
                 
             }
-            
-            AnsiConsole.WriteLine($"Move: {move.ToString()}");
+
+            AnsiConsole.Write(new Spectre.Console.Rule());
+            AnsiConsole.WriteLine($"{game.CurrentPosition.PlayerToMove} to move.");
+            AnsiConsole.WriteLine($"Move: {move.Move.ToString()}");
             AnsiConsole.WriteLine($"FEN: {FenSerializer.Default.Serialize(game.CurrentPosition)}");
             AnsiConsole.WriteLine();
             AnsiConsole.Write(new ChessBoardView(game.CurrentPosition));

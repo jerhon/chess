@@ -91,7 +91,7 @@ public class CommandLineFactory(IServiceProvider serviceProvider)
         
         replayCommand.SetHandler(async (pgnFile) =>
         {
-            var replay = new Replay();
+            var replay = new ReplayGame();
             await replay.ReplayAsync(pgnFile);
         }, pgnOption);
         
