@@ -51,9 +51,7 @@ public class ChessGame : IChessGame {
         
         DoCastlingRights(fromName);
         
-        DoEnPassantCapture(fromName, toName);
-        
-        DoEnPassantTarget(fromName, toName);
+        DoEnPassant(fromName, toName);
         
         // Move the piece
         _chessPosition.Move(fromName, toName);
@@ -167,22 +165,6 @@ public class ChessGame : IChessGame {
         }
     }
 
-    private void DoEnPassantTarget(SquareName fromName, SquareName toName) {
-        // En-passant
-        if (_chessPosition.IsPawn(fromName)) {
-            if (fromName.SquareRank == SquareRank.Rank2 && toName.SquareRank == SquareRank.Rank4) {
-                _chessPosition.WithEnPassantTarget(fromName with { SquareRank = SquareRank.Rank3 });
-                return;
-            }
-            else if (fromName.SquareRank == SquareRank.Rank7 && toName.SquareRank == SquareRank.Rank5) {
-                _chessPosition.WithEnPassantTarget(fromName with { SquareRank = SquareRank.Rank6 });
-                return;
-            }
-        }
-
-        _chessPosition.WithEnPassantTarget(null);
-    }
-
     private void DoHalfMoves(SquareName fromName, SquareName toName) {
         // Deal with the half moves
         if (_chessPosition.IsPawn(fromName)) {
@@ -194,17 +176,32 @@ public class ChessGame : IChessGame {
         }
     }
 
-    private void DoEnPassantCapture(SquareName fromName, SquareName toName) {
+    private void DoEnPassant(SquareName fromName, SquareName toName) {
+       
+        var oldEnPassant = _chessPosition.EnPassantTarget; 
+       
         
-        // If this is the en-passant target, and the moving piece is a pawn
-        if (_chessPosition.EnPassantTarget == toName && _chessPosition.IsPawn(toName)) {
-            var captureSquare = new SquareName(toName.SquareFile, fromName.SquareRank);
-            _chessPosition.RemovePiece(captureSquare);
-            _chessPosition.WithEnPassantTarget(null);
+        if (_chessPosition.IsPawn(fromName)) {
+            // En-passant
+            if (fromName.SquareRank == SquareRank.Rank2 && toName.SquareRank == SquareRank.Rank4) {
+                _chessPosition.WithEnPassantTarget(fromName with { SquareRank = SquareRank.Rank3 });
+                return;
+            }
+            else if (fromName.SquareRank == SquareRank.Rank7 && toName.SquareRank == SquareRank.Rank5) {
+                _chessPosition.WithEnPassantTarget(fromName with { SquareRank = SquareRank.Rank6 });
+                return;
+            }
+            else if (oldEnPassant == toName) {
+               var captureSquare = new SquareName(toName.SquareFile, fromName.SquareRank);
+               _chessPosition.RemovePiece(captureSquare); 
+            }
         }
+
+        _chessPosition.WithEnPassantTarget(null);
     }
 
     public IChessMove? GetMoveFromSan(San san) {
+        
         var playerSquares = SquareName.AllSquares().Select((s) => _chessPosition.GetSquare(s))
             .Where((s) => s.Piece?.Color == _chessPosition.PlayerToMove);
         
