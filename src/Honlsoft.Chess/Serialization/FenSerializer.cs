@@ -1,6 +1,17 @@
 ﻿using System.Text;
 
-namespace Honlsoft.Chess.Serialization; 
+namespace Honlsoft.Chess.Serialization;
+
+[Flags]
+public enum FenParts {
+    Positions = 0x1,
+    MoveTurn = 0x2,
+    Castling = 0x4,
+    EnPassant = 0x8,
+    HalfMoves = 0x10,
+    FullMoves = 0x20,
+}
+
 
 public class FenSerializer {
     
@@ -29,17 +40,44 @@ public class FenSerializer {
         return SerializeEmptyString(builder.ToString());
     }
     
-    public string Serialize(IChessPosition chessPosition) {
-        var positions = SerializePiecePositions(chessPosition);
-        var moveTurn = SerializePlayerToMove(chessPosition);
-        var castling = SerializeCastlingState(chessPosition);
-        var enPassant = SerializeEnPassantTarget(chessPosition);
-        var halfMoves = chessPosition.HalfMoves.ToString();
-        var fullMoves = chessPosition.FullMoves.ToString();
+    public string Serialize(IChessPosition chessPosition, FenParts parts = FenParts.Positions | FenParts.MoveTurn | FenParts.Castling | FenParts.EnPassant | FenParts.HalfMoves | FenParts.FullMoves) {
+        StringBuilder fenString = new StringBuilder();
+        
+        if (parts.HasFlag(FenParts.Positions)) {
+            fenString.Append(SerializePiecePositions(chessPosition));
+            fenString.Append(" ");
+        }
 
-        return $"{positions} {moveTurn} {castling} {enPassant} {halfMoves} {fullMoves}";
+        if (parts.HasFlag(FenParts.MoveTurn)) {
+            var moveTurn = SerializePlayerToMove(chessPosition);
+            fenString.Append(moveTurn);
+            fenString.Append(" ");
+        }
+        
+        if (parts.HasFlag(FenParts.Castling)) {
+            var castling = SerializeCastlingState(chessPosition);
+            fenString.Append(castling);
+            fenString.Append(" ");
+        }
 
+        if (parts.HasFlag(FenParts.EnPassant)) {
+            var enPassant = SerializeEnPassantTarget(chessPosition);
+            fenString.Append(enPassant);
+            fenString.Append(" ");
+        }
+
+        if (parts.HasFlag(FenParts.HalfMoves)) {
+            fenString.Append(chessPosition.HalfMoves);
+            fenString.Append(" ");
+        }
+        
+        if (parts.HasFlag(FenParts.FullMoves)) {
+            fenString.Append(chessPosition.FullMoves);
+        }
+
+        return fenString.ToString().TrimEnd();
     }
+    
 
     public string SerializePlayerToMove(IChessPosition chessPosition) => chessPosition.PlayerToMove == PieceColor.Black ? "b" : "w";
 

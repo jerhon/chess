@@ -23,14 +23,29 @@ public class GamePosition
     public PieceColor? PlayerToMove  { get; set; }
     
     /// <summary>
+    /// The previous position hash.  Used to identify similar positions.
+    /// </summary>
+    public ulong? PreviousHash { get; set; }
+    
+    /// <summary>
     /// Hash of the position.  Used to identify similar positions.
     /// </summary>
     public ulong? Hash { get; set; }
+   
+    /// <summary>
+    /// The current piece positions for the game.
+    /// </summary>
+    public ChessPosition? Position { get; set; }
     
     /// <summary>
-    /// The fen for the position.
-    /// </summary> 
-    public string? Fen { get; set; }
+    /// Half moves.
+    /// </summary>
+    public int HalfMoves { get; set; }
+    
+    /// <summary>
+    /// Full moves.
+    /// </summary>
+    public int FullMoves { get; set; }
     
     public Game? Game { get; set; }
 

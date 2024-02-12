@@ -11,7 +11,7 @@ public class Game
     /// The Full PGN of the game.
     /// </summary>
     public string Pgn { get; set; }
-    
+   
     /// <summary>
     /// The positions in the game.
     /// </summary>

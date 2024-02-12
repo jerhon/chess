@@ -1,5 +1,6 @@
 ﻿using System.CommandLine;
 using Honlsoft.Chess.Console.UseCases;
+using Spectre.Console;
 
 namespace Honlsoft.Chess.Console.CommandLine;
 
@@ -26,20 +27,34 @@ public class CommandLineFactory(IServiceProvider serviceProvider)
         {
             IsRequired = true
         };
-        var fileOption = new Option<FileInfo>("--file", "The PGN file to import.")
-        {
-            IsRequired = true
-        };
-        
+        var fileOption = new Option<FileInfo?>("--file", "The PGN file to import.");
+        var directoryOption = new Option<DirectoryInfo?>("--directory", "The directory containing the PGN files to import.");
+            
         
         importCmd.AddOption(fileOption);
         importCmd.AddOption(databaseOption);
+        importCmd.AddOption(directoryOption);
         
-        importCmd.SetHandler(async (file, database) =>
+        importCmd.SetHandler(async (file, directory, database) =>
         {
             var importer = new ImportGames();
-            await importer.ImportGameAsync(file, database);
-        },fileOption, databaseOption);
+            
+            if (file != null)
+            {
+                AnsiConsole.MarkupLine($"[yellow]Importing {file.Name}[/]");
+                await importer.ImportGameAsync(file, database);
+                return;
+            } else if (directory != null) {
+                foreach (var directoryFile in directory.GetFiles("*.pgn")) {
+                    AnsiConsole.MarkupLine($"[yellow]Importing {directoryFile.Name}[/]");
+                    await importer.ImportGameAsync(directoryFile, database);
+                }
+            }
+            else {
+                AnsiConsole.MarkupLine("[red]No file or directory specified.[/]");
+                Environment.Exit(-1);
+            }
+        },fileOption, directoryOption, databaseOption);
         
         databaseCmd.AddCommand(importCmd);
 

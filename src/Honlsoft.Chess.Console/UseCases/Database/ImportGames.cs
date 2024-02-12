@@ -38,12 +38,22 @@ public class ImportGames
         
         System.Console.WriteLine("Total Moves: " + chessMatch.Moves.Length);
         
+        ulong previousPositionHash = zorbistHasher.CalculateHash(game.CurrentPosition);
+        
+        using var context = new ChessContext(optionsBuilder.Options);
+        
+        
+        await context.Database.EnsureCreatedAsync();
+
+        var fenOptions = FenParts.Castling | FenParts.Positions | FenParts.EnPassant | FenParts.MoveTurn;
+        
         // Perform each move, and output the position.
+        // May make sense to cache some of the chess positions in memory to avoid database lookups.
         foreach (var move in chessMatch.Moves)
         {
             // System.Console.WriteLine(move.Move);
             
-            var initialFen = fenSerializer.Serialize(game.CurrentPosition);
+            var initialFen = fenSerializer.Serialize(game.CurrentPosition, fenOptions);
 
             System.Console.WriteLine($"{move.MoveNumber} {move.Move} - {initialFen}");
             
@@ -55,22 +65,44 @@ public class ImportGames
          
             var hash = zorbistHasher.CalculateHash(game.CurrentPosition);
             
-            var fen = fenSerializer.Serialize(game.CurrentPosition);
+            var fen = fenSerializer.Serialize(game.CurrentPosition, fenOptions);
+
+            // Find matching positions.
+            var chessPositions = await context.ChessPositions.Where((cp) => cp.Hash == hash).ToArrayAsync();
+            ChessPosition dataPosition = chessPositions.FirstOrDefault((cp) => cp.Fen == fen);
+            if (chessPositions.Length == 0)
+            {
+                dataPosition = new ChessPosition()
+                {
+                    Fen = fen,
+                    Hash = hash,
+                    EnPassantTarget = game.CurrentPosition.EnPassantTarget?.ToString(),
+                    WhiteCanCastleKingSide = game.CurrentPosition.CanCastle(PieceColor.White, CastlingSide.Kingside),
+                    WhiteCanCastleQueenSide = game.CurrentPosition.CanCastle(PieceColor.White, CastlingSide.Queenside),
+                    BlackCanCastleKingSide = game.CurrentPosition.CanCastle(PieceColor.Black, CastlingSide.Kingside),
+                    BlackCanCastleQueenSide = game.CurrentPosition.CanCastle(PieceColor.Black, CastlingSide.Queenside)
+                };
+                context.ChessPositions.Add(dataPosition);
+            }
             
             var position = new GamePosition()
             {
                 Game = dataGame,
-                Fen = fen,
+                PreviousHash = previousPositionHash,
                 Hash = hash,
                 MoveNumber = move.MoveNumber,
-                PlayerToMove = MapToDatabaseColor(game.CurrentPosition.PlayerToMove)
+                PlayerToMove = MapToDatabaseColor(game.CurrentPosition.PlayerToMove),
+                Position = dataPosition,
+                HalfMoves = game.CurrentPosition.HalfMoves,
+                FullMoves = game.CurrentPosition.FullMoves,
             };
+            
+            previousPositionHash = hash;
+            
             dataGame.Positions.Add(position);
         }
         
         
-        using var context = new ChessContext(optionsBuilder.Options);
-        await context.Database.EnsureCreatedAsync();
         context.Games.Add(dataGame);
         context.GamePositions.AddRange(dataGame.Positions);
         await context.SaveChangesAsync();

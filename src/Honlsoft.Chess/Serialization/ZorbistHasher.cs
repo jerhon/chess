@@ -146,6 +146,8 @@ public class ZorbistHasher
         
         return _hashKeys[ (positionIndex * IndexCount) + (int)pieceIndex ];
     }
+   
+    const int ExtraPositionsStartIdx = 64 * IndexCount;
     
     public static ZorbistHasher Default { get; } = new ZorbistHasher();
 }
