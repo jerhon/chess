@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .focus-ring {
+       @apply focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-800 focus:ring-opacity-75;
+    }
+
+    button.button {
+        @apply bg-blue-500 text-white font-bold py-2 px-4 rounded drop-shadow hover:bg-blue-700 focus-ring;
+    }
+
+    a.button {
+        @apply bg-blue-500 text-white font-bold py-2 px-4 rounded drop-shadow hover:bg-blue-700 focus-ring;
+    }
+}
+
