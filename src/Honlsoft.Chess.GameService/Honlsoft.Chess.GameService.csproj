@@ -24,4 +24,8 @@
       <ProjectReference Include="..\Honlsoft.Chess\Honlsoft.Chess.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Games\" />
+    </ItemGroup>
+
 </Project>

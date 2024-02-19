@@ -1,16 +1,17 @@
 <script setup lang="ts">
 
-import {ref} from "vue";
+import {computed, ref} from "vue";
 import clsx from "clsx";
 
 interface Props {
   fen: string,
+  selectedSquare?: string,
   potentialMoves?: string[]
 }
 
 const props = defineProps<Props>();
 const emits = defineEmits<{
-  (e: 'square-selected', squareName: string): void
+  (e: 'square-selected', squareName: string): void | Promise<void>
 }>();
 
 interface Square {
@@ -102,7 +103,7 @@ function parseFenToSquares(fen: string) {
     squares.push({ name, color, selected: false, originalColor: color});
   }
 
-  let rank = 8;
+  let rank = 1;
   for (const fenRow of fenRows) {
     let file = 1;
     for (const fenChar of fenRow) {
@@ -110,30 +111,24 @@ function parseFenToSquares(fen: string) {
         const squareIdx = (rank - 1) * 8 + (file - 1);
         squares[squareIdx].chessPiece = fenChar;
         squares[squareIdx].chessPieceUTF = getChessPieceUTF(fenChar);
+        squares[squareIdx].selected = squares[squareIdx].name == props.selectedSquare;
         file++;
       } else {
         file += parseInt(fenChar);
       }
     }
-    rank--;
+    rank++;
   }
 
   return squares;
 }
 
+
 function selectSquare(squareName: string) {
-  if (selectedSquare.value == squareName) {
-    selectedSquare.value = '';
-    emits('square-selected', '');
-    return;
-  } else {
-    selectedSquare.value = squareName;
-    emits('square-selected', squareName);
-  }
+  emits('square-selected', squareName);
 }
 
-const squares = parseFenToSquares(props.fen);
-const selectedSquare = ref('');
+const squares = computed(() =>  parseFenToSquares(props.fen));
 </script>
 
 <template>
