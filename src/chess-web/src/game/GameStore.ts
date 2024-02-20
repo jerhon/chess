@@ -7,7 +7,7 @@ import {FetchRequestAdapter} from "@microsoft/kiota-http-fetchlibrary";
 function createClient() {
     const anonymousAuthenticationProvider = new AnonymousAuthenticationProvider();
     const fetchProvider = new FetchRequestAdapter(anonymousAuthenticationProvider);
-        fetchProvider.baseUrl = window.location.origin + '/api/';
+        fetchProvider.baseUrl = window.location.origin + '/api';
 
     const gameClient = createGameClient(fetchProvider);
 
@@ -20,6 +20,23 @@ export const useGameStore = defineStore('GameStore', () => {
     const fen = ref<string>('');
     const error = ref<string>('');
     const inProgress = ref<boolean>(false);
+
+    async function getCandidateMoves(fromSquare: string): Promise<string[]> {
+        inProgress.value = true;
+        try {
+            const gameClient = createClient();
+            const result = await gameClient.game.byGameId(gameId.value).move.byFromSquare(fromSquare).get();
+            return result?.toSquares ?? [];
+        }
+        catch (e) {
+            console.error('Error getting candidate moves', e);
+            error.value = "Error getting candidate moves."
+        }
+        finally {
+            inProgress.value = false;
+        }
+        return [];
+    }
 
     async function newGame()  {
         inProgress.value = true;
@@ -65,6 +82,7 @@ export const useGameStore = defineStore('GameStore', () => {
         error,
         inProgress,
         newGame,
-        move
+        move,
+        getCandidateMoves
     }
 });

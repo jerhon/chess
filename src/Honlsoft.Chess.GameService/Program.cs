@@ -74,18 +74,20 @@ app.MapPost("/game/{gameId}/move", (IMemoryCache cache, string gameId, [FromBody
 
 
 // TODO: will move some of those over to the web...
-app.MapGet("/game/{gameId}/move/{fromSquare}", (IMemoryCache cache, Guid gameId, string fromSquare) => {
+app.MapGet("/game/{gameId}/move/{fromSquare}", (IMemoryCache cache, string gameId, string fromSquare) => {
     if (cache.TryGetValue(gameId, out ChessGame game)) {
         var fromSquareName = SquareName.Parse(fromSquare);
         if (game.CurrentPosition.GetSquare(fromSquareName).Piece?.Color != game.CurrentPosition.PlayerToMove) {
             return Results.Ok(new CandidateMoves([]));
         }
         var candidateMoves = game.GetCandidateMoves(fromSquareName);
-        return Results.Ok( new CandidateMoves(candidateMoves.Select((cm) => cm.ToString()).ToArray()));
+        var returnMoves = candidateMoves.OfType<SanMove>().Select((sm) => sm.ToFile.ToString() + sm.ToRank.ToString()).ToArray();
+        return Results.Ok( new CandidateMoves(returnMoves));
     } else {
         return Results.NotFound();
     }   
-});
+})
+.Produces<CandidateMoves>(200);
 
 app.Run();
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import ChessBoard from "../components/ChessBoard.vue";
+import ChessBoard, {Square} from "../components/ChessBoard.vue";
 import {useGameStore} from "../game/GameStore.ts";
 import {onMounted, ref} from "vue";
 import {router} from "../router.ts";
@@ -9,17 +9,22 @@ import {storeToRefs} from "pinia";
 const gameStore = useGameStore();
 const { gameId, fen } = storeToRefs(gameStore);
 
-const selectedSquare = ref<string>("");
+const candidateSquares = ref<string[]>([]);
+const selectedSquare = ref<Square>();
 
-async function onSquareSelected(name: string) {
-  if (selectedSquare.value) {
-    await gameStore.move(selectedSquare.value + name);
-    selectedSquare.value = "";
-    console.log(' after move: ', fen.value);
+async function onSquareSelected(square: Square) {
+  console.log('square selected: ', square);
+  if (square.piece && selectedSquare.value) {
+    if (candidateSquares.value.includes(square.name)) {
+      await gameStore.move(selectedSquare.value.name + square.name);
+      selectedSquare.value = undefined;
+      candidateSquares.value = [];
+      return;
+    }
   }
-  else {
-    selectedSquare.value = name;
-  }
+
+  selectedSquare.value = square;
+  candidateSquares.value = await gameStore.getCandidateMoves(selectedSquare.value.name);
 }
 
 onMounted(() => {
@@ -31,7 +36,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <ChessBoard :fen="fen" @square-selected="onSquareSelected" :selected-square="selectedSquare" />
+  <ChessBoard :fen="fen" @square-selected="onSquareSelected" :selected-square="selectedSquare?.name" :candidate-squares="candidateSquares" />
+
   <div>{{ fen }}</div>
 </template>
 

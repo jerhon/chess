@@ -1,26 +1,44 @@
 <script setup lang="ts">
 
-import {computed, ref} from "vue";
+import {computed} from "vue";
 import clsx from "clsx";
+import white_pawn from "../images/pieces/white_pawn.svg";
+import white_bishop from "../images/pieces/white_bishop.svg";
+import white_knight from "../images/pieces/white_knight.svg";
+import white_rook from "../images/pieces/white_rook.svg";
+import white_queen from "../images/pieces/white_queen.svg";
+import white_king from "../images/pieces/white_king.svg";
+import black_pawn from "../images/pieces/black_pawn.svg";
+import black_bishop from "../images/pieces/black_bishop.svg";
+import black_knight from "../images/pieces/black_knight.svg";
+import black_rook from "../images/pieces/black_rook.svg";
+import black_queen from "../images/pieces/black_queen.svg";
+import black_king from "../images/pieces/black_king.svg";
 
 interface Props {
   fen: string,
   selectedSquare?: string,
-  potentialMoves?: string[]
+  candidateSquares?: string[]
 }
 
 const props = defineProps<Props>();
 const emits = defineEmits<{
-  (e: 'square-selected', squareName: string): void | Promise<void>
+  (e: 'square-selected', square: Square): void
 }>();
 
-interface Square {
+interface InternalSquare {
   name: string,
   originalColor: string,
   color: string,
   selected: boolean,
   chessPiece?: string,
-  chessPieceUTF?: string
+  candidate: boolean,
+}
+
+export interface Square {
+  name: string,
+  pieceColor: string,
+  piece: string
 }
 
 function getSquareColor(i: number) {
@@ -60,39 +78,41 @@ function fileToLetter(file: number) {
   return "";
 }
 
-function getChessPieceUTF(chessPiece: string): string {
+
+function getChessPieceSvg(chessPiece: string): string {
   switch (chessPiece) {
     case 'K':
-      return '&#9812;'; // white king
+      return white_king; // white king
     case 'Q':
-      return '&#9813;'; // white queen
+      return white_queen; // white queen
     case 'R':
-      return '&#9814;'; // white rook
+      return white_rook;// white rook
     case 'B':
-      return '&#9815;'; // white bishop
+      return white_bishop; // white bishop
     case 'N':
-      return '&#9816;'; // white knight
+      return white_knight;// white knight
     case 'P':
-      return '&#9817;'; // white pawn
+      return white_pawn; // white pawn
     case 'k':
-      return '&#9818;'; // black king
+      return black_king; // black king
     case 'q':
-      return '&#9819;'; // black queen
+      return black_queen; // black queen
     case 'r':
-      return '&#9820;'; // black rook
+      return black_rook; // black rook
     case 'b':
-      return '&#9821;'; // black bishop
+      return black_bishop; // black bishop
     case 'n':
-      return '&#9822;'; // black knight
+      return black_knight; // black knight
     case 'p':
-      return '&#9823;'; // black pawn
+      return black_pawn; // black pawn
     default:
       return '';
   }
 }
 
+
 function parseFenToSquares(fen: string) {
-  const squares: Square[] = [];
+  const squares: InternalSquare[] = [];
   const fenParts = fen.split(' ');
   const fenBoard = fenParts[0];
   const fenRows = fenBoard.split('/');
@@ -100,7 +120,7 @@ function parseFenToSquares(fen: string) {
   for (let i = 0; i < 64; i++) {
     const color = getSquareColor(i);
     const name = getSquareName(i);
-    squares.push({ name, color, selected: false, originalColor: color});
+    squares.push({ name, color, selected: false, originalColor: color, candidate: false});
   }
 
   let rank = 1;
@@ -110,8 +130,8 @@ function parseFenToSquares(fen: string) {
       if (isNaN(parseInt(fenChar))) {
         const squareIdx = (rank - 1) * 8 + (file - 1);
         squares[squareIdx].chessPiece = fenChar;
-        squares[squareIdx].chessPieceUTF = getChessPieceUTF(fenChar);
         squares[squareIdx].selected = squares[squareIdx].name == props.selectedSquare;
+        squares[squareIdx].candidate = props.candidateSquares?.includes(squares[squareIdx].name) || false;
         file++;
       } else {
         file += parseInt(fenChar);
@@ -124,8 +144,17 @@ function parseFenToSquares(fen: string) {
 }
 
 
-function selectSquare(squareName: string) {
-  emits('square-selected', squareName);
+
+
+function selectSquare(square: InternalSquare) {
+
+  const ret : Square = {
+    name: square.name,
+    pieceColor: square.chessPiece ? (square.chessPiece == square.chessPiece.toUpperCase() ? 'white' : 'black') : '',
+    piece: square.chessPiece ? square.chessPiece : ''
+  };
+
+  emits('square-selected', ret);
 }
 
 const squares = computed(() =>  parseFenToSquares(props.fen));
@@ -133,12 +162,11 @@ const squares = computed(() =>  parseFenToSquares(props.fen));
 
 <template>
   <div class="chessBoard">
-    <div  v-for="square in squares" :class="clsx(square.color, selectedSquare == square.name && 'selected')" @click="selectSquare(square.name)" >
+    <div  v-for="square in squares" :class="clsx(square.color, square.selected && 'selected', square.candidate && 'candidate')" @click="selectSquare(square)" >
       <span class="name">{{ square.name }}</span>
-      <div class="chessPiece" v-html="square.chessPieceUTF"></div>
+      <img v-if="square.chessPiece" class="chessPiece" :src="getChessPieceSvg(square.chessPiece)" />
     </div>
   </div>
-
 </template>
 
 <style scoped>
@@ -158,11 +186,11 @@ const squares = computed(() =>  parseFenToSquares(props.fen));
     bottom: 0;
   }
 
-  .dark:not(.selected) {
+  .dark:not(.selected):not(.candidate-move) {
     background-color: forestgreen;
   }
 
-  .light:not(.selected) {
+  .light:not(.selected):not(.candidate-move) {
     background-color: lightgrey;
   }
 
@@ -170,15 +198,16 @@ const squares = computed(() =>  parseFenToSquares(props.fen));
     background-color: yellow;
   }
 
-  .candidate-move {
+  .candidate {
     background-color: orange;
   }
 
   .chessPiece {
     position: absolute;
-    margin: auto;
-    text-align: center;
-    font-size: 30px;
+    inset: 0 0 0 0;
+    width: 100%;
+    height: 100%;
+    padding: 5%;
   }
 
   .name {
