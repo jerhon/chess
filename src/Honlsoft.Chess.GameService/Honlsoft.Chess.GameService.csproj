@@ -21,6 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Honlsoft.Chess.ServiceDefaults\Honlsoft.Chess.ServiceDefaults.csproj" />
       <ProjectReference Include="..\Honlsoft.Chess\Honlsoft.Chess.csproj" />
     </ItemGroup>
 

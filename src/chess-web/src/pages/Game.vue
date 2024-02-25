@@ -1,31 +1,30 @@
 <script setup lang="ts">
 
-import ChessBoard, {Square} from "../components/ChessBoard.vue";
+import ChessBoard, { Squares }  from "../components/ChessBoard.vue";
 import {useGameStore} from "../game/GameStore.ts";
-import {onMounted, ref} from "vue";
+import {computed, onMounted } from "vue";
 import {router} from "../router.ts";
 import {storeToRefs} from "pinia";
 
 const gameStore = useGameStore();
-const { gameId, fen } = storeToRefs(gameStore);
+const { gameId, fen, selectedSquare, candidateMoves, squares } = storeToRefs(gameStore);
 
-const candidateSquares = ref<string[]>([]);
-const selectedSquare = ref<Square>();
 
-async function onSquareSelected(square: Square) {
-  console.log('square selected: ', square);
-  if (square.piece && selectedSquare.value) {
-    if (candidateSquares.value.includes(square.name)) {
-      await gameStore.move(selectedSquare.value.name + square.name);
-      selectedSquare.value = undefined;
-      candidateSquares.value = [];
-      return;
+const chessBoardSquares = computed(() => {
+
+  var gameSquares : Squares = {};
+  for (let key in squares.value) {
+    const square = squares.value[key];
+    gameSquares[key] = {
+      name: key,
+      piece: square.piece,
+      highlight: square.name == selectedSquare.value,
+      symbol: candidateMoves.value.includes(key) ? 'dot' : undefined
     }
   }
+  return gameSquares;
 
-  selectedSquare.value = square;
-  candidateSquares.value = await gameStore.getCandidateMoves(selectedSquare.value.name);
-}
+})
 
 onMounted(() => {
   if (!gameId.value) {
@@ -36,7 +35,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <ChessBoard :fen="fen" @square-selected="onSquareSelected" :selected-square="selectedSquare?.name" :candidate-squares="candidateSquares" />
+  <ChessBoard  @square-clicked="gameStore.setSelectedSquare" :squares="chessBoardSquares" />
 
   <div>{{ fen }}</div>
 </template>

@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Honlsoft.Chess.ChessDotCom.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Honlsoft.Chess.Database", "Honlsoft.Chess.Database\Honlsoft.Chess.Database.csproj", "{8C47D6E2-641E-4BE4-AF16-30FFE6E85048}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Honlsoft.Chess.AppHost", "Honlsoft.Chess.AppHost\Honlsoft.Chess.AppHost.csproj", "{B9065B47-9465-472E-8669-8666F7F4D25F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Honlsoft.Chess.ServiceDefaults", "Honlsoft.Chess.ServiceDefaults\Honlsoft.Chess.ServiceDefaults.csproj", "{99FCC308-4EFA-4293-9F0F-F025838600C1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,5 +88,13 @@ Global
 		{8C47D6E2-641E-4BE4-AF16-30FFE6E85048}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C47D6E2-641E-4BE4-AF16-30FFE6E85048}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C47D6E2-641E-4BE4-AF16-30FFE6E85048}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9065B47-9465-472E-8669-8666F7F4D25F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9065B47-9465-472E-8669-8666F7F4D25F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9065B47-9465-472E-8669-8666F7F4D25F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9065B47-9465-472E-8669-8666F7F4D25F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99FCC308-4EFA-4293-9F0F-F025838600C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99FCC308-4EFA-4293-9F0F-F025838600C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99FCC308-4EFA-4293-9F0F-F025838600C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99FCC308-4EFA-4293-9F0F-F025838600C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
