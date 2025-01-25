@@ -119,6 +119,7 @@ func TestParseSan(t *testing.T) {
 			result, err := ParseSan(test.input)
 			assert.Equal(t, test.err, err)
 			assert.Equal(t, test.expected, result)
+			assert.Equal(t, test.input, test.expected.String())
 		})
 	}
 }

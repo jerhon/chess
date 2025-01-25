@@ -1,6 +1,9 @@
-package san
+﻿package san
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type SanToken struct {
 	Type     SanTokenType
@@ -88,30 +91,59 @@ func (this *SanTokenReader) getPosition() SanTokenPosition {
 	}
 }
 
-func (this *SanTokenReader) expectRune(expected rune) (rune, error) {
+func (this *SanTokenReader) expectAndAdvanceRune(expected rune) bool {
 	r, err := this.peekRune()
 	if err != nil {
-		return 0, err
+		return false
 	}
 	if r == expected {
 		_, _ = this.readRune()
+		return true
 	}
-	return r, nil
+	return false
 }
 
 func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
 
 	parseErrors := []string{}
 	tokens := []SanToken{}
-	tokenType := None
 	r, err := this.peekRune()
 	for err == nil {
 		r, err = this.peekRune()
-		if err != nil {
-			return nil, err
+		if r == ' ' {
+			r, err = this.readRune()
 		}
+		if err != nil {
+			if len(parseErrors) > 0 {
+				return tokens, fmt.Errorf("one or more parse errors occurred: %s", parseErrors)
+			}
+			return tokens, nil
+		}
+		tokenType := None
 		startPosition := this.getPosition()
-		if (r >= 'a' && r <= 'h') || (r >= 'A' && r <= 'H') {
+		if r >= 'a' && r <= 'h' {
+			// if an e is followed by a . followed by a p, it's en passant
+			if r == 'e' {
+				r, err = this.readRune()
+				if this.expectAndAdvanceRune('.') {
+					if !this.expectAndAdvanceRune('p') {
+						parseErrors = append(parseErrors, "Expected 'p' after 'e.'")
+						continue
+					}
+					if !this.expectAndAdvanceRune('.') {
+						parseErrors = append(parseErrors, "Expected '.' after 'e.p'")
+						continue
+					}
+
+					tokenType = EnPassantToken
+					tokens = append(tokens, SanToken{tokenType, "e.p.", startPosition})
+					continue
+				} else {
+					tokenType = FileToken
+					tokens = append(tokens, SanToken{tokenType, "e", startPosition})
+					continue
+				}
+			}
 			tokenType = FileToken
 		} else if r >= '1' && r <= '8' {
 			tokenType = RankToken
@@ -122,7 +154,7 @@ func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
 		} else if r == '=' {
 			tokenType = PromotionToken
 		} else if r == '#' {
-			tokenType = CheckToken
+			tokenType = CheckmateToken
 		}
 		if tokenType != None {
 			tokens = append(tokens, SanToken{tokenType, string(r), startPosition})
@@ -142,22 +174,6 @@ func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
 				value = "+"
 			}
 			tokens = append(tokens, SanToken{tokenType, value, startPosition})
-			continue
-		}
-
-		if r == 'e' {
-			if _, err := this.expectRune('.'); err != nil {
-				parseErrors = append(parseErrors, "Expected '.' after 'e'")
-			}
-			if _, err := this.expectRune('p'); err != nil {
-				parseErrors = append(parseErrors, "Expected 'p' after 'e.'")
-			}
-			if _, err := this.expectRune('.'); err != nil {
-				parseErrors = append(parseErrors, "Expected '.' after 'e.p'")
-			}
-
-			tokenType = EnPassantToken
-			tokens = append(tokens, SanToken{tokenType, "e.p.", startPosition})
 			continue
 		}
 
