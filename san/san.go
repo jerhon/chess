@@ -1,4 +1,4 @@
-﻿package san
+package san
 
 import "strings"
 
@@ -98,4 +98,12 @@ func (this San) String() string {
 	}
 
 	return builder.String()
+}
+
+func (file FileType) ToIndex() int {
+	return int(file) - int(FileA)
+}
+
+func (rank RankType) ToIndex() int {
+	return int(rank) - int(Rank1)
 }
