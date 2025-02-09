@@ -1,60 +1,23 @@
 package san
 
-import "strings"
-
-type PieceType rune
-
-const (
-	NoPiece PieceType = iota
-	Pawn    PieceType = 'P'
-	Knight  PieceType = 'N'
-	Bishop  PieceType = 'B'
-	Rook    PieceType = 'R'
-	Queen   PieceType = 'Q'
-	King    PieceType = 'K'
-)
-
-type FileType rune
-
-const (
-	NoFile FileType = iota
-	FileA  FileType = 'a'
-	FileB  FileType = 'b'
-	FileC  FileType = 'c'
-	FileD  FileType = 'd'
-	FileE  FileType = 'e'
-	FileF  FileType = 'f'
-	FileG  FileType = 'g'
-	FileH  FileType = 'h'
-)
-
-type RankType rune
-
-const (
-	NoRank RankType = iota
-	Rank1  RankType = '1'
-	Rank2  RankType = '2'
-	Rank3  RankType = '3'
-	Rank4  RankType = '4'
-	Rank5  RankType = '5'
-	Rank6  RankType = '6'
-	Rank7  RankType = '7'
-	Rank8  RankType = '8'
+import (
+	"github.com/jerhon/chess"
+	"strings"
 )
 
 type San struct {
 	CastleKingSide  bool
 	CastleQueenSide bool
-	Piece           PieceType
-	FromFile        FileType
-	FromRank        RankType
-	ToFile          FileType
-	ToRank          RankType
+	Piece           chess.PieceType
+	FromFile        chess.FileType
+	FromRank        chess.RankType
+	ToFile          chess.FileType
+	ToRank          chess.RankType
 	Capture         bool
 	Check           bool
 	Checkmate       bool
 	EnPassant       bool
-	PromotionPiece  PieceType
+	PromotionPiece  chess.PieceType
 }
 
 func (this San) String() string {
@@ -65,22 +28,22 @@ func (this San) String() string {
 	}
 
 	builder := strings.Builder{}
-	if this.Piece != NoPiece && this.Piece != Pawn {
+	if this.Piece != chess.NoPiece && this.Piece != chess.Pawn {
 		builder.WriteString(string(this.Piece))
 	}
-	if this.FromFile != NoFile {
+	if this.FromFile != chess.NoFile {
 		builder.WriteString(string(this.FromFile))
 	}
-	if this.FromRank != NoRank {
+	if this.FromRank != chess.NoRank {
 		builder.WriteString(string(this.FromRank))
 	}
 	if this.Capture {
 		builder.WriteString("x")
 	}
-	if this.ToFile != NoFile {
+	if this.ToFile != chess.NoFile {
 		builder.WriteString(string(this.ToFile))
 	}
-	if this.ToRank != NoRank {
+	if this.ToRank != chess.NoRank {
 		builder.WriteString(string(this.ToRank))
 	}
 	if this.Check {
@@ -89,7 +52,7 @@ func (this San) String() string {
 	if this.Checkmate {
 		builder.WriteString("#")
 	}
-	if this.PromotionPiece != NoPiece {
+	if this.PromotionPiece != chess.NoPiece {
 		builder.WriteString("=")
 		builder.WriteRune(rune(this.PromotionPiece))
 	}
@@ -98,12 +61,4 @@ func (this San) String() string {
 	}
 
 	return builder.String()
-}
-
-func (file FileType) ToIndex() int {
-	return int(file) - int(FileA)
-}
-
-func (rank RankType) ToIndex() int {
-	return int(rank) - int(Rank1)
 }
