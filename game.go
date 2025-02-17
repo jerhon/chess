@@ -61,6 +61,25 @@ type Game struct {
 }
 
 type CastlingRights struct {
-	Kingside  bool
-	Queenside bool
+	KingSide  bool
+	QueenSide bool
+}
+
+// ChessPosition represents a position in a chess game
+type ChessPosition struct {
+	Board               *ChessBoard
+	PlayerToMove        ColorType
+	BlackCastlingRights CastlingRights
+	WhiteCastlingRights CastlingRights
+	EnPassantSquare     ChessLocation
+	HalfmoveClock       int
+	FullmoveNumber      int
+}
+
+func (file FileType) String() string {
+	return string(file)
+}
+
+func (rank RankType) String() string {
+	return string(rank)
 }

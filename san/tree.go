@@ -1,21 +1,23 @@
 package san
 
+import "github.com/jerhon/chess"
+
 func ParseSan(san string) (*San, error) {
 	tokens, err := ParseSanTokens(san)
 	if err != nil {
 		return nil, err
 	}
 
-	piece := Pawn
-	fromFile := NoFile
-	fromRank := NoRank
-	toFile := NoFile
-	toRank := NoRank
+	piece := chess.Pawn
+	fromFile := chess.NoFile
+	fromRank := chess.NoRank
+	toFile := chess.NoFile
+	toRank := chess.NoRank
 	capture := false
 	enPassant := false
 	check := false
 	checkmate := false
-	promotionPiece := NoPiece
+	promotionPiece := chess.NoPiece
 
 	// Special case for castling
 	if san == "O-O" {
@@ -30,17 +32,17 @@ func ParseSan(san string) (*San, error) {
 
 	idx := 0
 	if idx < len(tokens) && tokens[idx].Type == PieceToken {
-		piece = PieceType(tokens[idx].Value[0])
+		piece = chess.PieceType(tokens[idx].Value[0])
 		idx++
 	}
 
 	if idx < len(tokens) && tokens[idx].Type == FileToken {
-		toFile = FileType(tokens[idx].Value[0])
+		toFile = chess.FileType(tokens[idx].Value[0])
 		idx++
 	}
 
 	if idx < len(tokens) && tokens[idx].Type == RankToken {
-		toRank = RankType(tokens[idx].Value[0])
+		toRank = chess.RankType(tokens[idx].Value[0])
 		idx++
 	}
 
@@ -51,13 +53,13 @@ func ParseSan(san string) (*San, error) {
 
 	if idx < len(tokens) && tokens[idx].Type == FileToken {
 		fromFile = toFile
-		toFile = FileType(tokens[idx].Value[0])
+		toFile = chess.FileType(tokens[idx].Value[0])
 		idx++
 	}
 
 	if idx < len(tokens) && tokens[idx].Type == RankToken {
 		fromRank = toRank
-		toRank = RankType(tokens[idx].Value[0])
+		toRank = chess.RankType(tokens[idx].Value[0])
 		idx++
 	}
 
@@ -75,7 +77,7 @@ func ParseSan(san string) (*San, error) {
 		}
 
 		if tokens[idx].Type == PieceToken {
-			promotionPiece = PieceType(tokens[idx].Value[0])
+			promotionPiece = chess.PieceType(tokens[idx].Value[0])
 		}
 	}
 
