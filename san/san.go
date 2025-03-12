@@ -1,23 +1,23 @@
 package san
 
 import (
-	"github.com/jerhon/chess"
+	"github.com/jerhon/chess/board"
 	"strings"
 )
 
 type San struct {
 	CastleKingSide  bool
 	CastleQueenSide bool
-	Piece           chess.PieceType
-	FromFile        chess.FileType
-	FromRank        chess.RankType
-	ToFile          chess.FileType
-	ToRank          chess.RankType
+	Piece           board.PieceType
+	FromFile        board.FileType
+	FromRank        board.RankType
+	ToFile          board.FileType
+	ToRank          board.RankType
 	Capture         bool
 	Check           bool
 	Checkmate       bool
 	EnPassant       bool
-	PromotionPiece  chess.PieceType
+	PromotionPiece  board.PieceType
 }
 
 func (this San) String() string {
@@ -28,22 +28,22 @@ func (this San) String() string {
 	}
 
 	builder := strings.Builder{}
-	if this.Piece != chess.NoPiece && this.Piece != chess.Pawn {
+	if this.Piece != board.NoPiece && this.Piece != board.Pawn {
 		builder.WriteString(string(this.Piece))
 	}
-	if this.FromFile != chess.NoFile {
+	if this.FromFile != board.NoFile {
 		builder.WriteString(string(this.FromFile))
 	}
-	if this.FromRank != chess.NoRank {
+	if this.FromRank != board.NoRank {
 		builder.WriteString(string(this.FromRank))
 	}
 	if this.Capture {
 		builder.WriteString("x")
 	}
-	if this.ToFile != chess.NoFile {
+	if this.ToFile != board.NoFile {
 		builder.WriteString(string(this.ToFile))
 	}
-	if this.ToRank != chess.NoRank {
+	if this.ToRank != board.NoRank {
 		builder.WriteString(string(this.ToRank))
 	}
 	if this.Check {
@@ -52,7 +52,7 @@ func (this San) String() string {
 	if this.Checkmate {
 		builder.WriteString("#")
 	}
-	if this.PromotionPiece != chess.NoPiece {
+	if this.PromotionPiece != board.NoPiece {
 		builder.WriteString("=")
 		builder.WriteRune(rune(this.PromotionPiece))
 	}

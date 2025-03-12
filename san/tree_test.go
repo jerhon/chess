@@ -1,7 +1,7 @@
 package san
 
 import (
-	"github.com/jerhon/chess"
+	"github.com/jerhon/chess/board"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -16,22 +16,22 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "e4",
 			expected: &San{
-				Piece:          chess.Pawn,
-				ToFile:         chess.FileE,
-				ToRank:         chess.Rank4,
+				Piece:          board.Pawn,
+				ToFile:         board.FileE,
+				ToRank:         board.Rank4,
 				Capture:        false,
 				Check:          false,
 				Checkmate:      false,
-				PromotionPiece: chess.NoPiece,
+				PromotionPiece: board.NoPiece,
 			},
 			err: nil,
 		},
 		{
 			input: "Nf3",
 			expected: &San{
-				Piece:   chess.Knight,
-				ToFile:  chess.FileF,
-				ToRank:  chess.Rank3,
+				Piece:   board.Knight,
+				ToFile:  board.FileF,
+				ToRank:  board.Rank3,
 				Capture: false,
 			},
 			err: nil,
@@ -39,10 +39,10 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "exd5",
 			expected: &San{
-				Piece:    chess.Pawn,
-				ToFile:   chess.FileD,
-				ToRank:   chess.Rank5,
-				FromFile: chess.FileE,
+				Piece:    board.Pawn,
+				ToFile:   board.FileD,
+				ToRank:   board.Rank5,
+				FromFile: board.FileE,
 				Capture:  true,
 			},
 			err: nil,
@@ -64,9 +64,9 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "e4+",
 			expected: &San{
-				Piece:  chess.Pawn,
-				ToFile: chess.FileE,
-				ToRank: chess.Rank4,
+				Piece:  board.Pawn,
+				ToFile: board.FileE,
+				ToRank: board.Rank4,
 				Check:  true,
 			},
 			err: nil,
@@ -74,9 +74,9 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "Qd8#",
 			expected: &San{
-				Piece:     chess.Queen,
-				ToFile:    chess.FileD,
-				ToRank:    chess.Rank8,
+				Piece:     board.Queen,
+				ToFile:    board.FileD,
+				ToRank:    board.Rank8,
 				Checkmate: true,
 			},
 			err: nil,
@@ -84,10 +84,10 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "exd6 e.p.",
 			expected: &San{
-				Piece:     chess.Pawn,
-				ToFile:    chess.FileD,
-				ToRank:    chess.Rank6,
-				FromFile:  chess.FileE,
+				Piece:     board.Pawn,
+				ToFile:    board.FileD,
+				ToRank:    board.Rank6,
+				FromFile:  board.FileE,
 				Capture:   true,
 				EnPassant: true,
 			},
@@ -96,20 +96,20 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "e8=Q",
 			expected: &San{
-				Piece:          chess.Pawn,
-				ToFile:         chess.FileE,
-				ToRank:         chess.Rank8,
-				PromotionPiece: chess.Queen,
+				Piece:          board.Pawn,
+				ToFile:         board.FileE,
+				ToRank:         board.Rank8,
+				PromotionPiece: board.Queen,
 			},
 			err: nil,
 		},
 		{
 			input: "g1=N",
 			expected: &San{
-				Piece:          chess.Pawn,
-				ToFile:         chess.FileG,
-				ToRank:         chess.Rank1,
-				PromotionPiece: chess.Knight,
+				Piece:          board.Pawn,
+				ToFile:         board.FileG,
+				ToRank:         board.Rank1,
+				PromotionPiece: board.Knight,
 			},
 			err: nil,
 		},

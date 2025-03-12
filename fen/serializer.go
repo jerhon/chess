@@ -2,7 +2,8 @@ package fen
 
 import (
 	"fmt"
-	"github.com/jerhon/chess"
+	"github.com/jerhon/chess/board"
+	"github.com/jerhon/chess/position"
 	"strings"
 )
 
@@ -10,40 +11,42 @@ type FenSerializer struct {
 	builder strings.Builder
 }
 
-func GetRuneFromChessPiece(piece chess.ChessPiece) rune {
+func GetRuneFromChessPiece(piece board.ChessPiece) rune {
 
-	if piece.Color == chess.WhitePiece {
+	if piece.Color == board.WhitePiece {
 		switch piece.Piece {
-		case chess.Pawn:
+		case board.Pawn:
 			return 'P'
-		case chess.Rook:
+		case board.Rook:
 			return 'R'
-		case chess.Knight:
+		case board.Knight:
 			return 'N'
-		case chess.Bishop:
+		case board.Bishop:
 			return 'B'
-		case chess.Queen:
+		case board.Queen:
 			return 'Q'
-		case chess.King:
+		case board.King:
 			return 'K'
+		case board.NoPiece:
 		}
-	} else if piece.Color == chess.BlackPiece {
+	} else if piece.Color == board.BlackPiece {
 		switch piece.Piece {
-		case chess.Pawn:
+		case board.Pawn:
 			return 'p'
-		case chess.Rook:
+		case board.Rook:
 			return 'r'
-		case chess.Knight:
+		case board.Knight:
 			return 'n'
-		case chess.Bishop:
+		case board.Bishop:
 			return 'b'
-		case chess.Queen:
+		case board.Queen:
 			return 'q'
-		case chess.King:
+		case board.King:
 			return 'k'
+		case board.NoPiece:
 		}
 	}
-	return ' ' // Return a blank space as a fallback for invalid cases
+	return '*' // Return a blank space as a fallback for invalid cases
 }
 
 func NewFenSerializer() *FenSerializer {
@@ -56,10 +59,10 @@ func (this *FenSerializer) String() string {
 	return this.builder.String()
 }
 
-func (this *FenSerializer) WriteBoard(board *chess.ChessBoard) {
+func (this *FenSerializer) WriteBoard(chessBoard *board.ChessBoard) {
 	emptySquares := 0
-	for square := range board.IterateSquares() {
-		if square.Piece.Piece == chess.NoPiece {
+	for square := range chessBoard.IterateSquares() {
+		if square.Piece.Piece == board.NoPiece {
 			emptySquares++
 		} else {
 			if emptySquares > 0 {
@@ -69,29 +72,29 @@ func (this *FenSerializer) WriteBoard(board *chess.ChessBoard) {
 			emptySquares = 0
 		}
 
-		if square.Location.File == chess.FileH {
+		if square.Location.File == board.FileH {
 			if emptySquares > 0 {
 				this.builder.WriteString(fmt.Sprintf("%d", emptySquares))
 			}
 			emptySquares = 0
-			if square.Location.Rank != chess.Rank1 {
+			if square.Location.Rank != board.Rank1 {
 				this.builder.WriteRune('/')
 			}
 		}
 	}
 }
 
-func (this *FenSerializer) WritePlayerToMove(playerColor chess.ColorType) {
-	if playerColor == chess.WhitePiece {
+func (this *FenSerializer) WritePlayerToMove(playerColor board.ColorType) {
+	if playerColor == board.WhitePiece {
 		this.builder.WriteString("w")
 	} else {
 		this.builder.WriteString("b")
 	}
 }
 
-func (this *FenSerializer) WriteCastlingRights(castlingRights chess.CastlingRights, playerColor chess.ColorType) bool {
+func (this *FenSerializer) WriteCastlingRights(castlingRights position.CastlingRights, playerColor board.ColorType) bool {
 	result := false
-	if playerColor == chess.WhitePiece {
+	if playerColor == board.WhitePiece {
 		if castlingRights.KingSide {
 			this.builder.WriteString("K")
 			result = true
@@ -118,8 +121,8 @@ func (this *FenSerializer) WriteEmpty() {
 	this.builder.WriteRune('-')
 }
 
-func (this *FenSerializer) WriteEnPassantTarget(position chess.ChessLocation) {
-	if position.File != chess.NoFile && position.Rank != chess.NoRank {
+func (this *FenSerializer) WriteEnPassantTarget(position board.ChessLocation) {
+	if position.File != board.NoFile && position.Rank != board.NoRank {
 		this.builder.WriteString(string(position.File))
 		this.builder.WriteString(string(position.Rank))
 	} else {
@@ -139,7 +142,7 @@ func (this *FenSerializer) WriteSpacer() {
 	this.builder.WriteRune(' ')
 }
 
-func ToFenString(s *chess.ChessPosition) string {
+func ToFenString(s *position.ChessPosition) string {
 	fen := NewFenSerializer()
 
 	fen.WriteBoard(s.Board)
@@ -147,8 +150,8 @@ func ToFenString(s *chess.ChessPosition) string {
 	fen.WritePlayerToMove(s.PlayerToMove)
 	fen.WriteSpacer()
 
-	whiteCastlingRightsWritten := fen.WriteCastlingRights(s.WhiteCastlingRights, chess.WhitePiece)
-	blackCastlingRightsWritten := fen.WriteCastlingRights(s.BlackCastlingRights, chess.BlackPiece)
+	whiteCastlingRightsWritten := fen.WriteCastlingRights(s.CastlingRights[board.WhitePiece], board.WhitePiece)
+	blackCastlingRightsWritten := fen.WriteCastlingRights(s.CastlingRights[board.BlackPiece], board.BlackPiece)
 
 	if !blackCastlingRightsWritten && !whiteCastlingRightsWritten {
 		fen.WriteEmpty()

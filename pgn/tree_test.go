@@ -8,7 +8,7 @@ import (
 
 // This sample is taken from the PGN specification
 
-var pgnSpecSample string = `
+var pgnSpecSample = `
 [Event "F/S Return Match"] 
 [Site "Belgrade, Serbia JUG"] 
 [Date "1992.11.04"] 

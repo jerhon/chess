@@ -48,7 +48,7 @@ func TestSimpleTokenMatches(t *testing.T) {
 	}
 }
 
-var tagTokens string = "[Name1 \"Value\"]\n[Name2 \"Value2\"]"
+var tagTokens = "[Name1 \"Value\"]\n[Name2 \"Value2\"]"
 
 var tagTokensExpected = []PgnToken{
 	{PgnTokenPosition{0, 0, 0, 0}, "[", LeftBracket},
