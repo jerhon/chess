@@ -445,14 +445,14 @@ func iterateOffsets(location ChessLocation, offsets []offsetsStruct) []iter.Seq[
 	iters := []iter.Seq[ChessLocation]{}
 
 	for _, offset := range offsets {
-		iter := func(yield func(ChessLocation) bool) {
+		offsetIter := func(yield func(ChessLocation) bool) {
 			nextLocation := location.AddOffset(offset.fileOffset, offset.rankOffset)
 			for nextLocation.IsOnBoard() {
 				yield(nextLocation)
 				nextLocation = nextLocation.AddOffset(offset.fileOffset, offset.rankOffset)
 			}
 		}
-		iters = append(iters, iter)
+		iters = append(iters, offsetIter)
 	}
 
 	return iters

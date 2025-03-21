@@ -1,4 +1,4 @@
-﻿package game
+package game
 
 type ColorType rune
 

@@ -1,4 +1,4 @@
-﻿package game
+package game
 
 // ChessPosition represents a rules in a chess game
 type ChessPosition struct {

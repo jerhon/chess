@@ -1,4 +1,4 @@
-﻿package san
+package san
 
 import (
 	"github.com/jerhon/chess/game"
