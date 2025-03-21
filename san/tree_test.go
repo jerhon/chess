@@ -1,7 +1,7 @@
 package san
 
 import (
-	"github.com/jerhon/chess/board"
+	"github.com/jerhon/chess/game"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,85 +9,72 @@ import (
 
 func TestParseSan(t *testing.T) {
 	tests := []struct {
-		input    string
-		expected *San
-		err      error
+		input           string
+		sanMove         *SanMove
+		sanCastlingMove *SanCastle
+		err             error
 	}{
 		{
 			input: "e4",
-			expected: &San{
-				Piece:          board.Pawn,
-				ToFile:         board.FileE,
-				ToRank:         board.Rank4,
+			sanMove: &SanMove{
+				Piece:          game.Pawn,
+				ToFile:         game.FileE,
+				ToRank:         game.Rank4,
 				Capture:        false,
 				Check:          false,
 				Checkmate:      false,
-				PromotionPiece: board.NoPiece,
+				PromotionPiece: game.NoPiece,
 			},
 			err: nil,
 		},
 		{
 			input: "Nf3",
-			expected: &San{
-				Piece:   board.Knight,
-				ToFile:  board.FileF,
-				ToRank:  board.Rank3,
+			sanMove: &SanMove{
+				Piece:   game.Knight,
+				ToFile:  game.FileF,
+				ToRank:  game.Rank3,
 				Capture: false,
 			},
 			err: nil,
 		},
 		{
 			input: "exd5",
-			expected: &San{
-				Piece:    board.Pawn,
-				ToFile:   board.FileD,
-				ToRank:   board.Rank5,
-				FromFile: board.FileE,
+			sanMove: &SanMove{
+				Piece:    game.Pawn,
+				ToFile:   game.FileD,
+				ToRank:   game.Rank5,
+				FromFile: game.FileE,
 				Capture:  true,
 			},
 			err: nil,
 		},
 		{
-			input: "O-O",
-			expected: &San{
-				CastleKingSide: true,
-			},
-			err: nil,
-		},
-		{
-			input: "O-O-O",
-			expected: &San{
-				CastleQueenSide: true,
-			},
-			err: nil,
-		},
-		{
 			input: "e4+",
-			expected: &San{
-				Piece:  board.Pawn,
-				ToFile: board.FileE,
-				ToRank: board.Rank4,
+			sanMove: &SanMove{
+				Piece:  game.Pawn,
+				ToFile: game.FileE,
+				ToRank: game.Rank4,
 				Check:  true,
 			},
 			err: nil,
 		},
 		{
 			input: "Qd8#",
-			expected: &San{
-				Piece:     board.Queen,
-				ToFile:    board.FileD,
-				ToRank:    board.Rank8,
+			sanMove: &SanMove{
+				Piece:     game.Queen,
+				ToFile:    game.FileD,
+				ToRank:    game.Rank8,
 				Checkmate: true,
 			},
 			err: nil,
 		},
 		{
 			input: "exd6 e.p.",
-			expected: &San{
-				Piece:     board.Pawn,
-				ToFile:    board.FileD,
-				ToRank:    board.Rank6,
-				FromFile:  board.FileE,
+			sanMove: &SanMove{
+				Piece:     game.Pawn,
+				ToFile:    game.FileD,
+				ToRank:    game.Rank6,
+				FromFile:  game.FileE,
 				Capture:   true,
 				EnPassant: true,
 			},
@@ -95,32 +82,44 @@ func TestParseSan(t *testing.T) {
 		},
 		{
 			input: "e8=Q",
-			expected: &San{
-				Piece:          board.Pawn,
-				ToFile:         board.FileE,
-				ToRank:         board.Rank8,
-				PromotionPiece: board.Queen,
+			sanMove: &SanMove{
+				Piece:          game.Pawn,
+				ToFile:         game.FileE,
+				ToRank:         game.Rank8,
+				PromotionPiece: game.Queen,
 			},
 			err: nil,
 		},
 		{
 			input: "g1=N",
-			expected: &San{
-				Piece:          board.Pawn,
-				ToFile:         board.FileG,
-				ToRank:         board.Rank1,
-				PromotionPiece: board.Knight,
+			sanMove: &SanMove{
+				Piece:          game.Pawn,
+				ToFile:         game.FileG,
+				ToRank:         game.Rank1,
+				PromotionPiece: game.Knight,
 			},
 			err: nil,
+		},
+		{
+			input: "0-0",
+			sanCastlingMove: &SanCastle{
+				CastleKingSide: true,
+			},
+		},
+		{
+			input: "0-0-0",
+			sanCastlingMove: &SanCastle{
+				CastleQueenSide: true,
+			},
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.input, func(t *testing.T) {
-			result, err := ParseSan(test.input)
+			sanMove, sanCastlingMove, err := ParseSan(test.input)
 			assert.Equal(t, test.err, err)
-			assert.Equal(t, test.expected, result)
-			assert.Equal(t, test.input, test.expected.String())
+			assert.Equal(t, test.sanMove, sanMove)
+			assert.Equal(t, test.sanCastlingMove, sanCastlingMove)
 		})
 	}
 }

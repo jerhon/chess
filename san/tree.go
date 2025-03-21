@@ -1,50 +1,51 @@
 package san
 
 import (
-	"github.com/jerhon/chess/board"
+	"github.com/jerhon/chess/game"
 )
 
-func ParseSan(san string) (*San, error) {
+// ParseSan parses a san string returning either a san move or a castling move
+func ParseSan(san string) (*SanMove, *SanCastle, error) {
 	tokens, err := ParseSanTokens(san)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	piece := board.Pawn
-	fromFile := board.NoFile
-	fromRank := board.NoRank
-	toFile := board.NoFile
-	toRank := board.NoRank
+	piece := game.Pawn
+	fromFile := game.NoFile
+	fromRank := game.NoRank
+	toFile := game.NoFile
+	toRank := game.NoRank
 	capture := false
 	enPassant := false
 	check := false
 	checkmate := false
-	promotionPiece := board.NoPiece
+	promotionPiece := game.NoPiece
 
 	// Special case for castling
-	if san == "O-O" {
-		return &San{
+	if san == "O-O" || san == "0-0" {
+		return nil, &SanCastle{
 			CastleKingSide: true,
 		}, nil
-	} else if san == "O-O-O" {
-		return &San{
+	} else if san == "O-O-O" || san == "0-0-0" {
+		return nil, &SanCastle{
 			CastleQueenSide: true,
 		}, nil
 	}
 
 	idx := 0
 	if idx < len(tokens) && tokens[idx].Type == PieceToken {
-		piece = board.PieceType(tokens[idx].Value[0])
+		piece = game.PieceType(tokens[idx].Value[0])
 		idx++
 	}
 
 	if idx < len(tokens) && tokens[idx].Type == FileToken {
-		toFile = board.FileType(tokens[idx].Value[0])
+		toFile = game.FileType(tokens[idx].Value[0])
 		idx++
 	}
 
 	if idx < len(tokens) && tokens[idx].Type == RankToken {
-		toRank = board.RankType(tokens[idx].Value[0])
+		toRank = game.RankType(tokens[idx].Value[0])
 		idx++
 	}
 
@@ -55,13 +56,13 @@ func ParseSan(san string) (*San, error) {
 
 	if idx < len(tokens) && tokens[idx].Type == FileToken {
 		fromFile = toFile
-		toFile = board.FileType(tokens[idx].Value[0])
+		toFile = game.FileType(tokens[idx].Value[0])
 		idx++
 	}
 
 	if idx < len(tokens) && tokens[idx].Type == RankToken {
 		fromRank = toRank
-		toRank = board.RankType(tokens[idx].Value[0])
+		toRank = game.RankType(tokens[idx].Value[0])
 		idx++
 	}
 
@@ -79,11 +80,11 @@ func ParseSan(san string) (*San, error) {
 		}
 
 		if tokens[idx].Type == PieceToken {
-			promotionPiece = board.PieceType(tokens[idx].Value[0])
+			promotionPiece = game.PieceType(tokens[idx].Value[0])
 		}
 	}
 
-	return &San{
+	return &SanMove{
 		Piece:          piece,
 		FromFile:       fromFile,
 		FromRank:       fromRank,
@@ -94,5 +95,5 @@ func ParseSan(san string) (*San, error) {
 		Check:          check,
 		Checkmate:      checkmate,
 		PromotionPiece: promotionPiece,
-	}, nil
+	}, nil, nil
 }

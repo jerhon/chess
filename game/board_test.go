@@ -1,4 +1,4 @@
-package board
+package game
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -22,7 +22,7 @@ func TestChessBoard_String(t *testing.T) {
 		{
 			name: "Empty Board",
 			setup: func() *ChessBoard {
-				board := NewChessBoard() // Assuming this initializes an empty board
+				board := NewChessBoard() // Assuming this initializes an empty game
 				return board
 			},
 			output: `8 ********
@@ -38,7 +38,7 @@ func TestChessBoard_String(t *testing.T) {
 		{
 			name: "Initial Setup",
 			setup: func() *ChessBoard {
-				board := NewChessBoard() // Assuming this initializes the board in standard chess setup
+				board := NewChessBoard() // Assuming this initializes the game in standard chess setup
 				// Set up pawns, rooks, knights, bishops, king, and queen
 				for file := FileA; file <= FileH; file++ {
 					board.SetSquare(l(file, Rank2), p(Pawn, WhitePiece))

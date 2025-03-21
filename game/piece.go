@@ -1,4 +1,6 @@
-package board
+package game
+
+import "unicode"
 
 type PieceType rune
 
@@ -17,7 +19,7 @@ type ChessPiece struct {
 	Color ColorType
 }
 
-func (s ChessPiece) String() string {
+func (s ChessPiece) PrettyString() string {
 	if s.Piece != NoPiece {
 		if s.Color == WhitePiece {
 			switch s.Piece {
@@ -57,4 +59,33 @@ func (s ChessPiece) String() string {
 	}
 
 	return " "
+}
+
+// IsValid checks if the ChessPiece is a valid option.
+func (p PieceType) IsPiece() bool {
+	switch p {
+	case Pawn, Knight, Bishop, Rook, Queen, King:
+		return true
+	default:
+		return false
+	}
+}
+
+func ParsePiece(piece string) ChessPiece {
+	if len(piece) < 1 {
+		return ChessPiece{Piece: NoPiece}
+	} else {
+		pieceChar := rune(piece[0])
+		color := WhitePiece
+		if unicode.IsLower(pieceChar) {
+			color = BlackPiece
+		}
+
+		piece := PieceType(piece[0])
+		if piece.IsPiece() {
+			return ChessPiece{Piece: piece, Color: color}
+		} else {
+			return ChessPiece{Piece: NoPiece}
+		}
+	}
 }

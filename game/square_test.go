@@ -1,4 +1,4 @@
-package board
+package game
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -24,7 +24,7 @@ func TestChessSquare_String(t *testing.T) {
 					Color: WhitePiece,
 				},
 			},
-			want: "wPa1",
+			want: "Pa1",
 		},
 		{
 			name: "Black Pawn",
@@ -38,7 +38,7 @@ func TestChessSquare_String(t *testing.T) {
 					Color: BlackPiece,
 				},
 			},
-			want: "bPa8",
+			want: "pa8",
 		},
 		{
 			name: "White King",
@@ -52,7 +52,7 @@ func TestChessSquare_String(t *testing.T) {
 					Color: WhitePiece,
 				},
 			},
-			want: "wKe1",
+			want: "Ke1",
 		},
 	}
 

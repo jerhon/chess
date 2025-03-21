@@ -31,7 +31,7 @@ const (
 
 // PgnToken is a token in a PGN file.
 type PgnToken struct {
-	// The position of the token in the source string
+	// The rules of the token in the source string
 	Position PgnTokenPosition
 	// the value of the token
 	Value string
@@ -202,7 +202,7 @@ func (this *PgnTokenReader) ReadTokens() (tokens []PgnToken, err error) {
 	return
 }
 
-// getPosition gets the current position the PgnTokenReader is at
+// getPosition gets the current rules the PgnTokenReader is at
 func (this *PgnTokenReader) getPosition() PgnTokenPosition {
 	return PgnTokenPosition{
 		Offset:     this.offset,

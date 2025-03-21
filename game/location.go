@@ -1,4 +1,4 @@
-package board
+package game
 
 type FileType rune
 
@@ -51,4 +51,25 @@ func (file FileType) ToIndex() int {
 
 func (rank RankType) ToIndex() int {
 	return int(rank) - int(Rank1)
+}
+
+func (location ChessLocation) AddOffset(fileOffset int, rankOffset int) ChessLocation {
+	return ChessLocation{
+		File: location.File + FileType(fileOffset),
+		Rank: location.Rank + RankType(rankOffset),
+	}
+}
+
+func (location ChessLocation) IsOnBoard() bool {
+	return location.File >= FileA && location.File <= FileH && location.Rank >= Rank1 && location.Rank <= Rank8
+}
+
+func ParseChessLocation(location string) ChessLocation {
+	file := FileType(location[0])
+	rank := RankType(location[1])
+
+	return ChessLocation{
+		File: file,
+		Rank: rank,
+	}
 }

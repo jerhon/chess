@@ -13,7 +13,7 @@ func TestFenParser_ParseBoard(t *testing.T) {
 		expected string
 	}{
 		{
-			"standard chess position",
+			"standard chess rules",
 			"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
 			"8 ♜♞♝♛♚♝♞♜\n7 ♟♟♟♟♟♟♟♟\n6 ********\n5 ********\n4 ********\n3 ********\n2 ♙♙♙♙♙♙♙♙\n1 ♖♘♗♕♔♗♘♖\n  abcdefgh",
 		},
