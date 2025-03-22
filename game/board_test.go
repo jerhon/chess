@@ -100,3 +100,39 @@ func TestChessBoard_String(t *testing.T) {
 		})
 	}
 }
+
+func TestChessBoard_HasPiece(t *testing.T) {
+	board := NewChessBoard()
+	board.SetSquare(l(FileA, Rank1), p(Pawn, WhitePiece))
+	assert.True(t, board.HasPiece(l(FileA, Rank1)))
+	assert.False(t, board.HasPiece(l(FileA, Rank2)))
+}
+
+func TestChessBoard_GetPiece(t *testing.T) {
+	board := NewChessBoard()
+	board.SetSquare(l(FileA, Rank1), p(Pawn, WhitePiece))
+
+	piece, hasPiece := board.GetPiece(l(FileA, Rank1))
+	assert.Equal(t, p(Pawn, WhitePiece), piece)
+	assert.True(t, hasPiece)
+
+	piece, hasPiece = board.GetPiece(l(FileA, Rank2))
+	assert.Equal(t, ChessPiece{}, piece)
+	assert.False(t, hasPiece)
+}
+
+func TestChessBoard_Clone(t *testing.T) {
+	board := NewChessBoard()
+	clonedBoard := board.Clone()
+	assert.Equal(t, board, clonedBoard)
+
+	// set a bunch of random pieces, and ensure they match
+	board.SetSquare(l(FileA, Rank1), p(Pawn, WhitePiece))
+	board.SetSquare(l(FileA, Rank2), p(Pawn, BlackPiece))
+	board.SetSquare(l(FileA, Rank3), p(Pawn, WhitePiece))
+	board.SetSquare(l(FileE, Rank6), p(Knight, BlackPiece))
+	board.SetSquare(l(FileH, Rank8), p(King, BlackPiece))
+
+	clonedBoard = board.Clone()
+	assert.Equal(t, board, clonedBoard)
+}
