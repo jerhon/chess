@@ -63,3 +63,57 @@ func TestChessSquare_String(t *testing.T) {
 		})
 	}
 }
+
+func TestParseSquare(t *testing.T) {
+	tests := []struct {
+		s    string
+		want ChessSquare
+	}{
+		{
+			s: "Pa1",
+			want: ChessSquare{
+				Location: ChessLocation{
+					File: FileA,
+					Rank: Rank1,
+				},
+				Piece: ChessPiece{
+					Piece: Pawn,
+					Color: WhitePiece,
+				},
+			},
+		},
+		{
+			s: "pa8",
+			want: ChessSquare{
+				Location: ChessLocation{
+					File: FileA,
+					Rank: Rank8,
+				},
+				Piece: ChessPiece{
+					Piece: Pawn,
+					Color: BlackPiece,
+				},
+			},
+		},
+		{
+			s: "Ke1",
+			want: ChessSquare{
+				Location: ChessLocation{
+					File: FileE,
+					Rank: Rank1,
+				},
+				Piece: ChessPiece{
+					Piece: King,
+					Color: WhitePiece,
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.s, func(t *testing.T) {
+			s := ParseSquare(tt.s)
+			assert.Equal(t, tt.want, s)
+		})
+	}
+}

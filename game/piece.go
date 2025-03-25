@@ -81,7 +81,7 @@ func ParsePiece(piece string) ChessPiece {
 			color = BlackPiece
 		}
 
-		piece := PieceType(piece[0])
+		piece := PieceType(unicode.ToUpper(rune(piece[0])))
 		if piece.IsPiece() {
 			return ChessPiece{Piece: piece, Color: color}
 		} else {
