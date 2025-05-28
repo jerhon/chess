@@ -10,13 +10,72 @@ type ChessPosition struct {
 	FullmoveNumber  int
 }
 
+// CastlingRights represents the castling rights for a player
 type CastlingRights struct {
-	KingSide  bool
+	// KingSide is true if the player can castle king side
+	KingSide bool
+	// QueenSide is true if the player can castle queen side
 	QueenSide bool
 }
 
+func (position *ChessPosition) CastleKingside() *ChessPosition {
+
+	rank := Rank1
+	if position.PlayerToMove == BlackPiece {
+		rank = Rank8
+	}
+
+	kingSquare := position.Board.GetSquare(ChessLocation{FileE, rank})
+	rookSquare := position.Board.GetSquare(ChessLocation{FileH, rank})
+	newKingSquare := position.Board.GetSquare(ChessLocation{FileG, rank})
+	newRookSquare := position.Board.GetSquare(ChessLocation{FileF, rank})
+
+	// Create a new board
+	newBoard := position.Board.Clone()
+
+	// Update the new board
+	newBoard.SetSquare(newKingSquare.Location, kingSquare.Piece)
+	newBoard.SetSquare(newRookSquare.Location, rookSquare.Piece)
+	newBoard.SetSquare(kingSquare.Location, ChessPiece{NoPiece, NoColor})
+	newBoard.SetSquare(rookSquare.Location, ChessPiece{NoPiece, NoColor})
+
+	// Update castling rights
+	castlingRights := map[ColorType]CastlingRights{}
+	for color, rights := range position.CastlingRights {
+		if color == position.PlayerToMove {
+			// After castling, the player loses all castling rights
+			castlingRights[color] = CastlingRights{}
+		} else {
+			// Other player's castling rights remain unchanged
+			castlingRights[color] = rights
+		}
+	}
+
+	// Switch player to move
+	playerToMove := BlackPiece
+	if position.PlayerToMove == BlackPiece {
+		playerToMove = WhitePiece
+	}
+
+	// Update fullmove number if black just moved
+	fullMoveNumber := position.FullmoveNumber
+	if position.PlayerToMove == BlackPiece {
+		fullMoveNumber++
+	}
+
+	// Return a new position
+	return &ChessPosition{
+		Board:           newBoard,
+		PlayerToMove:    playerToMove,
+		CastlingRights:  castlingRights,
+		EnPassantSquare: ChessLocation{}, // No en passant target after castling
+		HalfmoveClock:   position.HalfmoveClock + 1, // Increment half-move clock
+		FullmoveNumber:  fullMoveNumber,
+	}
+}
+
 // Move performs a chess move, does not take into consideration whether the move is valid
-func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation ChessLocation) ChessPosition {
+func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation ChessLocation) *ChessPosition {
 	fromSquare := position.Board.GetSquare(fromLocation)
 	toSquare := position.Board.GetSquare(toLocation)
 
@@ -80,7 +139,7 @@ func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation Chess
 		}
 	}
 
-	return ChessPosition{
+	return &ChessPosition{
 		Board:           newBoard,
 		PlayerToMove:    playerToMove,
 		CastlingRights:  castlingRights,
