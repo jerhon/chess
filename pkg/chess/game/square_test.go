@@ -54,6 +54,20 @@ func TestChessSquare_String(t *testing.T) {
 			},
 			want: "Ke1",
 		},
+		{
+			name: "Empty Square",
+			s: ChessSquare{
+				Location: ChessLocation{
+					File: FileD,
+					Rank: Rank4,
+				},
+				Piece: ChessPiece{
+					Piece: NoPiece,
+					Color: NoColor,
+				},
+			},
+			want: "d4",
+		},
 	}
 
 	for _, tt := range tests {
@@ -108,12 +122,96 @@ func TestParseSquare(t *testing.T) {
 				},
 			},
 		},
+		{
+			s: "Qd5",
+			want: ChessSquare{
+				Location: ChessLocation{
+					File: FileD,
+					Rank: Rank5,
+				},
+				Piece: ChessPiece{
+					Piece: Queen,
+					Color: WhitePiece,
+				},
+			},
+		},
+		{
+			s: "rb3",
+			want: ChessSquare{
+				Location: ChessLocation{
+					File: FileB,
+					Rank: Rank3,
+				},
+				Piece: ChessPiece{
+					Piece: Rook,
+					Color: BlackPiece,
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.s, func(t *testing.T) {
 			s := ParseSquare(tt.s)
 			assert.Equal(t, tt.want, s)
+		})
+	}
+}
+
+func TestChessSquare_IsEmpty(t *testing.T) {
+	tests := []struct {
+		name string
+		s    ChessSquare
+		want bool
+	}{
+		{
+			name: "Empty square",
+			s: ChessSquare{
+				Location: ChessLocation{
+					File: FileC,
+					Rank: Rank3,
+				},
+				Piece: ChessPiece{
+					Piece: NoPiece,
+					Color: NoColor,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "White Pawn - not empty",
+			s: ChessSquare{
+				Location: ChessLocation{
+					File: FileA,
+					Rank: Rank2,
+				},
+				Piece: ChessPiece{
+					Piece: Pawn,
+					Color: WhitePiece,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "Black Queen - not empty",
+			s: ChessSquare{
+				Location: ChessLocation{
+					File: FileD,
+					Rank: Rank8,
+				},
+				Piece: ChessPiece{
+					Piece: Queen,
+					Color: BlackPiece,
+				},
+			},
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.s.IsEmpty()
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

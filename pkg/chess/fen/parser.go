@@ -2,7 +2,7 @@ package fen
 
 import (
 	"fmt"
-	"github.com/jerhon/chess/game"
+	game2 "github.com/jerhon/chess/pkg/chess/game"
 	"strings"
 	"unicode"
 )
@@ -19,26 +19,26 @@ func NewFenParser(fen string) *FenParser {
 }
 
 // ParseBoard parses the first part of a fen string into a chess game with the pieces on the game
-func (this *FenParser) ParseBoard() (*game.ChessBoard, error) {
+func (this *FenParser) ParseBoard() (*game2.ChessBoard, error) {
 
-	chessBoard := game.NewChessBoard()
+	chessBoard := game2.NewChessBoard()
 
-	rank := game.Rank8
-	file := game.FileA
+	rank := game2.Rank8
+	file := game2.FileA
 
 	c, _, err := this.reader.ReadRune()
 	for err == nil && c != ' ' {
 		if c == '/' {
 			rank--
-			file = game.FileA
+			file = game2.FileA
 		} else if unicode.IsDigit(c) {
-			file += game.FileType(c - '0')
+			file += game2.FileType(c - '0')
 		} else if unicode.IsLetter(c) {
 			piece, err := GetChessPieceFromFenRune(c)
 			if err != nil {
 				return nil, err
 			}
-			chessBoard.SetSquare(game.ChessLocation{File: game.FileType(file), Rank: game.RankType(rank)}, piece)
+			chessBoard.SetSquare(game2.ChessLocation{File: game2.FileType(file), Rank: game2.RankType(rank)}, piece)
 			file++
 		}
 
@@ -49,64 +49,64 @@ func (this *FenParser) ParseBoard() (*game.ChessBoard, error) {
 }
 
 // GetChessPieceFromFenRune returns a chess piece based on a character from a fen string
-func GetChessPieceFromFenRune(r rune) (game.ChessPiece, error) {
+func GetChessPieceFromFenRune(r rune) (game2.ChessPiece, error) {
 	switch r {
 	case 'P':
-		return game.ChessPiece{Piece: game.Pawn, Color: game.WhitePiece}, nil
+		return game2.ChessPiece{Piece: game2.Pawn, Color: game2.WhitePiece}, nil
 	case 'R':
-		return game.ChessPiece{Piece: game.Rook, Color: game.WhitePiece}, nil
+		return game2.ChessPiece{Piece: game2.Rook, Color: game2.WhitePiece}, nil
 	case 'N':
-		return game.ChessPiece{Piece: game.Knight, Color: game.WhitePiece}, nil
+		return game2.ChessPiece{Piece: game2.Knight, Color: game2.WhitePiece}, nil
 	case 'B':
-		return game.ChessPiece{Piece: game.Bishop, Color: game.WhitePiece}, nil
+		return game2.ChessPiece{Piece: game2.Bishop, Color: game2.WhitePiece}, nil
 	case 'Q':
-		return game.ChessPiece{Piece: game.Queen, Color: game.WhitePiece}, nil
+		return game2.ChessPiece{Piece: game2.Queen, Color: game2.WhitePiece}, nil
 	case 'K':
-		return game.ChessPiece{Piece: game.King, Color: game.WhitePiece}, nil
+		return game2.ChessPiece{Piece: game2.King, Color: game2.WhitePiece}, nil
 	case 'p':
-		return game.ChessPiece{Piece: game.Pawn, Color: game.BlackPiece}, nil
+		return game2.ChessPiece{Piece: game2.Pawn, Color: game2.BlackPiece}, nil
 	case 'r':
-		return game.ChessPiece{Piece: game.Rook, Color: game.BlackPiece}, nil
+		return game2.ChessPiece{Piece: game2.Rook, Color: game2.BlackPiece}, nil
 	case 'n':
-		return game.ChessPiece{Piece: game.Knight, Color: game.BlackPiece}, nil
+		return game2.ChessPiece{Piece: game2.Knight, Color: game2.BlackPiece}, nil
 	case 'b':
-		return game.ChessPiece{Piece: game.Bishop, Color: game.BlackPiece}, nil
+		return game2.ChessPiece{Piece: game2.Bishop, Color: game2.BlackPiece}, nil
 	case 'q':
-		return game.ChessPiece{Piece: game.Queen, Color: game.BlackPiece}, nil
+		return game2.ChessPiece{Piece: game2.Queen, Color: game2.BlackPiece}, nil
 	case 'k':
-		return game.ChessPiece{Piece: game.King, Color: game.BlackPiece}, nil
+		return game2.ChessPiece{Piece: game2.King, Color: game2.BlackPiece}, nil
 	default:
-		return game.ChessPiece{}, fmt.Errorf("invalid Fen piece character: %c", r)
+		return game2.ChessPiece{}, fmt.Errorf("invalid Fen piece character: %c", r)
 	}
 }
 
-func (this *FenParser) ParsePlayerToMove() (game.ColorType, error) {
+func (this *FenParser) ParsePlayerToMove() (game2.ColorType, error) {
 	fenPlayerToMove, _, err := this.reader.ReadRune()
 	if err != nil {
-		return game.NoColor, fmt.Errorf("invalid FEN player to move, expected 'w' or 'b', but reached end of string")
+		return game2.NoColor, fmt.Errorf("invalid FEN player to move, expected 'w' or 'b', but reached end of string")
 	}
 
-	piece := game.NoColor
+	piece := game2.NoColor
 	switch fenPlayerToMove {
 	case 'w':
-		piece = game.WhitePiece
+		piece = game2.WhitePiece
 	case 'b':
 
-		piece = game.BlackPiece
+		piece = game2.BlackPiece
 	default:
-		return game.NoColor, fmt.Errorf("invalid FEN player to move, expected 'w' or 'b', saw: %c", fenPlayerToMove)
+		return game2.NoColor, fmt.Errorf("invalid FEN player to move, expected 'w' or 'b', saw: %c", fenPlayerToMove)
 	}
 
 	// Advance past whitespace if it exists
 	fenPlayerToMove, _, err = this.reader.ReadRune()
 	if err == nil && fenPlayerToMove != ' ' {
-		return game.NoColor, fmt.Errorf("invalid FEN player to move, expected ' ' after player to move, saw: %c", fenPlayerToMove)
+		return game2.NoColor, fmt.Errorf("invalid FEN player to move, expected ' ' after player to move, saw: %c", fenPlayerToMove)
 	}
 
 	return piece, nil
 }
 
-func (this *FenParser) ParseCastlingRights() (whiteCastlingRights game.CastlingRights, blackCastlingRights game.CastlingRights, err error) {
+func (this *FenParser) ParseCastlingRights() (whiteCastlingRights game2.CastlingRights, blackCastlingRights game2.CastlingRights, err error) {
 	fenCastlingRights, _, err := this.reader.ReadRune()
 	if fenCastlingRights != '-' {
 		for fenCastlingRights != ' ' && err == nil {
@@ -120,7 +120,7 @@ func (this *FenParser) ParseCastlingRights() (whiteCastlingRights game.CastlingR
 			case 'q':
 				blackCastlingRights.QueenSide = true
 			default:
-				return game.CastlingRights{}, game.CastlingRights{}, fmt.Errorf("invalid FEN castling rights, expected 'K', 'Q', 'k', or 'q', saw: %c", fenCastlingRights)
+				return game2.CastlingRights{}, game2.CastlingRights{}, fmt.Errorf("invalid FEN castling rights, expected 'K', 'Q', 'k', or 'q', saw: %c", fenCastlingRights)
 			}
 
 			fenCastlingRights, _, err = this.reader.ReadRune()
@@ -129,35 +129,35 @@ func (this *FenParser) ParseCastlingRights() (whiteCastlingRights game.CastlingR
 
 		space, _, err := this.reader.ReadRune()
 		if err == nil && space != ' ' {
-			return game.CastlingRights{}, game.CastlingRights{}, fmt.Errorf("invalid FEN en passant target, expected space after rank, saw: %c", space)
+			return game2.CastlingRights{}, game2.CastlingRights{}, fmt.Errorf("invalid FEN en passant target, expected space after rank, saw: %c", space)
 		}
 	}
 
 	return whiteCastlingRights, blackCastlingRights, nil
 }
 
-func ParseFile(r rune) (game.FileType, error) {
+func ParseFile(r rune) (game2.FileType, error) {
 	if r >= 'a' && r <= 'h' {
-		return game.FileType(r), nil
+		return game2.FileType(r), nil
 	} else if r >= 'A' && r <= 'H' {
-		return game.FileType(r - 'A' + 'a'), nil
+		return game2.FileType(r - 'A' + 'a'), nil
 	} else {
-		return game.NoFile, fmt.Errorf("invalid FEN file character: %c", r)
+		return game2.NoFile, fmt.Errorf("invalid FEN file character: %c", r)
 	}
 }
 
-func ParseRank(r rune) (game.RankType, error) {
+func ParseRank(r rune) (game2.RankType, error) {
 	if r >= '1' && r <= '8' {
-		return game.RankType(r), nil
+		return game2.RankType(r), nil
 	} else {
-		return game.NoRank, fmt.Errorf("invalid FEN rank character: %c", r)
+		return game2.NoRank, fmt.Errorf("invalid FEN rank character: %c", r)
 	}
 }
 
-func (this *FenParser) ParseEnPassantTarget() (game.ChessLocation, error) {
+func (this *FenParser) ParseEnPassantTarget() (game2.ChessLocation, error) {
 	enPassantTarget, _, err := this.reader.ReadRune()
 
-	chessLocation := game.ChessLocation{}
+	chessLocation := game2.ChessLocation{}
 	if err != nil {
 		return chessLocation, nil
 	}
@@ -165,17 +165,17 @@ func (this *FenParser) ParseEnPassantTarget() (game.ChessLocation, error) {
 	if enPassantTarget != '-' {
 		file, err := ParseFile(enPassantTarget)
 		if err != nil {
-			return game.ChessLocation{}, fmt.Errorf("invalid FEN en passant target, expected file: %c", enPassantTarget)
+			return game2.ChessLocation{}, fmt.Errorf("invalid FEN en passant target, expected file: %c", enPassantTarget)
 		}
 
 		enPassantTarget, _, err = this.reader.ReadRune()
 		if err != nil {
-			return game.ChessLocation{}, fmt.Errorf("invalid FEN en passant target, expected rank after file, saw: %c", enPassantTarget)
+			return game2.ChessLocation{}, fmt.Errorf("invalid FEN en passant target, expected rank after file, saw: %c", enPassantTarget)
 		}
 
 		rank, err := ParseRank(enPassantTarget)
 		if err != nil {
-			return game.ChessLocation{}, fmt.Errorf("invalid FEN en passant target, expected rank after file, saw: %c", enPassantTarget)
+			return game2.ChessLocation{}, fmt.Errorf("invalid FEN en passant target, expected rank after file, saw: %c", enPassantTarget)
 		}
 
 		chessLocation.File = file
@@ -184,7 +184,7 @@ func (this *FenParser) ParseEnPassantTarget() (game.ChessLocation, error) {
 
 	space, _, err := this.reader.ReadRune()
 	if err == nil && space != ' ' {
-		return game.ChessLocation{}, fmt.Errorf("invalid FEN en passant target, expected space after rank, saw: %c", space)
+		return game2.ChessLocation{}, fmt.Errorf("invalid FEN en passant target, expected space after rank, saw: %c", space)
 	}
 
 	return chessLocation, nil
@@ -236,45 +236,45 @@ func (this *FenParser) ParseFullMoveNumber() (int, error) {
 	return fullMoveNumber, nil
 }
 
-func ParseFen(fenString string) (game.ChessPosition, error) {
+func ParseFen(fenString string) (game2.ChessPosition, error) {
 	parser := NewFenParser(fenString)
 	chessBoard, err := parser.ParseBoard()
 
 	if err != nil {
-		return game.ChessPosition{}, err
+		return game2.ChessPosition{}, err
 	}
 
 	playerToMove, err := parser.ParsePlayerToMove()
 	if err != nil {
-		return game.ChessPosition{}, err
+		return game2.ChessPosition{}, err
 	}
 
 	whiteCastlingRights, blackCastlingRights, err := parser.ParseCastlingRights()
 	if err != nil {
-		return game.ChessPosition{}, err
+		return game2.ChessPosition{}, err
 	}
 
 	enPassantTarget, err := parser.ParseEnPassantTarget()
 	if err != nil {
-		return game.ChessPosition{}, err
+		return game2.ChessPosition{}, err
 	}
 
 	halfMoveClock, err := parser.ParseHalfMoveClock()
 	if err != nil {
-		return game.ChessPosition{}, err
+		return game2.ChessPosition{}, err
 	}
 
 	fullMoveNumber, err := parser.ParseFullMoveNumber()
 	if err != nil {
-		return game.ChessPosition{}, err
+		return game2.ChessPosition{}, err
 	}
 
-	return game.ChessPosition{
+	return game2.ChessPosition{
 		Board:        chessBoard,
 		PlayerToMove: playerToMove,
-		CastlingRights: map[game.ColorType]game.CastlingRights{
-			game.WhitePiece: whiteCastlingRights,
-			game.BlackPiece: blackCastlingRights,
+		CastlingRights: map[game2.ColorType]game2.CastlingRights{
+			game2.WhitePiece: whiteCastlingRights,
+			game2.BlackPiece: blackCastlingRights,
 		},
 		EnPassantSquare: enPassantTarget,
 		HalfmoveClock:   halfMoveClock,

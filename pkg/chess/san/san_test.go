@@ -1,7 +1,7 @@
 package san
 
 import (
-	"github.com/jerhon/chess/game"
+	game2 "github.com/jerhon/chess/pkg/chess/game"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,16 +14,16 @@ func TestSan_String(t *testing.T) {
 	}{
 		{
 			San: SanMove{
-				Piece:          game.Bishop,
-				FromFile:       game.FileA,
-				FromRank:       game.Rank1,
-				ToFile:         game.FileH,
-				ToRank:         game.Rank8,
+				Piece:          game2.Bishop,
+				FromFile:       game2.FileA,
+				FromRank:       game2.Rank1,
+				ToFile:         game2.FileH,
+				ToRank:         game2.Rank8,
 				Capture:        true,
 				Check:          true,
 				Checkmate:      true,
 				EnPassant:      true,
-				PromotionPiece: game.Queen,
+				PromotionPiece: game2.Queen,
 			},
 			Expected: "Ba1xh8=Q+# e.p.",
 		},

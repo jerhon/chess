@@ -68,8 +68,57 @@ func (position *ChessPosition) CastleKingside() *ChessPosition {
 		Board:           newBoard,
 		PlayerToMove:    playerToMove,
 		CastlingRights:  castlingRights,
-		EnPassantSquare: ChessLocation{}, // No en passant target after castling
+		EnPassantSquare: ChessLocation{},            // No en passant target after castling
 		HalfmoveClock:   position.HalfmoveClock + 1, // Increment half-move clock
+		FullmoveNumber:  fullMoveNumber,
+	}
+}
+
+func (position *ChessPosition) CastleQueenside() *ChessPosition {
+	rank := Rank1
+	if position.PlayerToMove == BlackPiece {
+		rank = Rank8
+	}
+
+	kingSquare := position.Board.GetSquare(ChessLocation{FileE, rank})
+	rookSquare := position.Board.GetSquare(ChessLocation{FileA, rank})
+	newKingSquare := position.Board.GetSquare(ChessLocation{FileC, rank})
+	newRookSquare := position.Board.GetSquare(ChessLocation{FileD, rank})
+
+	// update castling rights
+	castlingRights := map[ColorType]CastlingRights{}
+	for color, rights := range position.CastlingRights {
+		if color == position.PlayerToMove {
+			castlingRights[color] = CastlingRights{}
+		} else {
+			castlingRights[color] = rights
+		}
+	}
+
+	// update fullmove counter if black moved
+	fullMoveNumber := position.FullmoveNumber
+	if position.PlayerToMove == BlackPiece {
+		fullMoveNumber++
+	}
+
+	// switch player to move
+	playerToMove := BlackPiece
+	if position.PlayerToMove == BlackPiece {
+		playerToMove = WhitePiece
+	}
+
+	newBoard := position.Board.Clone()
+	newBoard.SetSquare(newKingSquare.Location, kingSquare.Piece)
+	newBoard.SetSquare(newRookSquare.Location, rookSquare.Piece)
+	newBoard.SetSquare(kingSquare.Location, ChessPiece{NoPiece, NoColor})
+	newBoard.SetSquare(rookSquare.Location, ChessPiece{NoPiece, NoColor})
+
+	return &ChessPosition{
+		Board:           newBoard,
+		PlayerToMove:    playerToMove,
+		CastlingRights:  castlingRights,
+		EnPassantSquare: ChessLocation{},
+		HalfmoveClock:   position.HalfmoveClock + 1,
 		FullmoveNumber:  fullMoveNumber,
 	}
 }
@@ -146,5 +195,25 @@ func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation Chess
 		EnPassantSquare: enPassantTarget,
 		HalfmoveClock:   halfmoveClock,
 		FullmoveNumber:  fullMoveNumber,
+	}
+}
+
+func NewStandardStartingPosition() *ChessPosition {
+	return &ChessPosition{
+		Board:        NewStandardChessBoard(),
+		PlayerToMove: WhitePiece,
+		CastlingRights: map[ColorType]CastlingRights{
+			WhitePiece: {
+				KingSide:  true,
+				QueenSide: true,
+			},
+			BlackPiece: {
+				KingSide:  true,
+				QueenSide: true,
+			},
+		},
+		EnPassantSquare: ChessLocation{},
+		HalfmoveClock:   0,
+		FullmoveNumber:  0,
 	}
 }

@@ -5,17 +5,19 @@ import (
 	"strings"
 )
 
-// ChessMovement calculates the moves for a given chess rules
+// ChessMovement calculates the moves
 type ChessMovement struct {
 	Position *ChessPosition
 
 	CandidateMoves map[ColorType][]ChessMove
 
-	// Moves contains the list of valid moves for the current player
+	// Moves contain the list of valid moves for the current player
 	Moves []ChessMove
 
 	KingLocation map[ColorType]ChessLocation
 	Check        map[ColorType]bool
+
+	CanCastle CastlingRights
 
 	IsCheckmate bool
 	IsStalemate bool
@@ -72,6 +74,67 @@ func (calculator *ChessMovement) calculateCheck() {
 
 }
 
+func (calculator *ChessMovement) calculateCanCastle() {
+	// Ensure the method is only calculated once
+
+	playerColor := calculator.Position.PlayerToMove
+	castlingRights := calculator.Position.CastlingRights[playerColor]
+
+	kingLocation := calculator.KingLocation[playerColor]
+	if kingLocation == (ChessLocation{}) {
+		return
+	}
+
+	// Check King-side castling
+	if castlingRights.KingSide {
+		kingSideClear := true
+		for file := kingLocation.File + 1; file < FileG; file++ {
+			if !calculator.Position.Board.GetSquare(ChessLocation{File: file, Rank: kingLocation.Rank}).IsEmpty() {
+				kingSideClear = false
+				break
+			}
+		}
+
+		if kingSideClear && !calculator.isPathUnderAttack(kingLocation, FileG, playerColor) {
+			calculator.CanCastle.KingSide = true
+		}
+	}
+
+	// Check Queen-side castling
+	if castlingRights.QueenSide {
+		queenSideClear := true
+		for file := kingLocation.File - 1; file > FileC; file-- {
+			if !calculator.Position.Board.GetSquare(ChessLocation{File: file, Rank: kingLocation.Rank}).IsEmpty() {
+				queenSideClear = false
+				break
+			}
+		}
+
+		if queenSideClear && !calculator.isPathUnderAttack(kingLocation, FileC, playerColor) {
+			calculator.CanCastle.QueenSide = true
+		}
+	}
+}
+
+// Helper method to check if the path for castling is under attack
+func (calculator *ChessMovement) isPathUnderAttack(kingLocation ChessLocation, targetFile FileType, playerColor ColorType) bool {
+	for file := kingLocation.File; file != targetFile; {
+		if file < targetFile {
+			file++
+		} else {
+			file--
+		}
+
+		location := ChessLocation{File: file, Rank: kingLocation.Rank}
+		for _, move := range calculator.CandidateMoves[playerColor.OppositeColor()] {
+			if move.To == location {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // CalculateValidMoves this will calculate any valid moves (moves that won't put the king in check)
 func (calculator *ChessMovement) calculateValidMoves() {
 
@@ -86,7 +149,7 @@ func (calculator *ChessMovement) calculateValidMoves() {
 		candidatePosition := calculator.Position.Move(move.From.Location, move.To)
 
 		// Just need to calculate through check
-		calculator = NewChessMovement(&candidatePosition)
+		calculator = NewChessMovement(candidatePosition)
 		calculator.calculateCandidateMoves()
 		calculator.calculateCheck()
 
@@ -134,6 +197,8 @@ func (calculator *ChessMovement) calculateCandidateMoves() {
 
 		allMoves[square.Piece.Color] = append(allMoves[square.Piece.Color], moves...)
 	}
+
+	calculator.CandidateMoves = allMoves
 }
 
 type ChessMove struct {
@@ -143,8 +208,11 @@ type ChessMove struct {
 	// To the location to move the piece to
 	To ChessLocation
 
-	// IsCapture true if the move captures another piece
-	IsCapture bool
+	// CanMove true if the move is a normal move (can move to the location) this could be false if it is a pawn move where there is nothing to capture
+	CanMove bool
+
+	// CanCapture true if the move can capture a piece
+	CanCapture bool
 
 	// IsCastle true if the move is a castle, if true, this will only represent the move of the king
 	IsCastle bool
@@ -155,7 +223,7 @@ func (move ChessMove) String() string {
 
 	builder.WriteString(move.From.String())
 
-	if move.IsCapture {
+	if move.CanCapture {
 		builder.WriteString("x")
 	}
 
@@ -228,20 +296,24 @@ func calculatePawnMoves(position *ChessPosition, fromLocation ChessLocation) []C
 	_, match = position.Board.GetPiece(toLocation)
 	if !match {
 		moves = append(moves, ChessMove{
-			From: fromSquare,
-			To:   toLocation,
+			From:       fromSquare,
+			To:         toLocation,
+			CanMove:    true,
+			CanCapture: false,
 		})
-	}
 
-	// If on starting location, can move 2 squares
-	if isPawnOnStartingSquare(fromLocation, fromPiece.Color) {
-		toLocation = ChessLocation{Rank: fromLocation.Rank + forwardOrBack*2, File: fromLocation.File}
-		_, match = position.Board.GetPiece(toLocation)
-		if !match {
-			moves = append(moves, ChessMove{
-				From: fromSquare,
-				To:   toLocation,
-			})
+		// If the pawn is on a starting location, it can move 2 squares
+		if isPawnOnStartingSquare(fromLocation, fromPiece.Color) {
+			toLocation = ChessLocation{Rank: fromLocation.Rank + forwardOrBack*2, File: fromLocation.File}
+			_, match = position.Board.GetPiece(toLocation)
+			if !match {
+				moves = append(moves, ChessMove{
+					From:       fromSquare,
+					To:         toLocation,
+					CanMove:    true,
+					CanCapture: false,
+				})
+			}
 		}
 	}
 
@@ -249,23 +321,23 @@ func calculatePawnMoves(position *ChessPosition, fromLocation ChessLocation) []C
 	// or if the diagonal is the target of an en passant capture.
 	toLocation = ChessLocation{Rank: fromLocation.Rank + forwardOrBack, File: fromLocation.File + FileType(1)}
 	toPiece, match := position.Board.GetPiece(toLocation)
-	if (match && toPiece.Color != fromPiece.Color) || (toLocation == position.EnPassantSquare) {
-		moves = append(moves, ChessMove{
-			From:      fromSquare,
-			To:        toLocation,
-			IsCapture: true,
-		})
-	}
+	isCapture := (match && toPiece.Color != fromPiece.Color) || (toLocation == position.EnPassantSquare)
+	moves = append(moves, ChessMove{
+		From:       fromSquare,
+		To:         toLocation,
+		CanCapture: true,
+		CanMove:    isCapture,
+	})
 
 	toLocation = ChessLocation{Rank: fromLocation.Rank + forwardOrBack, File: fromLocation.File - FileType(1)}
 	toPiece, match = position.Board.GetPiece(toLocation)
-	if (match && toPiece.Color != fromPiece.Color) || (toLocation == position.EnPassantSquare) {
-		moves = append(moves, ChessMove{
-			From:      fromSquare,
-			To:        toLocation,
-			IsCapture: true,
-		})
-	}
+	isCapture = (match && toPiece.Color != fromPiece.Color) || (toLocation == position.EnPassantSquare)
+	moves = append(moves, ChessMove{
+		From:       fromSquare,
+		To:         toLocation,
+		CanCapture: true,
+		CanMove:    isCapture,
+	})
 
 	return moves
 }
@@ -331,9 +403,10 @@ func canAppendKnightMove(position *ChessPosition, fromSquare ChessSquare, rankOf
 	}
 
 	return ChessMove{
-		From:      fromSquare,
-		To:        ChessLocation{File: fromLocation.File + FileType(fileOffset), Rank: fromLocation.Rank + RankType(rankOffset)},
-		IsCapture: toPiece.Piece != NoPiece,
+		From:       fromSquare,
+		To:         ChessLocation{File: fromLocation.File + FileType(fileOffset), Rank: fromLocation.Rank + RankType(rankOffset)},
+		CanCapture: true,
+		CanMove:    true,
 	}, true
 }
 
@@ -353,19 +426,12 @@ func calculateKingMoves(position *ChessPosition, fromLocation ChessLocation) []C
 				continue
 			}
 
-			if piece, match := position.Board.GetPiece(fromLocation); match {
-				if piece.Color != fromPiece.Color {
-					moves = append(moves, ChessMove{
-						From:      position.Board.GetSquare(fromLocation),
-						To:        toLocation,
-						IsCapture: true,
-					})
-				}
-			} else {
+			if _, match := position.Board.GetPiece(fromLocation); match {
 				moves = append(moves, ChessMove{
-					From:      position.Board.GetSquare(fromLocation),
-					To:        toLocation,
-					IsCapture: false,
+					From:       position.Board.GetSquare(fromLocation),
+					To:         toLocation,
+					CanMove:    true,
+					CanCapture: true,
 				})
 			}
 		}
@@ -373,19 +439,21 @@ func calculateKingMoves(position *ChessPosition, fromLocation ChessLocation) []C
 
 	if position.CastlingRights[fromPiece.Color].KingSide {
 		moves = append(moves, ChessMove{
-			From:      position.Board.GetSquare(fromLocation),
-			To:        ChessLocation{File: FileG, Rank: fromLocation.Rank},
-			IsCapture: false,
-			IsCastle:  true,
+			From:       position.Board.GetSquare(fromLocation),
+			To:         ChessLocation{File: FileG, Rank: fromLocation.Rank},
+			CanCapture: false,
+			CanMove:    false,
+			IsCastle:   true,
 		})
 	}
 
 	if position.CastlingRights[fromPiece.Color].QueenSide {
 		moves = append(moves, ChessMove{
-			From:      position.Board.GetSquare(fromLocation),
-			To:        ChessLocation{File: FileC, Rank: fromLocation.Rank},
-			IsCapture: false,
-			IsCastle:  true,
+			From:       position.Board.GetSquare(fromLocation),
+			To:         ChessLocation{File: FileC, Rank: fromLocation.Rank},
+			CanMove:    false,
+			CanCapture: false,
+			IsCastle:   true,
 		})
 	}
 
@@ -396,9 +464,10 @@ func tryAppendRayMove(moves []ChessMove, fromSquare ChessSquare, toSquare ChessS
 	// No piece on the square, we are fine
 	if toSquare.Piece.Piece == NoPiece {
 		return append(moves, ChessMove{
-			From:      fromSquare,
-			To:        toSquare.Location,
-			IsCapture: false,
+			From:       fromSquare,
+			To:         toSquare.Location,
+			CanMove:    true,
+			CanCapture: false,
 		}), false
 	}
 
@@ -407,9 +476,10 @@ func tryAppendRayMove(moves []ChessMove, fromSquare ChessSquare, toSquare ChessS
 	}
 
 	return append(moves, ChessMove{
-		From:      fromSquare,
-		To:        toSquare.Location,
-		IsCapture: true,
+		From:       fromSquare,
+		To:         toSquare.Location,
+		CanMove:    true,
+		CanCapture: true,
 	}), true
 }
 
@@ -448,7 +518,9 @@ func iterateOffsets(location ChessLocation, offsets []offsetsStruct) []iter.Seq[
 		offsetIter := func(yield func(ChessLocation) bool) {
 			nextLocation := location.AddOffset(offset.fileOffset, offset.rankOffset)
 			for nextLocation.IsOnBoard() {
-				yield(nextLocation)
+				if !yield(nextLocation) {
+					break
+				}
 				nextLocation = nextLocation.AddOffset(offset.fileOffset, offset.rankOffset)
 			}
 		}
