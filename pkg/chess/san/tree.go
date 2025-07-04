@@ -1,7 +1,7 @@
 package san
 
 import (
-	game2 "github.com/jerhon/chess/pkg/chess/game"
+	"github.com/jerhon/chess/pkg/chess/game"
 )
 
 // ParseSan parses a san string returning either a san move or a castling move
@@ -11,16 +11,16 @@ func ParseSan(san string) (*SanMove, *SanCastle, error) {
 		return nil, nil, err
 	}
 
-	piece := game2.Pawn
-	fromFile := game2.NoFile
-	fromRank := game2.NoRank
-	toFile := game2.NoFile
-	toRank := game2.NoRank
+	piece := game.Pawn
+	fromFile := game.NoFile
+	fromRank := game.NoRank
+	toFile := game.NoFile
+	toRank := game.NoRank
 	capture := false
 	enPassant := false
 	check := false
 	checkmate := false
-	promotionPiece := game2.NoPiece
+	promotionPiece := game.NoPiece
 
 	// Special case for castling
 	if san == "O-O" || san == "0-0" {
@@ -35,17 +35,17 @@ func ParseSan(san string) (*SanMove, *SanCastle, error) {
 
 	idx := 0
 	if idx < len(tokens) && tokens[idx].Type == PieceToken {
-		piece = game2.PieceType(tokens[idx].Value[0])
+		piece = game.PieceType(tokens[idx].Value[0])
 		idx++
 	}
 
 	if idx < len(tokens) && tokens[idx].Type == FileToken {
-		toFile = game2.FileType(tokens[idx].Value[0])
+		toFile = game.FileType(tokens[idx].Value[0])
 		idx++
 	}
 
 	if idx < len(tokens) && tokens[idx].Type == RankToken {
-		toRank = game2.RankType(tokens[idx].Value[0])
+		toRank = game.RankType(tokens[idx].Value[0])
 		idx++
 	}
 
@@ -56,13 +56,13 @@ func ParseSan(san string) (*SanMove, *SanCastle, error) {
 
 	if idx < len(tokens) && tokens[idx].Type == FileToken {
 		fromFile = toFile
-		toFile = game2.FileType(tokens[idx].Value[0])
+		toFile = game.FileType(tokens[idx].Value[0])
 		idx++
 	}
 
 	if idx < len(tokens) && tokens[idx].Type == RankToken {
 		fromRank = toRank
-		toRank = game2.RankType(tokens[idx].Value[0])
+		toRank = game.RankType(tokens[idx].Value[0])
 		idx++
 	}
 
@@ -80,7 +80,7 @@ func ParseSan(san string) (*SanMove, *SanCastle, error) {
 		}
 
 		if tokens[idx].Type == PieceToken {
-			promotionPiece = game2.PieceType(tokens[idx].Value[0])
+			promotionPiece = game.PieceType(tokens[idx].Value[0])
 		}
 	}
 

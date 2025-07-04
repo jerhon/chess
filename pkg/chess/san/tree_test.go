@@ -1,7 +1,7 @@
 package san
 
 import (
-	game2 "github.com/jerhon/chess/pkg/chess/game"
+	"github.com/jerhon/chess/pkg/chess/game"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -17,22 +17,22 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "e4",
 			sanMove: &SanMove{
-				Piece:          game2.Pawn,
-				ToFile:         game2.FileE,
-				ToRank:         game2.Rank4,
+				Piece:          game.Pawn,
+				ToFile:         game.FileE,
+				ToRank:         game.Rank4,
 				Capture:        false,
 				Check:          false,
 				Checkmate:      false,
-				PromotionPiece: game2.NoPiece,
+				PromotionPiece: game.NoPiece,
 			},
 			err: nil,
 		},
 		{
 			input: "Nf3",
 			sanMove: &SanMove{
-				Piece:   game2.Knight,
-				ToFile:  game2.FileF,
-				ToRank:  game2.Rank3,
+				Piece:   game.Knight,
+				ToFile:  game.FileF,
+				ToRank:  game.Rank3,
 				Capture: false,
 			},
 			err: nil,
@@ -40,10 +40,10 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "exd5",
 			sanMove: &SanMove{
-				Piece:    game2.Pawn,
-				ToFile:   game2.FileD,
-				ToRank:   game2.Rank5,
-				FromFile: game2.FileE,
+				Piece:    game.Pawn,
+				ToFile:   game.FileD,
+				ToRank:   game.Rank5,
+				FromFile: game.FileE,
 				Capture:  true,
 			},
 			err: nil,
@@ -51,9 +51,9 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "e4+",
 			sanMove: &SanMove{
-				Piece:  game2.Pawn,
-				ToFile: game2.FileE,
-				ToRank: game2.Rank4,
+				Piece:  game.Pawn,
+				ToFile: game.FileE,
+				ToRank: game.Rank4,
 				Check:  true,
 			},
 			err: nil,
@@ -61,9 +61,9 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "Qd8#",
 			sanMove: &SanMove{
-				Piece:     game2.Queen,
-				ToFile:    game2.FileD,
-				ToRank:    game2.Rank8,
+				Piece:     game.Queen,
+				ToFile:    game.FileD,
+				ToRank:    game.Rank8,
 				Checkmate: true,
 			},
 			err: nil,
@@ -71,10 +71,10 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "exd6 e.p.",
 			sanMove: &SanMove{
-				Piece:     game2.Pawn,
-				ToFile:    game2.FileD,
-				ToRank:    game2.Rank6,
-				FromFile:  game2.FileE,
+				Piece:     game.Pawn,
+				ToFile:    game.FileD,
+				ToRank:    game.Rank6,
+				FromFile:  game.FileE,
 				Capture:   true,
 				EnPassant: true,
 			},
@@ -83,20 +83,20 @@ func TestParseSan(t *testing.T) {
 		{
 			input: "e8=Q",
 			sanMove: &SanMove{
-				Piece:          game2.Pawn,
-				ToFile:         game2.FileE,
-				ToRank:         game2.Rank8,
-				PromotionPiece: game2.Queen,
+				Piece:          game.Pawn,
+				ToFile:         game.FileE,
+				ToRank:         game.Rank8,
+				PromotionPiece: game.Queen,
 			},
 			err: nil,
 		},
 		{
 			input: "g1=N",
 			sanMove: &SanMove{
-				Piece:          game2.Pawn,
-				ToFile:         game2.FileG,
-				ToRank:         game2.Rank1,
-				PromotionPiece: game2.Knight,
+				Piece:          game.Pawn,
+				ToFile:         game.FileG,
+				ToRank:         game.Rank1,
+				PromotionPiece: game.Knight,
 			},
 			err: nil,
 		},

@@ -2,20 +2,20 @@ package chess
 
 import (
 	"fmt"
-	game2 "github.com/jerhon/chess/pkg/chess/game"
+	game "github.com/jerhon/chess/pkg/chess/game"
 	"github.com/jerhon/chess/pkg/chess/san"
 )
 
 type ChessGame struct {
-	position *game2.ChessPosition
-	moves    *game2.ChessMovement
+	position *game.ChessPosition
+	moves    *game.ChessMovement
 }
 
 func NewGame() *ChessGame {
 
-	position := game2.NewStandardStartingPosition()
+	position := game.NewStandardStartingPosition()
 
-	moves := game2.NewChessMovement(position)
+	moves := game.NewChessMovement(position)
 	moves.Calculate()
 
 	return &ChessGame{
@@ -26,7 +26,7 @@ func NewGame() *ChessGame {
 
 func (g *ChessGame) calculate() {
 	if g.moves == nil || g.moves.Position != g.position {
-		g.moves = game2.NewChessMovement(g.position)
+		g.moves = game.NewChessMovement(g.position)
 		g.moves.Calculate()
 	}
 }
@@ -75,21 +75,21 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 	} else if sanMove != nil {
 
 		// find the appropriate move from the list of moves based on the san notation
-		actualMoves := []game2.ChessMove{}
+		actualMoves := []game.ChessMove{}
 		for _, move := range g.moves.Moves {
 			if sanMove.ToFile != move.To.File || sanMove.ToRank != move.To.Rank {
 				continue
 			}
 
-			if sanMove.FromRank != game2.NoRank && move.From.Location.Rank != sanMove.FromRank {
+			if sanMove.FromRank != game.NoRank && move.From.Location.Rank != sanMove.FromRank {
 				continue
 			}
 
-			if sanMove.FromFile != game2.NoFile && move.From.Location.File != sanMove.FromFile {
+			if sanMove.FromFile != game.NoFile && move.From.Location.File != sanMove.FromFile {
 				continue
 			}
 
-			if sanMove.Piece != game2.NoPiece && move.From.Piece.Piece != sanMove.Piece {
+			if sanMove.Piece != game.NoPiece && move.From.Piece.Piece != sanMove.Piece {
 				continue
 			}
 
@@ -117,6 +117,6 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 	return true, nil
 }
 
-func (g *ChessGame) GetPosition() *game2.ChessPosition {
+func (g *ChessGame) GetPosition() *game.ChessPosition {
 	return g.position
 }
