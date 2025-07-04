@@ -149,11 +149,11 @@ func (calculator *ChessMovement) calculateValidMoves() {
 		candidatePosition := calculator.Position.Move(move.From.Location, move.To)
 
 		// Just need to calculate through check
-		calculator = NewChessMovement(candidatePosition)
-		calculator.calculateCandidateMoves()
-		calculator.calculateCheck()
+		checkCalculator := NewChessMovement(candidatePosition)
+		checkCalculator.calculateCandidateMoves()
+		checkCalculator.calculateCheck()
 
-		if !calculator.Check[calculator.Position.PlayerToMove] {
+		if !checkCalculator.Check[calculator.Position.PlayerToMove] {
 			finalMoves = append(finalMoves, move)
 		}
 	}
