@@ -2,6 +2,7 @@ package chess
 
 import (
 	"fmt"
+
 	game "github.com/jerhon/chess/pkg/chess/game"
 	"github.com/jerhon/chess/pkg/chess/san"
 )
@@ -52,7 +53,7 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 
 	sanMove, sanCastle, err := san.ParseSan(sanText)
 	if err != nil {
-		return false, fmt.Errorf("Invalid SAN %s: %s", err)
+		return false, fmt.Errorf("Invalid SAN %s: %v", sanText, err)
 	}
 
 	if sanCastle != nil {

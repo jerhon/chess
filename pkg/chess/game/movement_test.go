@@ -1,9 +1,10 @@
 package game
 
 import (
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCalculateMoves(t *testing.T) {
@@ -38,7 +39,7 @@ func TestCalculateMoves(t *testing.T) {
 			Knight,
 			WhitePiece,
 			"d5",
-			"Nd5f4 Nd5f6 Nd5e7 Nd5e3 Nd5c3 Nd5c7 Nd5b4 Nd5b6",
+			"Nd5xf4 Nd5xf6 Nd5xe7 Nd5xe3 Nd5xc3 Nd5xc7 Nd5xb4 Nd5xb6",
 		},
 		{
 			"queen middle of the board no blockers",
@@ -54,7 +55,7 @@ func TestCalculateMoves(t *testing.T) {
 			Pawn,
 			WhitePiece,
 			"d5",
-			"Pd5d6",
+			"Pd5d6 Pd5xe6 Pd5xc6",
 		},
 		{
 			"black pawn middle of the board no blockers",
@@ -62,7 +63,7 @@ func TestCalculateMoves(t *testing.T) {
 			Pawn,
 			BlackPiece,
 			"d5",
-			"pd5d4",
+			"pd5d4 pd5xe4 pd5xc4",
 		},
 		{
 			"white pawn starting square no blockers",
@@ -70,7 +71,7 @@ func TestCalculateMoves(t *testing.T) {
 			Pawn,
 			WhitePiece,
 			"d2",
-			"Pd2d3 Pd2d4",
+			"Pd2d3 Pd2d4 Pd2xe3 Pd2xc3",
 		},
 		{
 			"black pawn starting square no blockers",
@@ -78,7 +79,7 @@ func TestCalculateMoves(t *testing.T) {
 			Pawn,
 			BlackPiece,
 			"d7",
-			"pd7d5 pd7d6",
+			"pd7d5 pd7d6 pd7xe6 pd7xc6",
 		},
 	}
 
