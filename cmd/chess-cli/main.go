@@ -126,9 +126,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // ── View ──────────────────────────────────────────────────────────────────────
 
 func (m model) View() string {
+	pos := m.chessGame.GetPosition()
+
 	// ── Left panel: board ──────────────────────────────────────────────────
 	boardContent := titleStyle.Render("Chess") + "\n\n" +
-		renderBoard(m.chessGame.GetPosition()) + "\n\n" +
+		renderBoard(pos, pos.PlayerToMove) + "\n\n" +
 		renderGameStatus(m.chessGame)
 	boardPanel := boardStyle.Render(boardContent)
 
@@ -169,12 +171,24 @@ func (m model) View() string {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 // renderBoard produces a spaced board with rank/file labels.
-func renderBoard(pos *game.ChessPosition) string {
+// The board is oriented so that the player whose turn it is appears at the bottom.
+func renderBoard(pos *game.ChessPosition, perspective game.ColorType) string {
 	sb := strings.Builder{}
-	for rank := game.Rank8; rank >= game.Rank1; rank-- {
+
+	// Determine iteration order based on perspective.
+	// White at bottom: ranks 8→1, files a→h.
+	// Black at bottom: ranks 1→8, files h→a.
+	rankStart, rankEnd, rankStep := game.Rank8, game.Rank1, game.RankType(-1)
+	fileStart, fileEnd, fileStep := game.FileA, game.FileH, game.FileType(1)
+	if perspective == game.BlackPiece {
+		rankStart, rankEnd, rankStep = game.Rank1, game.Rank8, game.RankType(1)
+		fileStart, fileEnd, fileStep = game.FileH, game.FileA, game.FileType(-1)
+	}
+
+	for rank := rankStart; ; rank += rankStep {
 		sb.WriteRune(rune(rank))
 		sb.WriteString("  ")
-		for file := game.FileA; file <= game.FileH; file++ {
+		for file := fileStart; ; file += fileStep {
 			square := pos.Board.GetSquare(game.ChessLocation{File: file, Rank: rank})
 			if square.Piece.Piece == game.NoPiece {
 				sb.WriteString("· ")
@@ -182,10 +196,25 @@ func renderBoard(pos *game.ChessPosition) string {
 				sb.WriteString(square.Piece.PrettyString())
 				sb.WriteRune(' ')
 			}
+			if file == fileEnd {
+				break
+			}
 		}
 		sb.WriteRune('\n')
+		if rank == rankEnd {
+			break
+		}
 	}
-	sb.WriteString("   a b c d e f g h")
+
+	// File labels, in the same order as the columns.
+	sb.WriteString("   ")
+	for file := fileStart; ; file += fileStep {
+		sb.WriteRune(rune(file))
+		sb.WriteRune(' ')
+		if file == fileEnd {
+			break
+		}
+	}
 	return sb.String()
 }
 
