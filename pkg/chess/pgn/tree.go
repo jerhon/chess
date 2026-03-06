@@ -38,40 +38,40 @@ func NewPgnGameParser(tokens []PgnToken) *PgnGameParser {
 	return &PgnGameParser{tokens, 0, true}
 }
 
-func (this *PgnGameParser) peekToken() (match bool, token *PgnToken) {
+func (p *PgnGameParser) peekToken() (match bool, token *PgnToken) {
 
 	// We want to ignore comments when we are parsing the PGN for evaluation
-	for this.idx < len(this.tokens) {
-		currentToken := this.tokens[this.idx]
+	for p.idx < len(p.tokens) {
+		currentToken := p.tokens[p.idx]
 		if currentToken.Type == CommentInLine || currentToken.Type == CommentRestOfLine || currentToken.Type == Escape {
-			this.idx++
+			p.idx++
 		} else {
 			break
 		}
 	}
 
-	if this.idx < len(this.tokens) {
-		return true, &this.tokens[this.idx]
+	if p.idx < len(p.tokens) {
+		return true, &p.tokens[p.idx]
 	}
 	return false, nil
 }
 
 // advanceToken advances the game parser by one token
-func (this *PgnGameParser) advanceToken() (bool, *PgnToken) {
-	this.idx++
-	if this.idx < len(this.tokens) {
-		return true, &this.tokens[this.idx]
+func (p *PgnGameParser) advanceToken() (bool, *PgnToken) {
+	p.idx++
+	if p.idx < len(p.tokens) {
+		return true, &p.tokens[p.idx]
 	}
 	return false, nil
 }
 
 // expectToken will retrieve one token and return false if the token of that type is not found, it will return the token and advance the parser
-func (this *PgnGameParser) expectToken(expectedTokenType PgnTokenType) (bool, *PgnToken) {
-	match, token := this.peekToken()
+func (p *PgnGameParser) expectToken(expectedTokenType PgnTokenType) (bool, *PgnToken) {
+	match, token := p.peekToken()
 	if !match || token.Type != expectedTokenType {
 		return false, token
 	}
-	this.advanceToken()
+	p.advanceToken()
 	return true, token
 }
 
@@ -79,31 +79,31 @@ func generateErrorText(position PgnTokenPosition, errorText string) string {
 	return fmt.Sprintf("[%d:%d] %s", position.Line, position.LineOffset, errorText)
 }
 
-func (this *PgnGameParser) Parse() (PgnGame, error) {
+func (p *PgnGameParser) Parse() (PgnGame, error) {
 	tags := []PgnTag{}
 	elements := []PgnElement{}
 	result := ""
 	parseErrors := []string{}
 
-	match, _ := this.peekToken()
+	match, _ := p.peekToken()
 	for match {
-		lastIdx := this.idx
-		if this.parsingAttributes {
-			leftBracketMatch, _ := this.expectToken(LeftBracket)
+		lastIdx := p.idx
+		if p.parsingAttributes {
+			leftBracketMatch, _ := p.expectToken(LeftBracket)
 			if leftBracketMatch {
-				nameMatch, nameToken := this.expectToken(Symbol)
+				nameMatch, nameToken := p.expectToken(Symbol)
 				if !nameMatch {
 					parseErrors = append(parseErrors, generateErrorText(nameToken.Position, "Expected tag name after '['"))
 					continue
 				}
 
-				valueMatch, valueToken := this.expectToken(String)
+				valueMatch, valueToken := p.expectToken(String)
 				if !valueMatch {
 					parseErrors = append(parseErrors, generateErrorText(valueToken.Position, "Expected tag value after tag name"))
 					continue
 				}
 
-				endBracketMatch, _ := this.expectToken(RightBracket)
+				endBracketMatch, _ := p.expectToken(RightBracket)
 				if !endBracketMatch {
 					parseErrors = append(parseErrors, generateErrorText(valueToken.Position, "Expected ']' after tag value"))
 					continue
@@ -112,7 +112,7 @@ func (this *PgnGameParser) Parse() (PgnGame, error) {
 				tag := PgnTag{nameToken.Value, valueToken.Value}
 				tags = append(tags, tag)
 			} else {
-				this.parsingAttributes = false
+				p.parsingAttributes = false
 				continue
 			}
 		} else {
@@ -120,22 +120,22 @@ func (this *PgnGameParser) Parse() (PgnGame, error) {
 
 			moveNumberText := ""
 			// parsing move text
-			numberMatch, numberToken := this.expectToken(Integer)
+			numberMatch, numberToken := p.expectToken(Integer)
 			if numberMatch {
 
 				// if the first is an integer, then it's a move number
 				periods := ""
-				periodMatch, _ := this.expectToken(Period)
+				periodMatch, _ := p.expectToken(Period)
 				for periodMatch {
 					periods += "."
-					periodMatch, _ = this.expectToken(Period)
+					periodMatch, _ = p.expectToken(Period)
 				}
 
 				moveNumberText = numberToken.Value + periods
 			}
 
 			sanText := ""
-			symbolMatch, symbolToken := this.expectToken(Symbol)
+			symbolMatch, symbolToken := p.expectToken(Symbol)
 			if symbolMatch {
 				if isGameResult(symbolToken.Value) {
 					result = symbolToken.Value
@@ -147,7 +147,7 @@ func (this *PgnGameParser) Parse() (PgnGame, error) {
 
 			if !numberMatch && !symbolMatch {
 				parseErrors = append(parseErrors, generateErrorText(symbolToken.Position, "Expected move number or move text.  Advancing to next PGN token."))
-				this.advanceToken()
+				p.advanceToken()
 				continue
 			}
 
@@ -157,7 +157,7 @@ func (this *PgnGameParser) Parse() (PgnGame, error) {
 			}
 
 			numericAnnotationGlyph := ""
-			numericAnnotationMatch, numericAnnotationToken := this.expectToken(NumericAnnotationGlyph)
+			numericAnnotationMatch, numericAnnotationToken := p.expectToken(NumericAnnotationGlyph)
 			if numericAnnotationMatch {
 				numericAnnotationGlyph = numericAnnotationToken.Value
 			}
@@ -165,9 +165,9 @@ func (this *PgnGameParser) Parse() (PgnGame, error) {
 			element := PgnElement{moveNumberText, sanText, numericAnnotationGlyph, nil}
 			elements = append(elements, element)
 		}
-		match, _ = this.peekToken()
-		if lastIdx == this.idx {
-			parseErrors = append(parseErrors, generateErrorText(this.tokens[this.idx].Position, "Internal parser error."))
+		match, _ = p.peekToken()
+		if lastIdx == p.idx {
+			parseErrors = append(parseErrors, generateErrorText(p.tokens[p.idx].Position, "Internal parser error."))
 		}
 	}
 

@@ -58,11 +58,11 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 
 	if sanCastle != nil {
 		if sanCastle.CastleKingSide && !g.moves.CanCastle.KingSide {
-			return false, fmt.Errorf("Cannot castle king side")
+			return false, fmt.Errorf("cannot castle king side")
 		}
 
 		if sanCastle.CastleQueenSide && !g.moves.CanCastle.QueenSide {
-			return false, fmt.Errorf("Cannot castle queen side")
+			return false, fmt.Errorf("cannot castle queen side")
 		}
 
 		if sanCastle.CastleKingSide {
@@ -112,7 +112,7 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 		g.position = newPosition
 		g.calculate()
 	} else {
-		return false, fmt.Errorf("Invalid SAN %s", sanText)
+		return false, fmt.Errorf("invalid SAN %s", sanText)
 	}
 
 	return true, nil

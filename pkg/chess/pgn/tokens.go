@@ -87,13 +87,13 @@ var singleCharacterTokens = []struct {
 }
 
 // ReadTokens reads all the PGN tokens from a PgnTokenReader
-func (this *PgnTokenReader) ReadTokens() (tokens []PgnToken, err error) {
+func (p *PgnTokenReader) ReadTokens() (tokens []PgnToken, err error) {
 	tokens = []PgnToken{}
 
-	match, r := this.readRune()
+	match, r := p.readRune()
 	for match {
-		newLine := this.lineOffset == 0
-		startPosition := this.getPosition()
+		newLine := p.lineOffset == 0
+		startPosition := p.getPosition()
 
 		singleCharMatch := false
 		for _, singleCharToken := range singleCharacterTokens {
@@ -106,13 +106,13 @@ func (this *PgnTokenReader) ReadTokens() (tokens []PgnToken, err error) {
 		}
 
 		if singleCharMatch {
-			match, r = this.readRune()
+			match, r = p.readRune()
 			continue
 		} else if unicode.IsLetter(r) || unicode.IsDigit(r) {
 			value := ""
 			for isSymbolRune(r) && match {
 				value += string(r)
-				match, r = this.readRune()
+				match, r = p.readRune()
 			}
 
 			if isIntegerToken(value) {
@@ -125,7 +125,7 @@ func (this *PgnTokenReader) ReadTokens() (tokens []PgnToken, err error) {
 		} else if r == '"' {
 			escape := false
 			value := ""
-			match, r = this.readRune()
+			match, r = p.readRune()
 			for match && (escape || r != '"') {
 				if escape {
 					value += string(r)
@@ -137,50 +137,50 @@ func (this *PgnTokenReader) ReadTokens() (tokens []PgnToken, err error) {
 						value += string(r)
 					}
 				}
-				match, r = this.readRune()
+				match, r = p.readRune()
 			}
 
 			// advance past the final "
-			match, r = this.readRune()
+			match, r = p.readRune()
 
 			token := PgnToken{startPosition, value, String}
 			tokens = append(tokens, token)
 		} else if r == '%' && newLine {
 			value := ""
-			match, r = this.readRune()
+			match, r = p.readRune()
 			for r != '\n' && r != '\r' && match {
 				value += string(r)
-				match, r = this.readRune()
+				match, r = p.readRune()
 			}
 			token := PgnToken{startPosition, value, Escape}
 			tokens = append(tokens, token)
 		} else if r == '$' {
 			value := ""
-			match, r = this.readRune()
+			match, r = p.readRune()
 			for unicode.IsDigit(r) && match {
 				value += string(r)
-				match, r = this.readRune()
+				match, r = p.readRune()
 			}
 			token := PgnToken{startPosition, value, NumericAnnotationGlyph}
 			tokens = append(tokens, token)
 		} else if r == ';' {
 			value := ""
-			match, r = this.readRune()
+			match, r = p.readRune()
 			for r != '\n' && r != '\r' && match {
 				value += string(r)
-				match, r = this.readRune()
+				match, r = p.readRune()
 			}
 			token := PgnToken{startPosition, value, CommentRestOfLine}
 			tokens = append(tokens, token)
 		} else if r == '{' {
 			value := ""
-			match, r = this.readRune()
+			match, r = p.readRune()
 			for r != '}' && match {
 				value += string(r)
-				match, r = this.readRune()
+				match, r = p.readRune()
 			}
 			// ignore ending }
-			match, r = this.readRune()
+			match, r = p.readRune()
 			token := PgnToken{
 				Position: startPosition,
 				Value:    value,
@@ -189,50 +189,50 @@ func (this *PgnTokenReader) ReadTokens() (tokens []PgnToken, err error) {
 			tokens = append(tokens, token)
 		} else if unicode.IsSpace(r) {
 			// ignore it
-			match, r = this.readRune()
+			match, r = p.readRune()
 		} else {
 			token := PgnToken{startPosition, string(r), Unknown}
 			tokens = append(tokens, token)
-			match, r = this.readRune()
+			match, r = p.readRune()
 		}
 	}
 	return
 }
 
 // getPosition gets the current rules the PgnTokenReader is at
-func (this *PgnTokenReader) getPosition() PgnTokenPosition {
+func (p *PgnTokenReader) getPosition() PgnTokenPosition {
 	return PgnTokenPosition{
-		Offset:     this.offset,
-		RuneOffset: this.runeOffset,
-		Line:       this.line,
-		LineOffset: this.lineOffset,
+		Offset:     p.offset,
+		RuneOffset: p.runeOffset,
+		Line:       p.line,
+		LineOffset: p.lineOffset,
 	}
 }
 
 // readRune reads a single rune from the PgnTokenReader and advances all offsets as necessary
-func (this *PgnTokenReader) readRune() (bool, rune) {
+func (p *PgnTokenReader) readRune() (bool, rune) {
 
-	previousRune := this.rune
-	previousRuneSize := this.runeSize
+	previousRune := p.rune
+	previousRuneSize := p.runeSize
 
-	r, runeSize, err := this.reader.ReadRune()
+	r, runeSize, err := p.reader.ReadRune()
 	if err != nil {
 		return false, 0
 	}
 
 	if previousRune == '\n' {
-		this.line++
-		this.lineOffset = 0
+		p.line++
+		p.lineOffset = 0
 	} else if previousRuneSize != 0 {
-		this.lineOffset++
+		p.lineOffset++
 	}
 
-	this.offset += previousRuneSize
-	this.runeOffset++
-	this.rune = r
-	this.runeSize = runeSize
+	p.offset += previousRuneSize
+	p.runeOffset++
+	p.rune = r
+	p.runeSize = runeSize
 
-	return true, this.rune
+	return true, p.rune
 }
 
 func isSymbolRune(r rune) bool {
