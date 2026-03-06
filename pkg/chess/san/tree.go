@@ -6,6 +6,18 @@ import (
 
 // ParseSan parses a san string returning either a san move or a castling move
 func ParseSan(san string) (*SanMove, *SanCastle, error) {
+	// Special case for castling - check before tokenization since "0-0" notation uses '-' which is not a valid token
+	switch san {
+	case "O-O", "0-0":
+		return nil, &SanCastle{
+			CastleKingSide: true,
+		}, nil
+	case "O-O-O", "0-0-0":
+		return nil, &SanCastle{
+			CastleQueenSide: true,
+		}, nil
+	}
+
 	tokens, err := ParseSanTokens(san)
 	if err != nil {
 		return nil, nil, err
@@ -21,17 +33,6 @@ func ParseSan(san string) (*SanMove, *SanCastle, error) {
 	check := false
 	checkmate := false
 	promotionPiece := game.NoPiece
-
-	// Special case for castling
-	if san == "O-O" || san == "0-0" {
-		return nil, &SanCastle{
-			CastleKingSide: true,
-		}, nil
-	} else if san == "O-O-O" || san == "0-0-0" {
-		return nil, &SanCastle{
-			CastleQueenSide: true,
-		}, nil
-	}
 
 	idx := 0
 	if idx < len(tokens) && tokens[idx].Type == PieceToken {

@@ -128,9 +128,6 @@ func (this *PgnTokenReader) ReadTokens() (tokens []PgnToken, err error) {
 			match, r = this.readRune()
 			for match && (escape || r != '"') {
 				if escape {
-					if r != '\\' && r != '"' {
-						// TODO add a parser error
-					}
 					value += string(r)
 					escape = false
 				} else {

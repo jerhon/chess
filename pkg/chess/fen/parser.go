@@ -86,7 +86,7 @@ func (this *FenParser) ParsePlayerToMove() (game.ColorType, error) {
 		return game.NoColor, fmt.Errorf("invalid FEN player to move, expected 'w' or 'b', but reached end of string")
 	}
 
-	piece := game.NoColor
+	var piece game.ColorType
 	switch fenPlayerToMove {
 	case 'w':
 		piece = game.WhitePiece

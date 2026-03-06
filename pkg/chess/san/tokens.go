@@ -107,7 +107,8 @@ func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
 
 	parseErrors := []string{}
 	tokens := []SanToken{}
-	r, err := this.peekRune()
+	var r rune
+	_, err := this.peekRune()
 	for err == nil {
 		r, err = this.peekRune()
 		if r == ' ' {
@@ -124,7 +125,7 @@ func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
 		if r >= 'a' && r <= 'h' {
 			// if an e is followed by a . followed by a p, it's en passant
 			if r == 'e' {
-				r, err = this.readRune()
+				_, err = this.readRune()
 				if this.expectAndAdvanceRune('.') {
 					if !this.expectAndAdvanceRune('p') {
 						parseErrors = append(parseErrors, "Expected 'p' after 'e.'")
@@ -158,7 +159,7 @@ func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
 		}
 		if tokenType != None {
 			tokens = append(tokens, SanToken{tokenType, string(r), startPosition})
-			r, err = this.readRune()
+			_, err = this.readRune()
 			continue
 		}
 
@@ -168,7 +169,7 @@ func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
 			if r == '+' {
 				tokenType = CheckmateToken
 				value = "++"
-				r, err = this.readRune()
+				_, err = this.readRune()
 			} else {
 				tokenType = CheckToken
 				value = "+"
@@ -177,8 +178,7 @@ func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
 			continue
 		}
 
-		parseErrors = append(parseErrors, "Unexpected character: "+string(r))
-		break
+		return tokens, fmt.Errorf("unexpected character: %s", string(r))
 	}
 
 	return tokens, nil
