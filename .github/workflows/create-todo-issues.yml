@@ -1,0 +1,285 @@
+name: Create TODO Issues
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-issues:
+    name: Create GitHub Issues from TODO.md
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Ensure labels exist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh label create "bug" --color "d73a4a" --description "Something isn't working" 2>/dev/null || true
+          gh label create "enhancement" --color "a2eeef" --description "New feature or request" 2>/dev/null || true
+
+      - name: Create issues for Critical Bugs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "Bug: Castling Not Applied in ChessGame" \
+            --label "bug" \
+            --body "## Description
+
+          **File:** \`pkg/chess/chess.go\` — \`castleKingSide()\` / \`castleQueenSide()\`
+
+          \`position.CastleKingside()\` and \`position.CastleQueenside()\` return a new \`*ChessPosition\`, but the results are discarded — the game position is never updated. Castling effectively does nothing.
+
+          ## Steps to Reproduce
+
+          Attempt a castling move via SAN notation (e.g., \`O-O\` or \`O-O-O\`). The king and rook will not move.
+
+          ## Expected Fix
+
+          \`\`\`go
+          // Bug: result is ignored
+          g.position.CastleKingside()
+
+          // Fix: assign the result
+          g.position = g.position.CastleKingside()
+          \`\`\`
+
+          _Tracked in TODO.md under Critical Bugs_" || true
+
+          gh issue create \
+            --title "Bug: Castling Rights Lost After Every Move" \
+            --label "bug" \
+            --body "## Description
+
+          **File:** \`pkg/chess/game/position.go\` — \`Move()\`
+
+          The \`castlingRights\` map is initialized empty and only partially updated in a few edge cases. For the vast majority of moves the returned \`ChessPosition\` has an empty \`CastlingRights\` map, meaning both players silently lose all castling rights after any ordinary move.
+
+          ## Expected Fix
+
+          The \`Move()\` function must copy the current castling rights to the new position and only revoke them when a king or rook moves from its starting square.
+
+          _Tracked in TODO.md under Critical Bugs_" || true
+
+          gh issue create \
+            --title "Bug: En Passant Capture Removes the Wrong Square" \
+            --label "bug" \
+            --body "## Description
+
+          **File:** \`pkg/chess/game/position.go\` — \`Move()\`
+
+          The pawn removed during an en passant capture is computed from \`fromLocation.File\` and a hard-coded rank (\`Rank7\` / \`Rank3\`). Both values are wrong:
+
+          - The captured pawn is always on the **same file as the destination square** (\`toLocation.File\`).
+          - The captured pawn is always on the **same rank as the moving pawn** (\`fromLocation.Rank\`).
+
+          ## Expected Fix
+
+          \`\`\`go
+          // Bug: removes the wrong square
+          if position.PlayerToMove == BlackPiece {
+              newBoard.SetSquare(ChessLocation{fromLocation.File, Rank7}, ChessPiece{NoPiece, NoColor})
+          } else {
+              newBoard.SetSquare(ChessLocation{fromLocation.File, Rank3}, ChessPiece{NoPiece, NoColor})
+          }
+
+          // Fix: remove the captured pawn at the correct square
+          newBoard.SetSquare(ChessLocation{toLocation.File, fromLocation.Rank}, ChessPiece{NoPiece, NoColor})
+          \`\`\`
+
+          _Tracked in TODO.md under Critical Bugs_" || true
+
+      - name: Create issues for Missing Features
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "Feature: Implement Pawn Promotion" \
+            --label "enhancement" \
+            --body "## Description
+
+          **File:** \`pkg/chess/game/position.go\` — \`Move()\` / \`pkg/chess/chess.go\` — \`TrySanMove()\`
+
+          SAN parsing recognises the promotion piece (e.g. \`e8=Q\`), but \`Move()\` never replaces the pawn with the chosen piece when it reaches the back rank.
+
+          ## Required Changes
+
+          - Add a \`PromotionPiece\` field on \`ChessMove\` so the engine can distinguish promotions from ordinary moves.
+          - Add promotion move generation in \`calculatePawnMoves()\` (four candidate moves, one per promotable piece).
+          - Implement actual replacement of the pawn in \`Move()\`.
+          - Update \`TrySanMove()\` to pass the chosen piece through.
+
+          _Tracked in TODO.md under Missing Features_" || true
+
+          gh issue create \
+            --title "Feature: Enforce the 50-Move Rule" \
+            --label "enhancement" \
+            --body "## Description
+
+          **File:** \`pkg/chess/game/movement.go\` — \`calculateValidMoves()\`
+
+          \`HalfmoveClock\` is tracked correctly in \`ChessPosition\`, but the rule is never checked. The clock counts halfmoves (plies); when it reaches 100 (i.e. 50 full moves without a capture or pawn advance) the game should be declared a draw.
+
+          ## Required Changes
+
+          In \`calculateValidMoves()\` (or wherever game-over conditions are evaluated), check \`HalfmoveClock >= 100\` and declare the game a draw.
+
+          _Tracked in TODO.md under Missing Features_" || true
+
+          gh issue create \
+            --title "Feature: Detect Threefold Repetition" \
+            --label "enhancement" \
+            --body "## Description
+
+          **File:** \`pkg/chess/chess.go\`
+
+          There is no position history. To detect threefold repetition the engine needs to record a hash (or FEN string) of each position after every move and declare a draw when the same position has occurred three times.
+
+          ## Required Changes
+
+          - Add a position history to \`ChessGame\` (e.g., a map of FEN strings to occurrence counts).
+          - After each move, record the new position.
+          - If any position occurs three times, declare the game a draw.
+
+          _Tracked in TODO.md under Missing Features_" || true
+
+          gh issue create \
+            --title "Feature: Detect Insufficient Mating Material" \
+            --label "enhancement" \
+            --body "## Description
+
+          **File:** \`pkg/chess/game/movement.go\`
+
+          The engine does not recognise drawn endgames caused by insufficient mating material. The following positions should be declared draws:
+
+          - King vs. King
+          - King + Bishop vs. King
+          - King + Knight vs. King
+          - King + Bishop vs. King + Bishop (same-coloured bishops)
+
+          ## Required Changes
+
+          Implement an insufficient-material check in the move generation / game-over evaluation code and declare a draw when one of these conditions is met.
+
+          _Tracked in TODO.md under Missing Features_" || true
+
+          gh issue create \
+            --title "Feature: Add Game Result / Status Type" \
+            --label "enhancement" \
+            --body "## Description
+
+          **File:** \`pkg/chess/chess.go\` / \`pkg/chess/game/movement.go\`
+
+          There is no enumerated result type. Callers currently have to inspect \`IsCheckmate\` / \`IsStalemate\` individually and have no way to represent or propagate draw types (50-move, repetition, insufficient material, agreement).
+
+          ## Required Changes
+
+          - Add a \`GameResult\` type with values such as \`WhiteWins\`, \`BlackWins\`, \`Draw\`, \`InProgress\`.
+          - Include a \`DrawReason\` type for the various draw causes.
+          - Expose the game result on \`ChessGame\` and update it after each move.
+
+          _Tracked in TODO.md under Missing Features_" || true
+
+      - name: Create issues for Minor Issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "Bug: PGN Parser Silently Ignores Invalid Escape Sequences" \
+            --label "bug" \
+            --body "## Description
+
+          **File:** \`pkg/chess/pgn/tokens.go:132\`
+
+          An unrecognised backslash escape inside a quoted PGN string is silently dropped. A parser error or at least a warning should be surfaced.
+
+          There is an existing comment in the code: \`// TODO add a parser error\`
+
+          ## Required Changes
+
+          Return a parser error (or emit a warning) when an unrecognised escape sequence is encountered inside a PGN quoted string.
+
+          _Tracked in TODO.md under Minor Issues_" || true
+
+          gh issue create \
+            --title "Bug: Castling Rights Update Is Incomplete for Rook Moves" \
+            --label "bug" \
+            --body "## Description
+
+          **File:** \`pkg/chess/game/position.go\` — \`Move()\`
+
+          The rook-move castling-rights update only handles a few cases and checks \`FileE\` for a rook, which is not a starting rook file. It should handle both White and Black rooks moving away from their starting squares (\`FileA\` / \`FileH\`).
+
+          ## Required Changes
+
+          Update the castling-rights logic in \`Move()\` to correctly revoke castling rights when a rook moves from or is captured on \`FileA\` or \`FileH\` at the appropriate rank for each colour.
+
+          _Tracked in TODO.md under Minor Issues_" || true
+
+      - name: Create issues for Performance
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "Performance: Move Validation Is O(n^2)" \
+            --label "enhancement" \
+            --body "## Description
+
+          **File:** \`pkg/chess/game/movement.go:144\`
+
+          There is an existing comment in the code: \`// TODO: this is pretty expensive, look at optimizing in the future\`
+
+          \`calculateValidMoves()\` simulates every candidate move and recalculates all opponent moves to detect check, resulting in quadratic complexity. Incremental check detection or a pin/attack bitboard would significantly reduce this cost.
+
+          ## Suggested Improvements
+
+          - Implement incremental check detection instead of full recalculation.
+          - Consider using a pin/attack bitboard to precompute attacked squares.
+
+          _Tracked in TODO.md under Performance_" || true
+
+      - name: Create issues for Public API Gaps
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "Enhancement: Export castleKingSide() / castleQueenSide() on ChessGame" \
+            --label "enhancement" \
+            --body "## Description
+
+          \`castleKingSide()\` / \`castleQueenSide()\` on \`ChessGame\` are unexported; callers cannot initiate castling independently of \`TrySanMove()\`.
+
+          ## Required Changes
+
+          Export these methods (rename to \`CastleKingSide()\` / \`CastleQueenSide()\`) so external packages can initiate castling directly.
+
+          _Tracked in TODO.md under Public API Gaps_" || true
+
+          gh issue create \
+            --title "Enhancement: Add Coordinate-Based Move Method to ChessGame" \
+            --label "enhancement" \
+            --body "## Description
+
+          There is no coordinate-based move method; callers must always use SAN notation. This makes it harder to integrate external engines or GUIs that work with square coordinates.
+
+          ## Required Changes
+
+          Add a method such as \`TryMove(from, to ChessLocation) error\` (or similar) that accepts source/destination coordinates rather than SAN notation.
+
+          _Tracked in TODO.md under Public API Gaps_" || true
+
+          gh issue create \
+            --title "Enhancement: Expose Valid Move List Publicly" \
+            --label "enhancement" \
+            --body "## Description
+
+          The valid-move list is not exposed publicly, preventing external GUIs or engines from enumerating legal moves without parsing SAN.
+
+          ## Required Changes
+
+          Add a public method on \`ChessGame\` (or \`ChessPosition\`) that returns the list of legal moves for the current position, using a convenient representation (e.g., \`[]ChessMove\` or \`[]string\` in SAN/UCI format).
+
+          _Tracked in TODO.md under Public API Gaps_" || true
