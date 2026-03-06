@@ -127,7 +127,7 @@ Examples:
 		}
 		out = f
 	}
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 
 	// Build client
 	client := chessapi.NewClient()

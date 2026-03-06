@@ -45,24 +45,24 @@ func (g *ChessGame) castleQueenSide() {
 func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 
 	if g.moves.IsCheckmate {
-		return false, fmt.Errorf("Game is checkmate")
+		return false, fmt.Errorf("game is checkmate")
 	}
 	if g.moves.IsStalemate {
-		return false, fmt.Errorf("Game is stalemate")
+		return false, fmt.Errorf("game is stalemate")
 	}
 
 	sanMove, sanCastle, err := san.ParseSan(sanText)
 	if err != nil {
-		return false, fmt.Errorf("Invalid SAN %s: %v", sanText, err)
+		return false, fmt.Errorf("invalid SAN %s: %v", sanText, err)
 	}
 
 	if sanCastle != nil {
 		if sanCastle.CastleKingSide && !g.moves.CanCastle.KingSide {
-			return false, fmt.Errorf("Cannot castle king side")
+			return false, fmt.Errorf("cannot castle king side")
 		}
 
 		if sanCastle.CastleQueenSide && !g.moves.CanCastle.QueenSide {
-			return false, fmt.Errorf("Cannot castle queen side")
+			return false, fmt.Errorf("cannot castle queen side")
 		}
 
 		if sanCastle.CastleKingSide {
@@ -103,7 +103,7 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 		}
 
 		if len(actualMoves) != 1 {
-			return false, fmt.Errorf("Invalid move.")
+			return false, fmt.Errorf("invalid move")
 		}
 
 		move := actualMoves[0]
@@ -112,7 +112,7 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 		g.position = newPosition
 		g.calculate()
 	} else {
-		return false, fmt.Errorf("Invalid SAN %s", sanText)
+		return false, fmt.Errorf("invalid SAN %s", sanText)
 	}
 
 	return true, nil

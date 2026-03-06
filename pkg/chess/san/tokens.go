@@ -49,69 +49,70 @@ func NewSanTokenReader(reader *strings.Reader) *SanTokenReader {
 	}
 }
 
-func (this *SanTokenReader) readRune() (rune, error) {
-	lastSize := this.runeSize
+func (tr *SanTokenReader) readRune() (rune, error) {
+	lastSize := tr.runeSize
 
-	r, size, err := this.reader.ReadRune()
+	r, size, err := tr.reader.ReadRune()
 
 	if err != nil {
-		this.err = err
-		this.rune = 0
+		tr.err = err
+		tr.rune = 0
 		return 0, err
 	}
 
 	if lastSize != 0 {
-		this.runeOffset++
-		this.offset += lastSize
+		tr.runeOffset++
+		tr.offset += lastSize
 	}
 
-	this.runeSize = size
-	this.rune = r
+	tr.runeSize = size
+	tr.rune = r
 
 	return r, nil
 }
 
-func (this *SanTokenReader) peekRune() (rune, error) {
-	if this.err != nil {
-		return 0, this.err
+func (tr *SanTokenReader) peekRune() (rune, error) {
+	if tr.err != nil {
+		return 0, tr.err
 	}
-	if this.runeSize == 0 {
-		_, err := this.readRune()
+	if tr.runeSize == 0 {
+		_, err := tr.readRune()
 		if err != nil {
 			return 0, err
 		}
 	}
-	return this.rune, nil
+	return tr.rune, nil
 }
 
-func (this *SanTokenReader) getPosition() SanTokenPosition {
+func (tr *SanTokenReader) getPosition() SanTokenPosition {
 	return SanTokenPosition{
-		RuneOffset: this.runeOffset,
-		Offset:     this.offset,
+		RuneOffset: tr.runeOffset,
+		Offset:     tr.offset,
 	}
 }
 
-func (this *SanTokenReader) expectAndAdvanceRune(expected rune) bool {
-	r, err := this.peekRune()
+func (tr *SanTokenReader) expectAndAdvanceRune(expected rune) bool {
+	r, err := tr.peekRune()
 	if err != nil {
 		return false
 	}
 	if r == expected {
-		_, _ = this.readRune()
+		_, _ = tr.readRune()
 		return true
 	}
 	return false
 }
 
-func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
+func (tr *SanTokenReader) ReadTokens() ([]SanToken, error) {
 
 	parseErrors := []string{}
 	tokens := []SanToken{}
-	r, err := this.peekRune()
+	var r rune
+	_, err := tr.peekRune()
 	for err == nil {
-		r, err = this.peekRune()
+		r, err = tr.peekRune()
 		if r == ' ' {
-			r, err = this.readRune()
+			r, err = tr.readRune()
 		}
 		if err != nil {
 			if len(parseErrors) > 0 {
@@ -120,17 +121,17 @@ func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
 			return tokens, nil
 		}
 		tokenType := None
-		startPosition := this.getPosition()
+		startPosition := tr.getPosition()
 		if r >= 'a' && r <= 'h' {
 			// if an e is followed by a . followed by a p, it's en passant
 			if r == 'e' {
-				r, err = this.readRune()
-				if this.expectAndAdvanceRune('.') {
-					if !this.expectAndAdvanceRune('p') {
+				_, err = tr.readRune()
+				if tr.expectAndAdvanceRune('.') {
+					if !tr.expectAndAdvanceRune('p') {
 						parseErrors = append(parseErrors, "Expected 'p' after 'e.'")
 						continue
 					}
-					if !this.expectAndAdvanceRune('.') {
+					if !tr.expectAndAdvanceRune('.') {
 						parseErrors = append(parseErrors, "Expected '.' after 'e.p'")
 						continue
 					}
@@ -158,17 +159,17 @@ func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
 		}
 		if tokenType != None {
 			tokens = append(tokens, SanToken{tokenType, string(r), startPosition})
-			r, err = this.readRune()
+			_, err = tr.readRune()
 			continue
 		}
 
 		if r == '+' {
-			r, err = this.readRune()
+			r, err = tr.readRune()
 			var value string
 			if r == '+' {
 				tokenType = CheckmateToken
 				value = "++"
-				r, err = this.readRune()
+				_, err = tr.readRune()
 			} else {
 				tokenType = CheckToken
 				value = "+"
@@ -177,8 +178,7 @@ func (this *SanTokenReader) ReadTokens() ([]SanToken, error) {
 			continue
 		}
 
-		parseErrors = append(parseErrors, "Unexpected character: "+string(r))
-		break
+		return tokens, fmt.Errorf("unexpected character: %s", string(r))
 	}
 
 	return tokens, nil

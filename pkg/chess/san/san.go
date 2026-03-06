@@ -23,47 +23,47 @@ type SanCastle struct {
 	CastleQueenSide bool
 }
 
-func (this SanCastle) String() string {
-	if this.CastleKingSide {
+func (s SanCastle) String() string {
+	if s.CastleKingSide {
 		return "O-O"
-	} else if this.CastleQueenSide {
+	} else if s.CastleQueenSide {
 		return "O-O-O"
 	} else {
 		return ""
 	}
 }
 
-func (this SanMove) String() string {
+func (s SanMove) String() string {
 	builder := strings.Builder{}
-	if this.Piece != game.NoPiece && this.Piece != game.Pawn {
-		builder.WriteString(string(this.Piece))
+	if s.Piece != game.NoPiece && s.Piece != game.Pawn {
+		builder.WriteString(string(s.Piece))
 	}
-	if this.FromFile != game.NoFile {
-		builder.WriteString(string(this.FromFile))
+	if s.FromFile != game.NoFile {
+		builder.WriteString(string(s.FromFile))
 	}
-	if this.FromRank != game.NoRank {
-		builder.WriteString(string(this.FromRank))
+	if s.FromRank != game.NoRank {
+		builder.WriteString(string(s.FromRank))
 	}
-	if this.Capture {
+	if s.Capture {
 		builder.WriteString("x")
 	}
-	if this.ToFile != game.NoFile {
-		builder.WriteString(string(this.ToFile))
+	if s.ToFile != game.NoFile {
+		builder.WriteString(string(s.ToFile))
 	}
-	if this.ToRank != game.NoRank {
-		builder.WriteString(string(this.ToRank))
+	if s.ToRank != game.NoRank {
+		builder.WriteString(string(s.ToRank))
 	}
-	if this.PromotionPiece != game.NoPiece {
+	if s.PromotionPiece != game.NoPiece {
 		builder.WriteString("=")
-		builder.WriteRune(rune(this.PromotionPiece))
+		builder.WriteRune(rune(s.PromotionPiece))
 	}
-	if this.Check {
+	if s.Check {
 		builder.WriteString("+")
 	}
-	if this.Checkmate {
+	if s.Checkmate {
 		builder.WriteString("#")
 	}
-	if this.EnPassant {
+	if s.EnPassant {
 		builder.WriteString(" e.p.")
 	}
 

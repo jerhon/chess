@@ -19,14 +19,14 @@ func NewFenParser(fen string) *FenParser {
 }
 
 // ParseBoard parses the first part of a fen string into a chess game with the pieces on the game
-func (this *FenParser) ParseBoard() (*game.ChessBoard, error) {
+func (p *FenParser) ParseBoard() (*game.ChessBoard, error) {
 
 	chessBoard := game.NewChessBoard()
 
 	rank := game.Rank8
 	file := game.FileA
 
-	c, _, err := this.reader.ReadRune()
+	c, _, err := p.reader.ReadRune()
 	for err == nil && c != ' ' {
 		if c == '/' {
 			rank--
@@ -42,7 +42,7 @@ func (this *FenParser) ParseBoard() (*game.ChessBoard, error) {
 			file++
 		}
 
-		c, _, err = this.reader.ReadRune()
+		c, _, err = p.reader.ReadRune()
 	}
 
 	return chessBoard, nil
@@ -80,13 +80,13 @@ func GetChessPieceFromFenRune(r rune) (game.ChessPiece, error) {
 	}
 }
 
-func (this *FenParser) ParsePlayerToMove() (game.ColorType, error) {
-	fenPlayerToMove, _, err := this.reader.ReadRune()
+func (p *FenParser) ParsePlayerToMove() (game.ColorType, error) {
+	fenPlayerToMove, _, err := p.reader.ReadRune()
 	if err != nil {
 		return game.NoColor, fmt.Errorf("invalid FEN player to move, expected 'w' or 'b', but reached end of string")
 	}
 
-	piece := game.NoColor
+	var piece game.ColorType
 	switch fenPlayerToMove {
 	case 'w':
 		piece = game.WhitePiece
@@ -98,7 +98,7 @@ func (this *FenParser) ParsePlayerToMove() (game.ColorType, error) {
 	}
 
 	// Advance past whitespace if it exists
-	fenPlayerToMove, _, err = this.reader.ReadRune()
+	fenPlayerToMove, _, err = p.reader.ReadRune()
 	if err == nil && fenPlayerToMove != ' ' {
 		return game.NoColor, fmt.Errorf("invalid FEN player to move, expected ' ' after player to move, saw: %c", fenPlayerToMove)
 	}
@@ -106,8 +106,8 @@ func (this *FenParser) ParsePlayerToMove() (game.ColorType, error) {
 	return piece, nil
 }
 
-func (this *FenParser) ParseCastlingRights() (whiteCastlingRights game.CastlingRights, blackCastlingRights game.CastlingRights, err error) {
-	fenCastlingRights, _, err := this.reader.ReadRune()
+func (p *FenParser) ParseCastlingRights() (whiteCastlingRights game.CastlingRights, blackCastlingRights game.CastlingRights, err error) {
+	fenCastlingRights, _, err := p.reader.ReadRune()
 	if fenCastlingRights != '-' {
 		for fenCastlingRights != ' ' && err == nil {
 			switch fenCastlingRights {
@@ -123,11 +123,11 @@ func (this *FenParser) ParseCastlingRights() (whiteCastlingRights game.CastlingR
 				return game.CastlingRights{}, game.CastlingRights{}, fmt.Errorf("invalid FEN castling rights, expected 'K', 'Q', 'k', or 'q', saw: %c", fenCastlingRights)
 			}
 
-			fenCastlingRights, _, err = this.reader.ReadRune()
+			fenCastlingRights, _, err = p.reader.ReadRune()
 		}
 	} else {
 
-		space, _, err := this.reader.ReadRune()
+		space, _, err := p.reader.ReadRune()
 		if err == nil && space != ' ' {
 			return game.CastlingRights{}, game.CastlingRights{}, fmt.Errorf("invalid FEN en passant target, expected space after rank, saw: %c", space)
 		}
@@ -154,8 +154,8 @@ func ParseRank(r rune) (game.RankType, error) {
 	}
 }
 
-func (this *FenParser) ParseEnPassantTarget() (game.ChessLocation, error) {
-	enPassantTarget, _, err := this.reader.ReadRune()
+func (p *FenParser) ParseEnPassantTarget() (game.ChessLocation, error) {
+	enPassantTarget, _, err := p.reader.ReadRune()
 
 	chessLocation := game.ChessLocation{}
 	if err != nil {
@@ -168,7 +168,7 @@ func (this *FenParser) ParseEnPassantTarget() (game.ChessLocation, error) {
 			return game.ChessLocation{}, fmt.Errorf("invalid FEN en passant target, expected file: %c", enPassantTarget)
 		}
 
-		enPassantTarget, _, err = this.reader.ReadRune()
+		enPassantTarget, _, err = p.reader.ReadRune()
 		if err != nil {
 			return game.ChessLocation{}, fmt.Errorf("invalid FEN en passant target, expected rank after file, saw: %c", enPassantTarget)
 		}
@@ -182,7 +182,7 @@ func (this *FenParser) ParseEnPassantTarget() (game.ChessLocation, error) {
 		chessLocation.Rank = rank
 	}
 
-	space, _, err := this.reader.ReadRune()
+	space, _, err := p.reader.ReadRune()
 	if err == nil && space != ' ' {
 		return game.ChessLocation{}, fmt.Errorf("invalid FEN en passant target, expected space after rank, saw: %c", space)
 	}
@@ -190,8 +190,8 @@ func (this *FenParser) ParseEnPassantTarget() (game.ChessLocation, error) {
 	return chessLocation, nil
 }
 
-func (this *FenParser) ParseHalfMoveClock() (int, error) {
-	fenHalfMoveClock, _, err := this.reader.ReadRune()
+func (p *FenParser) ParseHalfMoveClock() (int, error) {
+	fenHalfMoveClock, _, err := p.reader.ReadRune()
 	if err != nil {
 		return 0, nil
 	}
@@ -203,7 +203,7 @@ func (this *FenParser) ParseHalfMoveClock() (int, error) {
 	halfClock := 0
 	for unicode.IsDigit(fenHalfMoveClock) && err == nil {
 		halfClock = halfClock*10 + int(fenHalfMoveClock-'0')
-		fenHalfMoveClock, _, err = this.reader.ReadRune()
+		fenHalfMoveClock, _, err = p.reader.ReadRune()
 	}
 
 	if err == nil && fenHalfMoveClock != ' ' {
@@ -213,8 +213,8 @@ func (this *FenParser) ParseHalfMoveClock() (int, error) {
 	return halfClock, nil
 }
 
-func (this *FenParser) ParseFullMoveNumber() (int, error) {
-	fenFullMoveNumber, _, err := this.reader.ReadRune()
+func (p *FenParser) ParseFullMoveNumber() (int, error) {
+	fenFullMoveNumber, _, err := p.reader.ReadRune()
 	if err != nil {
 		return 0, nil
 	}
@@ -226,7 +226,7 @@ func (this *FenParser) ParseFullMoveNumber() (int, error) {
 	fullMoveNumber := 0
 	for unicode.IsDigit(fenFullMoveNumber) && err == nil {
 		fullMoveNumber = fullMoveNumber*10 + int(fenFullMoveNumber-'0')
-		fenFullMoveNumber, _, err = this.reader.ReadRune()
+		fenFullMoveNumber, _, err = p.reader.ReadRune()
 	}
 
 	if err == nil && fenFullMoveNumber != ' ' {

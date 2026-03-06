@@ -49,6 +49,7 @@ func (calculator *ChessMovement) Calculate() {
 
 	calculator.calculateCandidateMoves()
 	calculator.calculateCheck()
+	calculator.calculateCanCastle()
 	calculator.calculateValidMoves()
 	calculator.Calculated = true
 }

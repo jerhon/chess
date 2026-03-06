@@ -262,8 +262,6 @@ func anyIntPtrSet(g CmdGo) bool {
 	return g.WTime != nil || g.BTime != nil || g.WInc != nil || g.BInc != nil || g.MovesToGo != nil || g.Depth != nil || g.Nodes != nil || g.Mate != nil || g.MoveTime != nil
 }
 
-type onlyType[T any] interface{}
-
 func isType[T any](v any) bool {
 	_, ok := v.(T)
 	return ok

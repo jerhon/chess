@@ -33,7 +33,6 @@ func (b ChessBoard) IterateSquares() iter.Seq[ChessSquare] {
 				yield(b.GetSquare(ChessLocation{file, rank}))
 			}
 		}
-		return
 	}
 }
 

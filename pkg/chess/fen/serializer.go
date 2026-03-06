@@ -12,7 +12,8 @@ type FenSerializer struct {
 
 func GetRuneFromChessPiece(piece game.ChessPiece) rune {
 
-	if piece.Color == game.WhitePiece {
+	switch piece.Color {
+	case game.WhitePiece:
 		switch piece.Piece {
 		case game.Pawn:
 			return 'P'
@@ -28,7 +29,7 @@ func GetRuneFromChessPiece(piece game.ChessPiece) rune {
 			return 'K'
 		case game.NoPiece:
 		}
-	} else if piece.Color == game.BlackPiece {
+	case game.BlackPiece:
 		switch piece.Piece {
 		case game.Pawn:
 			return 'p'
@@ -54,61 +55,61 @@ func NewFenSerializer() *FenSerializer {
 	}
 }
 
-func (this *FenSerializer) String() string {
-	return this.builder.String()
+func (s *FenSerializer) String() string {
+	return s.builder.String()
 }
 
-func (this *FenSerializer) WriteBoard(chessBoard *game.ChessBoard) {
+func (s *FenSerializer) WriteBoard(chessBoard *game.ChessBoard) {
 	emptySquares := 0
 	for square := range chessBoard.IterateSquares() {
 		if square.Piece.Piece == game.NoPiece {
 			emptySquares++
 		} else {
 			if emptySquares > 0 {
-				this.builder.WriteString(fmt.Sprintf("%d", emptySquares))
+				fmt.Fprintf(&s.builder, "%d", emptySquares)
 			}
-			this.builder.WriteRune(GetRuneFromChessPiece(square.Piece))
+			s.builder.WriteRune(GetRuneFromChessPiece(square.Piece))
 			emptySquares = 0
 		}
 
 		if square.Location.File == game.FileH {
 			if emptySquares > 0 {
-				this.builder.WriteString(fmt.Sprintf("%d", emptySquares))
+				fmt.Fprintf(&s.builder, "%d", emptySquares)
 			}
 			emptySquares = 0
 			if square.Location.Rank != game.Rank1 {
-				this.builder.WriteRune('/')
+				s.builder.WriteRune('/')
 			}
 		}
 	}
 }
 
-func (this *FenSerializer) WritePlayerToMove(playerColor game.ColorType) {
+func (s *FenSerializer) WritePlayerToMove(playerColor game.ColorType) {
 	if playerColor == game.WhitePiece {
-		this.builder.WriteString("w")
+		s.builder.WriteString("w")
 	} else {
-		this.builder.WriteString("b")
+		s.builder.WriteString("b")
 	}
 }
 
-func (this *FenSerializer) WriteCastlingRights(castlingRights game.CastlingRights, playerColor game.ColorType) bool {
+func (s *FenSerializer) WriteCastlingRights(castlingRights game.CastlingRights, playerColor game.ColorType) bool {
 	result := false
 	if playerColor == game.WhitePiece {
 		if castlingRights.KingSide {
-			this.builder.WriteString("K")
+			s.builder.WriteString("K")
 			result = true
 		}
 		if castlingRights.QueenSide {
-			this.builder.WriteString("Q")
+			s.builder.WriteString("Q")
 			result = true
 		}
 	} else {
 		if castlingRights.KingSide {
-			this.builder.WriteString("k")
+			s.builder.WriteString("k")
 			result = true
 		}
 		if castlingRights.QueenSide {
-			this.builder.WriteString("q")
+			s.builder.WriteString("q")
 			result = true
 		}
 	}
@@ -116,29 +117,29 @@ func (this *FenSerializer) WriteCastlingRights(castlingRights game.CastlingRight
 	return result
 }
 
-func (this *FenSerializer) WriteEmpty() {
-	this.builder.WriteRune('-')
+func (s *FenSerializer) WriteEmpty() {
+	s.builder.WriteRune('-')
 }
 
-func (this *FenSerializer) WriteEnPassantTarget(position game.ChessLocation) {
+func (s *FenSerializer) WriteEnPassantTarget(position game.ChessLocation) {
 	if position.File != game.NoFile && position.Rank != game.NoRank {
-		this.builder.WriteString(string(position.File))
-		this.builder.WriteString(string(position.Rank))
+		s.builder.WriteString(string(position.File))
+		s.builder.WriteString(string(position.Rank))
 	} else {
-		this.builder.WriteRune('-')
+		s.builder.WriteRune('-')
 	}
 }
 
-func (this *FenSerializer) WriteHalfMoveClock(halfMoveClock int) {
-	this.builder.WriteString(fmt.Sprintf("%d", halfMoveClock))
+func (s *FenSerializer) WriteHalfMoveClock(halfMoveClock int) {
+	fmt.Fprintf(&s.builder, "%d", halfMoveClock)
 }
 
-func (this *FenSerializer) WriteFullMoveNumber(fullMoveNumber int) {
-	this.builder.WriteString(fmt.Sprintf("%d", fullMoveNumber))
+func (s *FenSerializer) WriteFullMoveNumber(fullMoveNumber int) {
+	fmt.Fprintf(&s.builder, "%d", fullMoveNumber)
 }
 
-func (this *FenSerializer) WriteSpacer() {
-	this.builder.WriteRune(' ')
+func (s *FenSerializer) WriteSpacer() {
+	s.builder.WriteRune(' ')
 }
 
 func ToFenString(s *game.ChessPosition) string {
