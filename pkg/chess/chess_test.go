@@ -1,0 +1,93 @@
+package chess
+
+import (
+	"testing"
+
+	"github.com/jerhon/chess/pkg/chess/game"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestGetLegalMoves_NotNilOnNewGame(t *testing.T) {
+	g := NewGame()
+	moves := g.GetLegalMoves()
+	assert.NotNil(t, moves)
+	assert.NotEmpty(t, moves)
+}
+
+func TestGetLegalMoves_AllMovesCanBeExecuted(t *testing.T) {
+	g := NewGame()
+	moves := g.GetLegalMoves()
+	// Every returned move must either be executable (CanMove) or a castling move
+	for _, move := range moves {
+		assert.True(t, move.CanMove || move.IsCastle,
+			"expected move %s to have CanMove=true or IsCastle=true", move.String())
+	}
+}
+
+func TestGetLegalMoves_ContainsExpectedPawnMoves(t *testing.T) {
+	g := NewGame()
+	moves := g.GetLegalMoves()
+
+	// Standard starting position should include all 16 pawn forward moves (e.g. e2-e4)
+	expectedPawnMoves := []struct{ from, to string }{
+		{"e2", "e4"}, {"e2", "e3"},
+		{"d2", "d4"}, {"d2", "d3"},
+	}
+
+	for _, expected := range expectedPawnMoves {
+		found := false
+		for _, move := range moves {
+			if move.From.Location.String() == expected.from && move.To.String() == expected.to {
+				found = true
+				break
+			}
+		}
+		assert.True(t, found, "expected pawn move %s-%s to be in legal moves", expected.from, expected.to)
+	}
+}
+
+func TestGetLegalMoves_ContainsKnightMoves(t *testing.T) {
+	g := NewGame()
+	moves := g.GetLegalMoves()
+
+	// Both knights should have at least one valid move in the starting position
+	knightMoveDestinations := map[string]bool{}
+	for _, move := range moves {
+		if move.From.Piece.Piece == game.Knight {
+			knightMoveDestinations[move.To.String()] = true
+		}
+	}
+
+	assert.True(t, knightMoveDestinations["c3"], "expected Nb1-c3 to be in legal moves")
+	assert.True(t, knightMoveDestinations["a3"], "expected Nb1-a3 to be in legal moves")
+	assert.True(t, knightMoveDestinations["f3"], "expected Ng1-f3 to be in legal moves")
+	assert.True(t, knightMoveDestinations["h3"], "expected Ng1-h3 to be in legal moves")
+}
+
+func TestGetLegalMoves_ReturnsMovesForCurrentPlayer(t *testing.T) {
+	g := NewGame()
+	moves := g.GetLegalMoves()
+	// All starting moves should belong to White pieces
+	for _, move := range moves {
+		assert.Equal(t, g.GetPosition().PlayerToMove, move.From.Piece.Color,
+			"each legal move should be for the current player")
+	}
+}
+
+func TestGetLegalMoves_AfterMove_SwitchesToOpponent(t *testing.T) {
+	g := NewGame()
+
+	ok, err := g.TrySanMove("e4")
+	assert.True(t, ok)
+	assert.NoError(t, err)
+
+	moves := g.GetLegalMoves()
+	assert.NotEmpty(t, moves)
+
+	// After white plays e4, it is black's turn
+	for _, move := range moves {
+		assert.Equal(t, g.GetPosition().PlayerToMove, move.From.Piece.Color,
+			"each legal move after e4 should be for Black")
+	}
+}
+
