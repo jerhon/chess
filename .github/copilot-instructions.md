@@ -109,13 +109,3 @@ GitHub Actions (`.github/workflows/verify.yml`) runs three jobs on every push an
 
 All three jobs must pass before a PR can be merged.
 
-## Known Issues and Limitations
-
-See `TODO.md` for the full list. Key items:
-
-- Castling result is not applied in `ChessGame.castleKingSide` / `castleQueenSide` (result of `CastleKingside()` is discarded).
-- Castling rights are not preserved across ordinary moves in `position.Move()`.
-- En passant capture removes the wrong square.
-- Pawn promotion is parsed but not executed.
-- The 50-move rule, threefold repetition, and insufficient-material draws are not enforced.
-- Move validation is O(n²); see the TODO for optimization notes.
