@@ -1,6 +1,9 @@
 name: Create TODO Issues
 
 on:
+  push:
+    branches: [ main ]
+    paths: [ 'TODO.md', '.github/workflows/create-todo-issues.yml' ]
   workflow_dispatch:
 
 jobs:
@@ -20,14 +23,33 @@ jobs:
           gh label create "bug" --color "d73a4a" --description "Something isn't working" 2>/dev/null || true
           gh label create "enhancement" --color "a2eeef" --description "New feature or request" 2>/dev/null || true
 
-      - name: Create issues for Critical Bugs
+      - name: Create issues from TODO.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh issue create \
-            --title "Bug: Castling Not Applied in ChessGame" \
-            --label "bug" \
-            --body "## Description
+          # Helper: create an issue only if no open/closed issue with the same title exists
+          create_issue_if_missing() {
+            local title="$1"
+            local label="$2"
+            local body="$3"
+
+            existing=$(gh issue list --state all --search "$title" --json title \
+              --jq ".[] | select(.title == \"$title\") | .title" 2>/dev/null | head -1)
+
+            if [ -n "$existing" ]; then
+              echo "Issue already exists, skipping: $title"
+            else
+              echo "Creating issue: $title"
+              gh issue create --title "$title" --label "$label" --body "$body"
+            fi
+          }
+
+          # ── Critical Bugs ────────────────────────────────────────────────────
+
+          create_issue_if_missing \
+            "Bug: Castling Not Applied in ChessGame" \
+            "bug" \
+            "## Description
 
           **File:** \`pkg/chess/chess.go\` — \`castleKingSide()\` / \`castleQueenSide()\`
 
@@ -47,12 +69,12 @@ jobs:
           g.position = g.position.CastleKingside()
           \`\`\`
 
-          _Tracked in TODO.md under Critical Bugs_" || true
+          _Tracked in TODO.md under Critical Bugs_"
 
-          gh issue create \
-            --title "Bug: Castling Rights Lost After Every Move" \
-            --label "bug" \
-            --body "## Description
+          create_issue_if_missing \
+            "Bug: Castling Rights Lost After Every Move" \
+            "bug" \
+            "## Description
 
           **File:** \`pkg/chess/game/position.go\` — \`Move()\`
 
@@ -62,12 +84,12 @@ jobs:
 
           The \`Move()\` function must copy the current castling rights to the new position and only revoke them when a king or rook moves from its starting square.
 
-          _Tracked in TODO.md under Critical Bugs_" || true
+          _Tracked in TODO.md under Critical Bugs_"
 
-          gh issue create \
-            --title "Bug: En Passant Capture Removes the Wrong Square" \
-            --label "bug" \
-            --body "## Description
+          create_issue_if_missing \
+            "Bug: En Passant Capture Removes the Wrong Square" \
+            "bug" \
+            "## Description
 
           **File:** \`pkg/chess/game/position.go\` — \`Move()\`
 
@@ -90,16 +112,14 @@ jobs:
           newBoard.SetSquare(ChessLocation{toLocation.File, fromLocation.Rank}, ChessPiece{NoPiece, NoColor})
           \`\`\`
 
-          _Tracked in TODO.md under Critical Bugs_" || true
+          _Tracked in TODO.md under Critical Bugs_"
 
-      - name: Create issues for Missing Features
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh issue create \
-            --title "Feature: Implement Pawn Promotion" \
-            --label "enhancement" \
-            --body "## Description
+          # ── Missing Features ─────────────────────────────────────────────────
+
+          create_issue_if_missing \
+            "Feature: Implement Pawn Promotion" \
+            "enhancement" \
+            "## Description
 
           **File:** \`pkg/chess/game/position.go\` — \`Move()\` / \`pkg/chess/chess.go\` — \`TrySanMove()\`
 
@@ -112,12 +132,12 @@ jobs:
           - Implement actual replacement of the pawn in \`Move()\`.
           - Update \`TrySanMove()\` to pass the chosen piece through.
 
-          _Tracked in TODO.md under Missing Features_" || true
+          _Tracked in TODO.md under Missing Features_"
 
-          gh issue create \
-            --title "Feature: Enforce the 50-Move Rule" \
-            --label "enhancement" \
-            --body "## Description
+          create_issue_if_missing \
+            "Feature: Enforce the 50-Move Rule" \
+            "enhancement" \
+            "## Description
 
           **File:** \`pkg/chess/game/movement.go\` — \`calculateValidMoves()\`
 
@@ -127,12 +147,12 @@ jobs:
 
           In \`calculateValidMoves()\` (or wherever game-over conditions are evaluated), check \`HalfmoveClock >= 100\` and declare the game a draw.
 
-          _Tracked in TODO.md under Missing Features_" || true
+          _Tracked in TODO.md under Missing Features_"
 
-          gh issue create \
-            --title "Feature: Detect Threefold Repetition" \
-            --label "enhancement" \
-            --body "## Description
+          create_issue_if_missing \
+            "Feature: Detect Threefold Repetition" \
+            "enhancement" \
+            "## Description
 
           **File:** \`pkg/chess/chess.go\`
 
@@ -144,12 +164,12 @@ jobs:
           - After each move, record the new position.
           - If any position occurs three times, declare the game a draw.
 
-          _Tracked in TODO.md under Missing Features_" || true
+          _Tracked in TODO.md under Missing Features_"
 
-          gh issue create \
-            --title "Feature: Detect Insufficient Mating Material" \
-            --label "enhancement" \
-            --body "## Description
+          create_issue_if_missing \
+            "Feature: Detect Insufficient Mating Material" \
+            "enhancement" \
+            "## Description
 
           **File:** \`pkg/chess/game/movement.go\`
 
@@ -164,12 +184,12 @@ jobs:
 
           Implement an insufficient-material check in the move generation / game-over evaluation code and declare a draw when one of these conditions is met.
 
-          _Tracked in TODO.md under Missing Features_" || true
+          _Tracked in TODO.md under Missing Features_"
 
-          gh issue create \
-            --title "Feature: Add Game Result / Status Type" \
-            --label "enhancement" \
-            --body "## Description
+          create_issue_if_missing \
+            "Feature: Add Game Result / Status Type" \
+            "enhancement" \
+            "## Description
 
           **File:** \`pkg/chess/chess.go\` / \`pkg/chess/game/movement.go\`
 
@@ -181,16 +201,14 @@ jobs:
           - Include a \`DrawReason\` type for the various draw causes.
           - Expose the game result on \`ChessGame\` and update it after each move.
 
-          _Tracked in TODO.md under Missing Features_" || true
+          _Tracked in TODO.md under Missing Features_"
 
-      - name: Create issues for Minor Issues
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh issue create \
-            --title "Bug: PGN Parser Silently Ignores Invalid Escape Sequences" \
-            --label "bug" \
-            --body "## Description
+          # ── Minor Issues ─────────────────────────────────────────────────────
+
+          create_issue_if_missing \
+            "Bug: PGN Parser Silently Ignores Invalid Escape Sequences" \
+            "bug" \
+            "## Description
 
           **File:** \`pkg/chess/pgn/tokens.go:132\`
 
@@ -202,31 +220,48 @@ jobs:
 
           Return a parser error (or emit a warning) when an unrecognised escape sequence is encountered inside a PGN quoted string.
 
-          _Tracked in TODO.md under Minor Issues_" || true
+          _Tracked in TODO.md under Minor Issues_"
 
-          gh issue create \
-            --title "Bug: Castling Rights Update Is Incomplete for Rook Moves" \
-            --label "bug" \
-            --body "## Description
+          create_issue_if_missing \
+            "Bug: Castling Rights Update Is Incomplete for Rook Moves" \
+            "bug" \
+            "## Description
 
-          **File:** \`pkg/chess/game/position.go\` — \`Move()\`
+          **File:** \`pkg/chess/game/position.go\` — \`Move()\` (around line 149)
 
-          The rook-move castling-rights update only handles a few cases and checks \`FileE\` for a rook, which is not a starting rook file. It should handle both White and Black rooks moving away from their starting squares (\`FileA\` / \`FileH\`).
+          The rook-move castling-rights update only handles Black's rook on \`FileA\`, and incorrectly checks \`FileE\` (the king file) instead of \`FileH\` for the kingside rook. There is also no equivalent handling for White's rooks at all.
+
+          ## Current Buggy Code
+
+          \`\`\`go
+          if fromSquare.Piece.Piece == Rook {
+              currentCastlingRights := position.CastlingRights[position.PlayerToMove]
+              if position.PlayerToMove == BlackPiece {
+                  if fromLocation.File == FileE {  // Bug: should be FileH (kingside rook)
+                      castlingRights[position.PlayerToMove] = CastlingRights{QueenSide: currentCastlingRights.QueenSide, KingSide: false}
+                  }
+                  if fromLocation.File == FileA {
+                      castlingRights[position.PlayerToMove] = CastlingRights{QueenSide: false, KingSide: currentCastlingRights.KingSide}
+                  }
+              }
+              // Bug: no handling for WhitePiece rooks at all
+          }
+          \`\`\`
 
           ## Required Changes
 
-          Update the castling-rights logic in \`Move()\` to correctly revoke castling rights when a rook moves from or is captured on \`FileA\` or \`FileH\` at the appropriate rank for each colour.
+          - Fix \`FileE\` → \`FileH\` for Black's kingside rook check.
+          - Add equivalent logic for White's rooks (\`FileA\`/\`FileH\` on \`Rank1\`).
+          - Ensure castling rights are also revoked when a rook is *captured* on its starting square.
 
-          _Tracked in TODO.md under Minor Issues_" || true
+          _Tracked in TODO.md under Minor Issues_"
 
-      - name: Create issues for Performance
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh issue create \
-            --title "Performance: Move Validation Is O(n^2)" \
-            --label "enhancement" \
-            --body "## Description
+          # ── Performance ──────────────────────────────────────────────────────
+
+          create_issue_if_missing \
+            "Performance: Move Validation Is O(n^2)" \
+            "enhancement" \
+            "## Description
 
           **File:** \`pkg/chess/game/movement.go:144\`
 
@@ -239,16 +274,14 @@ jobs:
           - Implement incremental check detection instead of full recalculation.
           - Consider using a pin/attack bitboard to precompute attacked squares.
 
-          _Tracked in TODO.md under Performance_" || true
+          _Tracked in TODO.md under Performance_"
 
-      - name: Create issues for Public API Gaps
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh issue create \
-            --title "Enhancement: Export castleKingSide() / castleQueenSide() on ChessGame" \
-            --label "enhancement" \
-            --body "## Description
+          # ── Public API Gaps ───────────────────────────────────────────────────
+
+          create_issue_if_missing \
+            "Enhancement: Export castleKingSide() / castleQueenSide() on ChessGame" \
+            "enhancement" \
+            "## Description
 
           \`castleKingSide()\` / \`castleQueenSide()\` on \`ChessGame\` are unexported; callers cannot initiate castling independently of \`TrySanMove()\`.
 
@@ -256,12 +289,12 @@ jobs:
 
           Export these methods (rename to \`CastleKingSide()\` / \`CastleQueenSide()\`) so external packages can initiate castling directly.
 
-          _Tracked in TODO.md under Public API Gaps_" || true
+          _Tracked in TODO.md under Public API Gaps_"
 
-          gh issue create \
-            --title "Enhancement: Add Coordinate-Based Move Method to ChessGame" \
-            --label "enhancement" \
-            --body "## Description
+          create_issue_if_missing \
+            "Enhancement: Add Coordinate-Based Move Method to ChessGame" \
+            "enhancement" \
+            "## Description
 
           There is no coordinate-based move method; callers must always use SAN notation. This makes it harder to integrate external engines or GUIs that work with square coordinates.
 
@@ -269,12 +302,12 @@ jobs:
 
           Add a method such as \`TryMove(from, to ChessLocation) error\` (or similar) that accepts source/destination coordinates rather than SAN notation.
 
-          _Tracked in TODO.md under Public API Gaps_" || true
+          _Tracked in TODO.md under Public API Gaps_"
 
-          gh issue create \
-            --title "Enhancement: Expose Valid Move List Publicly" \
-            --label "enhancement" \
-            --body "## Description
+          create_issue_if_missing \
+            "Enhancement: Expose Valid Move List Publicly" \
+            "enhancement" \
+            "## Description
 
           The valid-move list is not exposed publicly, preventing external GUIs or engines from enumerating legal moves without parsing SAN.
 
@@ -282,4 +315,4 @@ jobs:
 
           Add a public method on \`ChessGame\` (or \`ChessPosition\`) that returns the list of legal moves for the current position, using a convenient representation (e.g., \`[]ChessMove\` or \`[]string\` in SAN/UCI format).
 
-          _Tracked in TODO.md under Public API Gaps_" || true
+          _Tracked in TODO.md under Public API Gaps_"
