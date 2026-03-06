@@ -121,3 +121,16 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 func (g *ChessGame) GetPosition() *game.ChessPosition {
 	return g.position
 }
+
+// GetLegalMoves returns all legal moves available for the current player in the current position.
+// Only moves that can actually be executed are returned (moves where CanMove is true, or castling moves).
+func (g *ChessGame) GetLegalMoves() []game.ChessMove {
+	g.calculate()
+	legalMoves := make([]game.ChessMove, 0, len(g.moves.Moves))
+	for _, move := range g.moves.Moves {
+		if move.CanMove || move.IsCastle {
+			legalMoves = append(legalMoves, move)
+		}
+	}
+	return legalMoves
+}
