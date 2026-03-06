@@ -121,3 +121,27 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 func (g *ChessGame) GetPosition() *game.ChessPosition {
 	return g.position
 }
+
+// GetMoves returns the list of valid moves for the current player.
+func (g *ChessGame) GetMoves() []game.ChessMove {
+	g.calculate()
+	return g.moves.Moves
+}
+
+// IsCheckmate returns true if the current player is in checkmate.
+func (g *ChessGame) IsCheckmate() bool {
+	g.calculate()
+	return g.moves.IsCheckmate
+}
+
+// IsStalemate returns true if the current player is in stalemate.
+func (g *ChessGame) IsStalemate() bool {
+	g.calculate()
+	return g.moves.IsStalemate
+}
+
+// IsCheck returns true if the current player is in check.
+func (g *ChessGame) IsCheck() bool {
+	g.calculate()
+	return g.moves.Check[g.position.PlayerToMove]
+}
