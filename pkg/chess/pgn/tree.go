@@ -173,7 +173,7 @@ func (p *PgnGameParser) Parse() (PgnGame, error) {
 
 	var err error = nil
 	if len(parseErrors) > 0 {
-		err = fmt.Errorf("One or more errors occurred parsing the PGN: %s", parseErrors)
+		err = fmt.Errorf("one or more errors occurred parsing the PGN: %s", parseErrors)
 	}
 
 	return PgnGame{tags, elements, result}, err
