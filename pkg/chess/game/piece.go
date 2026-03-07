@@ -19,26 +19,34 @@ type ChessPiece struct {
 	Color ColorType
 }
 
-// PrettyString returns the solid Unicode chess piece glyph for the piece.
-// Both White and Black use the filled (solid) variants; the caller is
-// responsible for applying foreground color to distinguish the two players.
+// PrettyString returns the Unicode chess piece glyph for the piece.
+// White pieces use the outline/hollow variants (U+2654–U+2659) and
+// Black pieces use the solid/filled variants (U+265A–U+265F), matching
+// the standard Unicode chess character convention.
 func (s ChessPiece) PrettyString() string {
+	// Black/solid piece codepoints: ♚♛♜♝♞♟ (U+265A–U+265F).
+	// White/hollow variants are exactly 6 codepoints lower: ♔♕♖♗♘♙ (U+2654–U+2659).
+	var base rune
 	switch s.Piece {
-	case Pawn:
-		return "\u265F"
-	case Knight:
-		return "\u265E"
-	case Bishop:
-		return "\u265D"
-	case Rook:
-		return "\u265C"
-	case Queen:
-		return "\u265B"
 	case King:
-		return "\u265A"
+		base = '\u265A'
+	case Queen:
+		base = '\u265B'
+	case Rook:
+		base = '\u265C'
+	case Bishop:
+		base = '\u265D'
+	case Knight:
+		base = '\u265E'
+	case Pawn:
+		base = '\u265F'
 	default:
 		return " "
 	}
+	if s.Color == WhitePiece {
+		base -= 6
+	}
+	return string(base)
 }
 
 // IsValid checks if the ChessPiece is a valid option.
