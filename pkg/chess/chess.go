@@ -128,6 +128,19 @@ func (g *ChessGame) GetMoves() []game.ChessMove {
 	return g.moves.Moves
 }
 
+// GetLegalMoves returns all legal moves available for the current player in the current position.
+// Only moves that can actually be executed are returned (moves where CanMove is true, or castling moves).
+func (g *ChessGame) GetLegalMoves() []game.ChessMove {
+	g.calculate()
+	legalMoves := make([]game.ChessMove, 0, len(g.moves.Moves))
+	for _, move := range g.moves.Moves {
+		if move.CanMove || move.IsCastle {
+			legalMoves = append(legalMoves, move)
+		}
+	}
+	return legalMoves
+}
+
 // IsCheckmate returns true if the current player is in checkmate.
 func (g *ChessGame) IsCheckmate() bool {
 	g.calculate()
