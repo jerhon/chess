@@ -141,7 +141,8 @@ func (calculator *ChessMovement) isPathUnderAttack(kingLocation ChessLocation, t
 	return false
 }
 
-// CalculateValidMoves this will calculate any valid moves (moves that won't put the king in check)
+// calculateValidMoves filters candidate moves down to only legal moves: moves that can actually be
+// made (CanMove is true) and that do not leave the current player's king in check.
 func (calculator *ChessMovement) calculateValidMoves() {
 
 	// King has special logic, it cannot step into check
