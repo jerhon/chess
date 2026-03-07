@@ -27,8 +27,29 @@ var simpleTokenTests = []struct {
 	{"$12345", NumericAnnotationGlyph, "12345"},
 	{".", Period, "."},
 	{"\"string\"", String, "string"},
+	{"\"str\\\\ing\"", String, "str\\ing"},
+	{"\"str\\\"ing\"", String, "str\"ing"},
 	{"%escape string", Escape, "escape string"},
 	{"1/2-1/2", Symbol, "1/2-1/2"},
+}
+
+var invalidEscapeSequenceTests = []struct {
+	inputString string
+}{
+	{"\"\\n\""},
+	{"\"\\t\""},
+	{"\"\\q\""},
+}
+
+func TestInvalidEscapeSequencesReturnError(t *testing.T) {
+	for _, tt := range invalidEscapeSequenceTests {
+		t.Run(tt.inputString, func(t *testing.T) {
+			tokenReader := CreateObjUnderTest(tt.inputString)
+			_, err := tokenReader.ReadTokens()
+
+			assert.NotNil(t, err)
+		})
+	}
 }
 
 func TestSimpleTokenMatches(t *testing.T) {
