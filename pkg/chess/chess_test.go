@@ -93,9 +93,9 @@ func TestGetLegalMoves_AfterMove_SwitchesToOpponent(t *testing.T) {
 
 
 func TestGetResult_InProgressAtStart(t *testing.T) {
-g := NewGame()
-assert.Equal(t, game.InProgress, g.GetResult())
-assert.False(t, g.GetResult().IsDecided())
+	g := NewGame()
+	assert.Equal(t, game.InProgress, g.GetResult())
+	assert.False(t, g.GetResult().IsDecided())
 }
 
 func TestGetResult_CheckmateIsDecided(t *testing.T) {
@@ -143,8 +143,6 @@ func TestGetResult_NoMoreMovesAfterGameOver(t *testing.T) {
 		HalfmoveClock:   0,
 		FullmoveNumber:  1,
 	}
-	moves := game.NewChessMovement(pos)
-	moves.Calculate()
 	g := NewGameFromPosition(pos)
 	ok, err := g.TrySanMove("Kg8")
 	assert.False(t, ok)
@@ -152,23 +150,24 @@ func TestGetResult_NoMoreMovesAfterGameOver(t *testing.T) {
 }
 
 func TestGetResult_DrawInsufficientMaterial(t *testing.T) {
-// Build a K vs K position through the FEN path via game package directly.
-pos := game.NewStandardStartingPosition()
-// Place only the two kings on an otherwise empty board.
-board := game.NewChessBoard()
-board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank1}, game.ChessPiece{Piece: game.King, Color: game.WhitePiece})
-board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank8}, game.ChessPiece{Piece: game.King, Color: game.BlackPiece})
+	// Build a K vs K position directly, which is insufficient material for either side.
+	board := game.NewChessBoard()
+	board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank1}, game.ChessPiece{Piece: game.King, Color: game.WhitePiece})
+	board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank8}, game.ChessPiece{Piece: game.King, Color: game.BlackPiece})
 
-movement := game.NewChessMovement(&game.ChessPosition{
-Board:           board,
-PlayerToMove:    pos.PlayerToMove,
-CastlingRights:  pos.CastlingRights,
-EnPassantSquare: game.ChessLocation{},
-HalfmoveClock:   0,
-FullmoveNumber:  1,
-})
-movement.Calculate()
+	movement := game.NewChessMovement(&game.ChessPosition{
+		Board:        board,
+		PlayerToMove: game.WhitePiece,
+		CastlingRights: map[game.ColorType]game.CastlingRights{
+			game.WhitePiece: {},
+			game.BlackPiece: {},
+		},
+		EnPassantSquare: game.ChessLocation{},
+		HalfmoveClock:   0,
+		FullmoveNumber:  1,
+	})
+	movement.Calculate()
 
-assert.Equal(t, game.DrawInsufficientMaterial, movement.Result)
-assert.True(t, movement.Result.IsDraw())
+	assert.Equal(t, game.DrawInsufficientMaterial, movement.Result)
+	assert.True(t, movement.Result.IsDraw())
 }
