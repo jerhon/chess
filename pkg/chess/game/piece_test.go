@@ -11,32 +11,32 @@ func TestChessPiece_String(t *testing.T) {
 		{
 			name:  "White Pawn",
 			piece: ChessPiece{Piece: Pawn, Color: WhitePiece},
-			want:  "\u2659",
+			want:  "\u265F",
 		},
 		{
 			name:  "White Knight",
 			piece: ChessPiece{Piece: Knight, Color: WhitePiece},
-			want:  "\u2658",
+			want:  "\u265E",
 		},
 		{
 			name:  "White Bishop",
 			piece: ChessPiece{Piece: Bishop, Color: WhitePiece},
-			want:  "\u2657",
+			want:  "\u265D",
 		},
 		{
 			name:  "White Rook",
 			piece: ChessPiece{Piece: Rook, Color: WhitePiece},
-			want:  "\u2656",
+			want:  "\u265C",
 		},
 		{
 			name:  "White Queen",
 			piece: ChessPiece{Piece: Queen, Color: WhitePiece},
-			want:  "\u2655",
+			want:  "\u265B",
 		},
 		{
 			name:  "White King",
 			piece: ChessPiece{Piece: King, Color: WhitePiece},
-			want:  "\u2654",
+			want:  "\u265A",
 		},
 		{
 			name:  "Black Pawn",

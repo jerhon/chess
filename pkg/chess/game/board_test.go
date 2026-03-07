@@ -68,8 +68,8 @@ func TestChessBoard_String(t *testing.T) {
 5 ********
 4 ********
 3 ********
-2 ♙♙♙♙♙♙♙♙
-1 ♖♘♗♕♔♗♘♖
+2 ♟♟♟♟♟♟♟♟
+1 ♜♞♝♛♚♝♞♜
   abcdefgh`,
 		},
 		{
@@ -86,7 +86,7 @@ func TestChessBoard_String(t *testing.T) {
 6 ****♞***
 5 ********
 4 ********
-3 **♕*****
+3 **♛*****
 2 ********
 1 ********
   abcdefgh`,

@@ -58,12 +58,14 @@ var (
 
 	// Chess board square colors — classic Lichess palette.
 	lightSquareStyle = lipgloss.NewStyle().
-				Background(lipgloss.Color("#F0D9B5")).
-				Foreground(lipgloss.Color("#1a1a1a"))
+				Background(lipgloss.Color("#F0D9B5"))
 
 	darkSquareStyle = lipgloss.NewStyle().
-			Background(lipgloss.Color("#B58863")).
-			Foreground(lipgloss.Color("#1a1a1a"))
+			Background(lipgloss.Color("#B58863"))
+
+	// Piece foreground colors: white pieces render bright, black pieces render dark.
+	whitePieceFg = lipgloss.Color("#FFFFFF")
+	blackPieceFg = lipgloss.Color("#1a1a1a")
 )
 
 // ── Model ─────────────────────────────────────────────────────────────────────
@@ -201,13 +203,21 @@ func renderBoard(pos *game.ChessPosition, perspective game.ColorType) string {
 		for file := fileStart; ; file += fileStep {
 			square := pos.Board.GetSquare(game.ChessLocation{File: file, Rank: rank})
 			// Each cell is exactly 2 terminal columns: piece/dot + space.
+			// For occupied squares, apply the player's foreground colour over
+			// the square background so White pieces appear bright and Black
+			// pieces appear dark, matching each player's colour.
+			sq := cellStyle(file, rank)
 			var content string
 			if square.Piece.Piece == game.NoPiece {
-				content = "  "
+				content = sq.Render("  ")
 			} else {
-				content = square.Piece.PrettyString() + " "
+				fg := whitePieceFg
+				if square.Piece.Color == game.BlackPiece {
+					fg = blackPieceFg
+				}
+				content = sq.Foreground(fg).Render(square.Piece.PrettyString() + " ")
 			}
-			row.WriteString(cellStyle(file, rank).Render(content))
+			row.WriteString(content)
 			if file == fileEnd {
 				break
 			}
