@@ -25,6 +25,17 @@ func NewGame() *ChessGame {
 	}
 }
 
+// NewGameFromPosition creates a new ChessGame starting from the given position.
+func NewGameFromPosition(position *game.ChessPosition) *ChessGame {
+	moves := game.NewChessMovement(position)
+	moves.Calculate()
+
+	return &ChessGame{
+		position,
+		moves,
+	}
+}
+
 func (g *ChessGame) calculate() {
 	if g.moves == nil || g.moves.Position != g.position {
 		g.moves = game.NewChessMovement(g.position)
@@ -44,11 +55,8 @@ func (g *ChessGame) castleQueenSide() {
 
 func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 
-	if g.moves.IsCheckmate {
-		return false, fmt.Errorf("game is checkmate")
-	}
-	if g.moves.IsStalemate {
-		return false, fmt.Errorf("game is stalemate")
+	if g.moves.Result != game.InProgress {
+		return false, fmt.Errorf("game is over: %s", g.moves.Result)
 	}
 
 	sanMove, sanCastle, err := san.ParseSan(sanText)
@@ -157,4 +165,11 @@ func (g *ChessGame) IsStalemate() bool {
 func (g *ChessGame) IsCheck() bool {
 	g.calculate()
 	return g.moves.Check[g.position.PlayerToMove]
+}
+
+// GetResult returns the current result of the game.
+// It returns InProgress if the game is still ongoing.
+func (g *ChessGame) GetResult() game.GameResult {
+	g.calculate()
+	return g.moves.Result
 }
