@@ -103,7 +103,7 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 		}
 
 		if len(actualMoves) != 1 {
-			return false, fmt.Errorf("invalid move")
+			return false, fmt.Errorf("invalid move, multiple pieces can move to the same square: %v", actualMoves)
 		}
 
 		move := actualMoves[0]
