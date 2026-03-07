@@ -215,7 +215,7 @@ func renderBoard(pos *game.ChessPosition, perspective game.ColorType) string {
 				if square.Piece.Color == game.BlackPiece {
 					fg = blackPieceFg
 				}
-				content = sq.Foreground(fg).Render(square.Piece.PrettyString() + " ")
+				content = sq.Foreground(fg).Bold(true).Render(square.Piece.PrettyString() + " ")
 			}
 			row.WriteString(content)
 			if file == fileEnd {
