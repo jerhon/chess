@@ -162,7 +162,7 @@ func (m model) View() string {
 	// Make the input panel span the full width of the top row when possible.
 	inputWidth := 60
 	if m.windowWidth > 0 {
-		inputWidth = m.windowWidth - 2 // account for borders
+		inputWidth = m.windowWidth - 4 // account for borders
 	}
 	prompt = lipgloss.NewStyle().Width(inputWidth).Render(prompt)
 	inputPanel := inputStyle.Render(prompt)
@@ -321,8 +321,23 @@ func renderMoves(g *chess2.ChessGame) string {
 
 	var sb strings.Builder
 	for i, mv := range valid {
-		entry := fmt.Sprintf("%-8s", mv.String())
-		sb.WriteString(moveStyle.Render(entry))
+
+		hasSameTo := false
+		for j, mv2 := range valid {
+			if i != j && mv.To == mv2.To {
+				hasSameTo = true
+				break
+			}
+		}
+
+		var entry string
+		if hasSameTo {
+			entry = mv.From.Location.File.String() + mv.From.Location.Rank.String() + mv.To.File.String() + mv.To.Rank.String()
+		} else {
+			entry = mv.To.File.String() + mv.To.Rank.String()
+		}
+
+		sb.WriteString(moveStyle.Render(entry + " "))
 		if (i+1)%3 == 0 {
 			sb.WriteRune('\n')
 		}
