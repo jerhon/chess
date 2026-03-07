@@ -124,7 +124,7 @@ func (position *ChessPosition) CastleQueenside() *ChessPosition {
 }
 
 // Move performs a chess move, does not take into consideration whether the move is valid
-func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation ChessLocation) *ChessPosition {
+func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation ChessLocation, promotionPiece PieceType) *ChessPosition {
 	fromSquare := position.Board.GetSquare(fromLocation)
 	toSquare := position.Board.GetSquare(toLocation)
 
@@ -188,6 +188,11 @@ func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation Chess
 	newBoard := position.Board.Clone()
 	newBoard.SetSquare(fromLocation, ChessPiece{NoPiece, NoColor})
 	newBoard.SetSquare(toLocation, fromSquare.Piece)
+
+	// if this is a pawn promotion, replace the pawn with the chosen piece
+	if fromSquare.Piece.Piece == Pawn && promotionPiece != NoPiece {
+		newBoard.SetSquare(toLocation, ChessPiece{promotionPiece, fromSquare.Piece.Color})
+	}
 
 	// if this is an en passant move, need to remove the pawn
 	if fromSquare.Piece.Piece == Pawn {
