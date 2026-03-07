@@ -112,3 +112,70 @@ func parseBoard(squareLayoutString string) *ChessBoard {
 	}
 	return board
 }
+
+func TestValidPawnMoves(t *testing.T) {
+	tests := []struct {
+		name              string
+		boardSetup        string
+		playerToMove      ColorType
+		expectedMoves     []string
+		notExpectedMoves  []string
+	}{
+		{
+			name:         "white pawn no adjacent pieces - no captures in valid moves",
+			boardSetup:   "Pd5 Ke1 ke8",
+			playerToMove: WhitePiece,
+			// Pawn at d5 can only move forward; empty diagonal squares should NOT appear
+			notExpectedMoves: []string{"Pd5xe6", "Pd5xc6"},
+			expectedMoves:    []string{"Pd5d6"},
+		},
+		{
+			name:         "white pawn with opponent piece on diagonal - capture included",
+			boardSetup:   "Pd5 pe6 Ke1 ke8",
+			playerToMove: WhitePiece,
+			// e6 has an opponent so capture is valid; c6 is empty so no capture
+			expectedMoves:    []string{"Pd5d6", "Pd5xe6"},
+			notExpectedMoves: []string{"Pd5xc6"},
+		},
+		{
+			name:         "black pawn no adjacent pieces - no captures in valid moves",
+			boardSetup:   "pd5 Ke1 ke8",
+			playerToMove: BlackPiece,
+			// Pawn at d5 can only move forward; empty diagonal squares should NOT appear
+			notExpectedMoves: []string{"pd5xe4", "pd5xc4"},
+			expectedMoves:    []string{"pd5d4"},
+		},
+		{
+			name:         "black pawn with opponent piece on diagonal - capture included",
+			boardSetup:   "pd5 Pe4 Ke1 ke8",
+			playerToMove: BlackPiece,
+			// e4 has an opponent so capture is valid; c4 is empty so no capture
+			expectedMoves:    []string{"pd5d4", "pd5xe4"},
+			notExpectedMoves: []string{"pd5xc4"},
+		},
+		{
+			name:         "white pawn starting square no captures in valid moves",
+			boardSetup:   "Pd2 Ke1 ke8",
+			playerToMove: WhitePiece,
+			// Starting square pawn can move 1 or 2 squares; no captures on empty diagonals
+			expectedMoves:    []string{"Pd2d3", "Pd2d4"},
+			notExpectedMoves: []string{"Pd2xe3", "Pd2xc3"},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			board := parseBoard(test.boardSetup)
+			position := &ChessPosition{Board: board, PlayerToMove: test.playerToMove}
+			movement := NewChessMovement(position)
+			movement.Calculate()
+			actualMoves := getMoveStrings(movement.Moves)
+			for _, expected := range test.expectedMoves {
+				assert.Contains(t, actualMoves, expected)
+			}
+			for _, notExpected := range test.notExpectedMoves {
+				assert.NotContains(t, actualMoves, notExpected)
+			}
+		})
+	}
+}

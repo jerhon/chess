@@ -151,6 +151,11 @@ func (calculator *ChessMovement) calculateValidMoves() {
 	finalMoves := []ChessMove{}
 	for _, move := range candidateMoves {
 
+		// Skip moves that cannot actually be made (e.g., pawn diagonal with no capture target)
+		if !move.CanMove {
+			continue
+		}
+
 		// cannot move into check
 		candidatePosition := calculator.Position.Move(move.From.Location, move.To)
 
