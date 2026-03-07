@@ -19,46 +19,31 @@ type ChessPiece struct {
 	Color ColorType
 }
 
+// PrettyString returns the letter representation of a chess piece.
+// White pieces use uppercase letters (K, Q, R, B, N, P) and
+// Black pieces use lowercase letters (k, q, r, b, n, p).
 func (s ChessPiece) PrettyString() string {
-	if s.Piece != NoPiece {
-		if s.Color == WhitePiece {
-			switch s.Piece {
-			case Pawn:
-				return "\u2659"
-			case Knight:
-				return "\u2658"
-			case Bishop:
-				return "\u2657"
-			case Rook:
-				return "\u2656"
-			case Queen:
-				return "\u2655"
-			case King:
-				return "\u2654"
-			case NoPiece:
-				return " "
-			}
-		} else {
-			switch s.Piece {
-			case Pawn:
-				return "\u265F"
-			case Knight:
-				return "\u265E"
-			case Bishop:
-				return "\u265D"
-			case Rook:
-				return "\u265C"
-			case Queen:
-				return "\u265B"
-			case King:
-				return "\u265A"
-			case NoPiece:
-				return " "
-			}
-		}
+	var letter rune
+	switch s.Piece {
+	case King:
+		letter = 'K'
+	case Queen:
+		letter = 'Q'
+	case Rook:
+		letter = 'R'
+	case Bishop:
+		letter = 'B'
+	case Knight:
+		letter = 'N'
+	case Pawn:
+		letter = 'P'
+	default:
+		return " "
 	}
-
-	return " "
+	if s.Color == BlackPiece {
+		letter = unicode.ToLower(letter)
+	}
+	return string(letter)
 }
 
 // IsValid checks if the ChessPiece is a valid option.

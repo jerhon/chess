@@ -62,14 +62,14 @@ func TestChessBoard_String(t *testing.T) {
 				board.SetSquare(l(FileE, Rank8), p(King, BlackPiece))
 				return board
 			},
-			output: `8 ♜♞♝♛♚♝♞♜
-7 ♟♟♟♟♟♟♟♟
+			output: `8 rnbqkbnr
+7 pppppppp
 6 ********
 5 ********
 4 ********
 3 ********
-2 ♙♙♙♙♙♙♙♙
-1 ♖♘♗♕♔♗♘♖
+2 PPPPPPPP
+1 RNBQKBNR
   abcdefgh`,
 		},
 		{
@@ -81,12 +81,12 @@ func TestChessBoard_String(t *testing.T) {
 				board.SetSquare(l(FileH, Rank8), p(King, BlackPiece))
 				return board
 			},
-			output: `8 *******♚
+			output: `8 *******k
 7 ********
-6 ****♞***
+6 ****n***
 5 ********
 4 ********
-3 **♕*****
+3 **Q*****
 2 ********
 1 ********
   abcdefgh`,
