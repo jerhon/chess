@@ -3,6 +3,7 @@ package pgn
 // https://www.saremba.de/chessgml/standards/pgn/pgn-complete.htm
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 )
@@ -128,6 +129,9 @@ func (p *PgnTokenReader) ReadTokens() (tokens []PgnToken, err error) {
 			match, r = p.readRune()
 			for match && (escape || r != '"') {
 				if escape {
+					if r != '\\' && r != '"' {
+						return tokens, fmt.Errorf("invalid escape sequence '\\%c' in string token at offset %d", r, p.runeOffset)
+					}
 					value += string(r)
 					escape = false
 				} else {
