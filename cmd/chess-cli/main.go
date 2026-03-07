@@ -55,6 +55,15 @@ var (
 
 	cursorStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("63"))
+
+	// Chess board square colors — classic Lichess palette.
+	lightSquareStyle = lipgloss.NewStyle().
+				Background(lipgloss.Color("#F0D9B5")).
+				Foreground(lipgloss.Color("#1a1a1a"))
+
+	darkSquareStyle = lipgloss.NewStyle().
+			Background(lipgloss.Color("#B58863")).
+			Foreground(lipgloss.Color("#1a1a1a"))
 )
 
 // ── Model ─────────────────────────────────────────────────────────────────────
@@ -170,11 +179,10 @@ func (m model) View() string {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-// renderBoard produces a spaced board with rank/file labels.
-// The board is oriented so that the player whose turn it is appears at the bottom.
+// renderBoard produces a spaced board with rank/file labels and alternating
+// light/dark square background colors. The board is oriented so that the
+// player whose turn it is appears at the bottom.
 func renderBoard(pos *game.ChessPosition, perspective game.ColorType) string {
-	sb := strings.Builder{}
-
 	// Determine iteration order based on perspective.
 	// White at bottom: ranks 8→1, files a→h.
 	// Black at bottom: ranks 1→8, files h→a.
@@ -185,37 +193,55 @@ func renderBoard(pos *game.ChessPosition, perspective game.ColorType) string {
 		fileStart, fileEnd, fileStep = game.FileH, game.FileA, game.FileType(-1)
 	}
 
+	var rows []string
 	for rank := rankStart; ; rank += rankStep {
-		sb.WriteRune(rune(rank))
-		sb.WriteString("  ")
+		var row strings.Builder
+		row.WriteRune(rune(rank))
+		row.WriteString("  ")
 		for file := fileStart; ; file += fileStep {
 			square := pos.Board.GetSquare(game.ChessLocation{File: file, Rank: rank})
+			// Each cell is exactly 2 terminal columns: piece/dot + space.
+			var content string
 			if square.Piece.Piece == game.NoPiece {
-				sb.WriteString("· ")
+				content = "  "
 			} else {
-				sb.WriteString(square.Piece.PrettyString())
-				sb.WriteRune(' ')
+				content = square.Piece.PrettyString() + " "
 			}
+			row.WriteString(cellStyle(file, rank).Render(content))
 			if file == fileEnd {
 				break
 			}
 		}
-		sb.WriteRune('\n')
+		rows = append(rows, row.String())
 		if rank == rankEnd {
 			break
 		}
 	}
 
 	// File labels, in the same order as the columns.
-	sb.WriteString("   ")
+	var fileLine strings.Builder
+	fileLine.WriteString("   ")
 	for file := fileStart; ; file += fileStep {
-		sb.WriteRune(rune(file))
-		sb.WriteRune(' ')
+		fileLine.WriteRune(rune(file))
+		fileLine.WriteRune(' ')
 		if file == fileEnd {
 			break
 		}
 	}
-	return sb.String()
+	rows = append(rows, fileLine.String())
+
+	return strings.Join(rows, "\n")
+}
+
+// cellStyle returns the lipgloss style for a square based on its coordinates.
+// a1 is a dark square: (fileIndex + rankIndex) even → dark, odd → light.
+func cellStyle(file game.FileType, rank game.RankType) lipgloss.Style {
+	fileIdx := int(file - game.FileA)
+	rankIdx := int(rank - game.Rank1)
+	if (fileIdx+rankIdx)%2 == 0 {
+		return darkSquareStyle
+	}
+	return lightSquareStyle
 }
 
 // renderGameStatus shows whose turn it is and any check/mate/stalemate state.
