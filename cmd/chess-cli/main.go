@@ -181,9 +181,11 @@ func (m model) View() string {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-// renderBoard produces a spaced board with rank/file labels and alternating
-// light/dark square background colors. The board is oriented so that the
-// player whose turn it is appears at the bottom.
+// renderBoard produces a board where each square is 3 columns wide × 3 rows
+// tall with rank/file labels and alternating light/dark square background
+// colors. The piece letter is centered in the middle row and column of each
+// square. The board is oriented so that the player whose turn it is appears
+// at the bottom.
 func renderBoard(pos *game.ChessPosition, perspective game.ColorType) string {
 	// Determine iteration order based on perspective.
 	// White at bottom: ranks 8→1, files a→h.
@@ -195,43 +197,59 @@ func renderBoard(pos *game.ChessPosition, perspective game.ColorType) string {
 		fileStart, fileEnd, fileStep = game.FileH, game.FileA, game.FileType(-1)
 	}
 
+	// indent is placed before the top/bottom rows where the rank label would be.
+	const indent = "   "
+
 	var rows []string
 	for rank := rankStart; ; rank += rankStep {
-		var row strings.Builder
-		row.WriteRune(rune(rank))
-		row.WriteString("  ")
+		// Each rank produces 3 output lines: top padding, middle (with piece),
+		// and bottom padding.
+		var top, mid, bot strings.Builder
+
+		// Top and bottom rows have the same indent as the rank-label column.
+		top.WriteString(indent)
+		bot.WriteString(indent)
+
+		// Middle row carries the rank label.
+		mid.WriteRune(rune(rank))
+		mid.WriteString("  ")
+
 		for file := fileStart; ; file += fileStep {
 			square := pos.Board.GetSquare(game.ChessLocation{File: file, Rank: rank})
-			// Each cell is exactly 2 terminal columns: piece/dot + space.
-			// For occupied squares, apply the player's foreground colour over
-			// the square background so White pieces appear bright and Black
-			// pieces appear dark, matching each player's colour.
 			sq := cellStyle(file, rank)
-			var content string
+
+			// Top and bottom rows: 3 background-coloured spaces.
+			top.WriteString(sq.Render("   "))
+			bot.WriteString(sq.Render("   "))
+
+			// Middle row: piece letter (bold, player-coloured) centred in " X ".
 			if square.Piece.Piece == game.NoPiece {
-				content = sq.Render("  ")
+				mid.WriteString(sq.Render("   "))
 			} else {
 				fg := whitePieceFg
 				if square.Piece.Color == game.BlackPiece {
 					fg = blackPieceFg
 				}
-				content = sq.Foreground(fg).Bold(true).Render(square.Piece.PrettyString() + " ")
+				mid.WriteString(sq.Foreground(fg).Bold(true).Render(" " + square.Piece.PrettyString() + " "))
 			}
-			row.WriteString(content)
+
 			if file == fileEnd {
 				break
 			}
 		}
-		rows = append(rows, row.String())
+
+		rows = append(rows, top.String(), mid.String(), bot.String())
+
 		if rank == rankEnd {
 			break
 		}
 	}
 
-	// File labels, in the same order as the columns.
+	// File labels centred under each 3-column square.
 	var fileLine strings.Builder
-	fileLine.WriteString("   ")
+	fileLine.WriteString(indent)
 	for file := fileStart; ; file += fileStep {
+		fileLine.WriteRune(' ')
 		fileLine.WriteRune(rune(file))
 		fileLine.WriteRune(' ')
 		if file == fileEnd {
