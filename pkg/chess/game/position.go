@@ -141,18 +141,31 @@ func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation Chess
 		fullMoveNumber++
 	}
 
+	// Copy existing castling rights as the baseline for the new position.
 	castlingRights := map[ColorType]CastlingRights{}
-	// update for castling rights
+	for color, rights := range position.CastlingRights {
+		castlingRights[color] = rights
+	}
+
+	// Update castling rights based on the piece moved.
 	if fromSquare.Piece.Piece == King {
-		position.CastlingRights[position.PlayerToMove] = CastlingRights{}
+		castlingRights[position.PlayerToMove] = CastlingRights{}
 	}
 	if fromSquare.Piece.Piece == Rook {
-		currentCastlingRights := position.CastlingRights[position.PlayerToMove]
-		if position.PlayerToMove == BlackPiece {
-			if fromLocation.File == FileE {
+		currentCastlingRights := castlingRights[position.PlayerToMove]
+		if position.PlayerToMove == WhitePiece {
+			if fromLocation.File == FileH && fromLocation.Rank == Rank1 {
 				castlingRights[position.PlayerToMove] = CastlingRights{QueenSide: currentCastlingRights.QueenSide, KingSide: false}
 			}
-			if fromLocation.File == FileA {
+			if fromLocation.File == FileA && fromLocation.Rank == Rank1 {
+				castlingRights[position.PlayerToMove] = CastlingRights{QueenSide: false, KingSide: currentCastlingRights.KingSide}
+			}
+		}
+		if position.PlayerToMove == BlackPiece {
+			if fromLocation.File == FileH && fromLocation.Rank == Rank8 {
+				castlingRights[position.PlayerToMove] = CastlingRights{QueenSide: currentCastlingRights.QueenSide, KingSide: false}
+			}
+			if fromLocation.File == FileA && fromLocation.Rank == Rank8 {
 				castlingRights[position.PlayerToMove] = CastlingRights{QueenSide: false, KingSide: currentCastlingRights.KingSide}
 			}
 		}
