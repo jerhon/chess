@@ -91,3 +91,83 @@ func TestGetLegalMoves_AfterMove_SwitchesToOpponent(t *testing.T) {
 	}
 }
 
+
+func TestGetResult_InProgressAtStart(t *testing.T) {
+	g := NewGame()
+	assert.Equal(t, game.InProgress, g.GetResult())
+	assert.False(t, g.GetResult().IsDecided())
+}
+
+func TestGetResult_CheckmateIsDecided(t *testing.T) {
+	// K+Q vs K where Black king (h8) is in checkmate:
+	// White queen on g7 and king on h6 gives checkmate.
+	board := game.NewChessBoard()
+	board.SetSquare(game.ChessLocation{File: game.FileH, Rank: game.Rank8}, game.ChessPiece{Piece: game.King, Color: game.BlackPiece})
+	board.SetSquare(game.ChessLocation{File: game.FileG, Rank: game.Rank7}, game.ChessPiece{Piece: game.Queen, Color: game.WhitePiece})
+	board.SetSquare(game.ChessLocation{File: game.FileH, Rank: game.Rank6}, game.ChessPiece{Piece: game.King, Color: game.WhitePiece})
+
+	movement := game.NewChessMovement(&game.ChessPosition{
+		Board:        board,
+		PlayerToMove: game.BlackPiece,
+		CastlingRights: map[game.ColorType]game.CastlingRights{
+			game.WhitePiece: {},
+			game.BlackPiece: {},
+		},
+		EnPassantSquare: game.ChessLocation{},
+		HalfmoveClock:   0,
+		FullmoveNumber:  1,
+	})
+	movement.Calculate()
+
+	result := movement.Result
+	assert.Equal(t, game.WhiteWins, result)
+	assert.True(t, result.IsDecided())
+	assert.False(t, result.IsDraw())
+}
+
+func TestGetResult_NoMoreMovesAfterGameOver(t *testing.T) {
+	// After checkmate, TrySanMove must be rejected.
+	board := game.NewChessBoard()
+	board.SetSquare(game.ChessLocation{File: game.FileH, Rank: game.Rank8}, game.ChessPiece{Piece: game.King, Color: game.BlackPiece})
+	board.SetSquare(game.ChessLocation{File: game.FileG, Rank: game.Rank7}, game.ChessPiece{Piece: game.Queen, Color: game.WhitePiece})
+	board.SetSquare(game.ChessLocation{File: game.FileH, Rank: game.Rank6}, game.ChessPiece{Piece: game.King, Color: game.WhitePiece})
+
+	pos := &game.ChessPosition{
+		Board:        board,
+		PlayerToMove: game.BlackPiece,
+		CastlingRights: map[game.ColorType]game.CastlingRights{
+			game.WhitePiece: {},
+			game.BlackPiece: {},
+		},
+		EnPassantSquare: game.ChessLocation{},
+		HalfmoveClock:   0,
+		FullmoveNumber:  1,
+	}
+	g := NewGameFromPosition(pos)
+	ok, err := g.TrySanMove("Kg8")
+	assert.False(t, ok)
+	assert.Error(t, err)
+}
+
+func TestGetResult_DrawInsufficientMaterial(t *testing.T) {
+	// Build a K vs K position directly, which is insufficient material for either side.
+	board := game.NewChessBoard()
+	board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank1}, game.ChessPiece{Piece: game.King, Color: game.WhitePiece})
+	board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank8}, game.ChessPiece{Piece: game.King, Color: game.BlackPiece})
+
+	movement := game.NewChessMovement(&game.ChessPosition{
+		Board:        board,
+		PlayerToMove: game.WhitePiece,
+		CastlingRights: map[game.ColorType]game.CastlingRights{
+			game.WhitePiece: {},
+			game.BlackPiece: {},
+		},
+		EnPassantSquare: game.ChessLocation{},
+		HalfmoveClock:   0,
+		FullmoveNumber:  1,
+	})
+	movement.Calculate()
+
+	assert.Equal(t, game.DrawInsufficientMaterial, movement.Result)
+	assert.True(t, movement.Result.IsDraw())
+}

@@ -22,6 +22,9 @@ type ChessMovement struct {
 	IsCheckmate bool
 	IsStalemate bool
 	Calculated  bool
+
+	// Result holds the final result of the game after all calculations.
+	Result GameResult
 }
 
 func NewChessMovement(position *ChessPosition) *ChessMovement {
@@ -39,6 +42,7 @@ func NewChessMovement(position *ChessPosition) *ChessMovement {
 		IsCheckmate: false,
 		IsStalemate: false,
 		Calculated:  false,
+		Result:      InProgress,
 	}
 }
 
@@ -51,6 +55,7 @@ func (calculator *ChessMovement) Calculate() {
 	calculator.calculateCheck()
 	calculator.calculateCanCastle()
 	calculator.calculateValidMoves()
+	calculator.calculateResult()
 	calculator.Calculated = true
 }
 
@@ -172,6 +177,36 @@ func (calculator *ChessMovement) calculateValidMoves() {
 
 }
 
+func (calculator *ChessMovement) calculateResult() {
+	// Checkmate and stalemate take precedence over draw conditions.
+	if calculator.IsCheckmate {
+		if calculator.Position.PlayerToMove == WhitePiece {
+			calculator.Result = BlackWins
+		} else {
+			calculator.Result = WhiteWins
+		}
+		return
+	}
+	if calculator.IsStalemate {
+		calculator.Result = DrawStalemate
+		return
+	}
+
+	// Fifty-move rule: 100 half-moves without a pawn move or capture.
+	if calculator.Position.HalfmoveClock >= 100 {
+		calculator.Result = DrawFiftyMove
+		return
+	}
+
+	// Insufficient material: neither side can force checkmate.
+	if hasInsufficientMaterial(calculator.Position.Board) {
+		calculator.Result = DrawInsufficientMaterial
+		return
+	}
+
+	calculator.Result = InProgress
+}
+
 func (calculator *ChessMovement) calculateCandidateMoves() {
 
 	if calculator.Calculated {
@@ -188,10 +223,8 @@ func (calculator *ChessMovement) calculateCandidateMoves() {
 			continue
 		}
 
-		if square.Piece.Color == calculator.Position.PlayerToMove {
-			if square.Piece.Piece == King {
-				calculator.KingLocation[square.Piece.Color] = square.Location
-			}
+		if square.Piece.Piece == King {
+			calculator.KingLocation[square.Piece.Color] = square.Location
 		}
 
 		moves := CalculateMoves(calculator.Position, square.Location)
@@ -427,14 +460,21 @@ func calculateKingMoves(position *ChessPosition, fromLocation ChessLocation) []C
 				continue
 			}
 
-			if _, match := position.Board.GetPiece(fromLocation); match {
-				moves = append(moves, ChessMove{
-					From:       position.Board.GetSquare(fromLocation),
-					To:         toLocation,
-					CanMove:    true,
-					CanCapture: true,
-				})
+			if !toLocation.IsOnBoard() {
+				continue
 			}
+
+			toPiece, hasPiece := position.Board.GetPiece(toLocation)
+			if hasPiece && toPiece.Color == fromPiece.Color {
+				continue
+			}
+
+			moves = append(moves, ChessMove{
+				From:       position.Board.GetSquare(fromLocation),
+				To:         toLocation,
+				CanMove:    true,
+				CanCapture: hasPiece,
+			})
 		}
 	}
 
