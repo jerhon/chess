@@ -179,3 +179,15 @@ func TestValidPawnMoves(t *testing.T) {
 		})
 	}
 }
+
+// BenchmarkCalculateValidMoves measures the cost of computing all legal moves
+// from the standard starting position. This exercises the hot path that was
+// previously O(n²) and is now O(n * board_size).
+func BenchmarkCalculateValidMoves(b *testing.B) {
+	position := NewStandardStartingPosition()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		movement := NewChessMovement(position)
+		movement.Calculate()
+	}
+}
