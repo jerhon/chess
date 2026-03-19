@@ -149,8 +149,44 @@ func TestGetResult_NoMoreMovesAfterGameOver(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestGetResult_DrawByThreefoldRepetition(t *testing.T) {
+	g := NewGame()
+
+	// Bounce both knights back and forth so positions repeat.
+	// The starting position is recorded once at construction (count=1).
+	// After 4 moves (Nc3, Nc6, Nb1, Nb8) we return to the start (count=2).
+	// After 7 moves (…, Nc3, Nc6, Nb1) no position has reached count=3 yet.
+	moves := []string{"Nc3", "Nc6", "Nb1", "Nb8", "Nc3", "Nc6", "Nb1"}
+	for _, m := range moves {
+		ok, err := g.TrySanMove(m)
+		assert.True(t, ok, "move %s should succeed", m)
+		assert.NoError(t, err)
+	}
+	assert.Equal(t, game.InProgress, g.GetResult(), "game should still be in progress after 7 moves")
+
+	// 8th move returns to the starting position for the third time.
+	ok, err := g.TrySanMove("Nb8")
+	assert.True(t, ok)
+	assert.NoError(t, err)
+	assert.Equal(t, game.DrawRepetition, g.GetResult())
+	assert.True(t, g.GetResult().IsDraw())
+	assert.True(t, g.GetResult().IsDecided())
+}
+
+func TestGetResult_NoMoreMovesAfterDrawRepetition(t *testing.T) {
+	g := NewGame()
+
+	moves := []string{"Nc3", "Nc6", "Nb1", "Nb8", "Nc3", "Nc6", "Nb1", "Nb8"}
+	for _, m := range moves {
+		_, _ = g.TrySanMove(m)
+	}
+
+	ok, err := g.TrySanMove("e4")
+	assert.False(t, ok)
+	assert.Error(t, err)
+}
+
 func TestGetResult_DrawInsufficientMaterial(t *testing.T) {
-	// Build a K vs K position directly, which is insufficient material for either side.
 	board := game.NewChessBoard()
 	board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank1}, game.ChessPiece{Piece: game.King, Color: game.WhitePiece})
 	board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank8}, game.ChessPiece{Piece: game.King, Color: game.BlackPiece})
