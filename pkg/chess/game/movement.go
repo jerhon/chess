@@ -65,19 +65,13 @@ func (calculator *ChessMovement) GetMoves() []ChessMove {
 }
 
 func (calculator *ChessMovement) calculateCheck() {
-
 	for _, color := range AllColors {
 		kingLocation := calculator.KingLocation[color]
-
-		// check each of the opponent moves to see if they attack the king
-		for _, move := range calculator.CandidateMoves[color.OppositeColor()] {
-			if move.To == kingLocation {
-				calculator.Check[color] = true
-				break
-			}
+		if (kingLocation == ChessLocation{}) {
+			continue
 		}
+		calculator.Check[color] = isSquareAttackedBy(calculator.Position, kingLocation, color.OppositeColor())
 	}
-
 }
 
 func (calculator *ChessMovement) calculateCanCastle() {
@@ -124,6 +118,7 @@ func (calculator *ChessMovement) calculateCanCastle() {
 
 // Helper method to check if the path for castling is under attack
 func (calculator *ChessMovement) isPathUnderAttack(kingLocation ChessLocation, targetFile FileType, playerColor ColorType) bool {
+	opponentColor := playerColor.OppositeColor()
 	for file := kingLocation.File; file != targetFile; {
 		if file < targetFile {
 			file++
@@ -132,10 +127,8 @@ func (calculator *ChessMovement) isPathUnderAttack(kingLocation ChessLocation, t
 		}
 
 		location := ChessLocation{File: file, Rank: kingLocation.Rank}
-		for _, move := range calculator.CandidateMoves[playerColor.OppositeColor()] {
-			if move.To == location {
-				return true
-			}
+		if isSquareAttackedBy(calculator.Position, location, opponentColor) {
+			return true
 		}
 	}
 	return false
@@ -145,10 +138,10 @@ func (calculator *ChessMovement) isPathUnderAttack(kingLocation ChessLocation, t
 // made (CanMove is true) and that do not leave the current player's king in check.
 func (calculator *ChessMovement) calculateValidMoves() {
 
-	// King has special logic, it cannot step into check
-	candidateMoves := calculator.CandidateMoves[calculator.Position.PlayerToMove]
+	playerToMove := calculator.Position.PlayerToMove
+	opponentColor := playerToMove.OppositeColor()
+	candidateMoves := calculator.CandidateMoves[playerToMove]
 
-	// TODO: this is pretty expensive, look at optimizing in the future
 	finalMoves := []ChessMove{}
 	for _, move := range candidateMoves {
 
@@ -157,15 +150,16 @@ func (calculator *ChessMovement) calculateValidMoves() {
 			continue
 		}
 
-		// cannot move into check
+		// cannot move into check — simulate the move and directly test whether
+		// the current player's king is attacked in the resulting position.
 		candidatePosition := calculator.Position.Move(move.From.Location, move.To)
 
-		// Just need to calculate through check
-		checkCalculator := NewChessMovement(candidatePosition)
-		checkCalculator.calculateCandidateMoves()
-		checkCalculator.calculateCheck()
+		newKingLocation := calculator.KingLocation[playerToMove]
+		if move.From.Piece.Piece == King {
+			newKingLocation = move.To
+		}
 
-		if !checkCalculator.Check[calculator.Position.PlayerToMove] {
+		if !isSquareAttackedBy(candidatePosition, newKingLocation, opponentColor) {
 			finalMoves = append(finalMoves, move)
 		}
 	}
@@ -213,6 +207,103 @@ func (calculator *ChessMovement) calculateResult() {
 	calculator.Result = InProgress
 }
 
+// isSquareAttackedBy reports whether the given location is attacked by any piece
+// of attackerColor in the supplied position. It uses piece-centric ray casting and
+// jump-pattern checks so that check detection is O(board_size) rather than
+// requiring a full candidate-move enumeration for the opponent.
+func isSquareAttackedBy(position *ChessPosition, location ChessLocation, attackerColor ColorType) bool {
+	// --- Sliding piece attacks ---
+
+	// Rooks / queens attack along ranks and files.
+	for _, seq := range iterateStraight(location) {
+		for loc := range seq {
+			sq := position.Board.GetSquare(loc)
+			if sq.Piece.Piece == NoPiece {
+				continue
+			}
+			if sq.Piece.Color == attackerColor && (sq.Piece.Piece == Rook || sq.Piece.Piece == Queen) {
+				return true
+			}
+			break // any piece blocks further sight along this ray
+		}
+	}
+
+	// Bishops / queens attack along diagonals.
+	for _, seq := range iterateDiagonal(location) {
+		for loc := range seq {
+			sq := position.Board.GetSquare(loc)
+			if sq.Piece.Piece == NoPiece {
+				continue
+			}
+			if sq.Piece.Color == attackerColor && (sq.Piece.Piece == Bishop || sq.Piece.Piece == Queen) {
+				return true
+			}
+			break
+		}
+	}
+
+	// --- Knight attacks ---
+	knightOffsets := [8][2]int{{2, 1}, {2, -1}, {-2, 1}, {-2, -1}, {1, 2}, {-1, 2}, {1, -2}, {-1, -2}}
+	for _, off := range knightOffsets {
+		loc := ChessLocation{
+			File: location.File + FileType(off[0]),
+			Rank: location.Rank + RankType(off[1]),
+		}
+		if !loc.IsOnBoard() {
+			continue
+		}
+		sq := position.Board.GetSquare(loc)
+		if sq.Piece.Color == attackerColor && sq.Piece.Piece == Knight {
+			return true
+		}
+	}
+
+	// --- Pawn attacks ---
+	// An attacker's pawn sits one rank "behind" its direction of travel relative
+	// to the target square:
+	//   White pawns move up (+rank), so a white attacker is one rank below the target.
+	//   Black pawns move down (-rank), so a black attacker is one rank above the target.
+	pawnRankOffset := RankType(-1) // white attacker is below
+	if attackerColor == BlackPiece {
+		pawnRankOffset = RankType(1) // black attacker is above
+	}
+	for _, fileOffset := range [2]FileType{-1, 1} {
+		loc := ChessLocation{
+			File: location.File + fileOffset,
+			Rank: location.Rank + pawnRankOffset,
+		}
+		if !loc.IsOnBoard() {
+			continue
+		}
+		sq := position.Board.GetSquare(loc)
+		if sq.Piece.Color == attackerColor && sq.Piece.Piece == Pawn {
+			return true
+		}
+	}
+
+	// --- King attacks (adjacent squares) ---
+	for rankOffset := RankType(-1); rankOffset <= 1; rankOffset++ {
+		for fileOffset := FileType(-1); fileOffset <= 1; fileOffset++ {
+			if rankOffset == 0 && fileOffset == 0 {
+				continue
+			}
+			loc := ChessLocation{
+				File: location.File + fileOffset,
+				Rank: location.Rank + rankOffset,
+			}
+			if !loc.IsOnBoard() {
+				continue
+			}
+			sq := position.Board.GetSquare(loc)
+			if sq.Piece.Color == attackerColor && sq.Piece.Piece == King {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func (calculator *ChessMovement) calculateCandidateMoves() {
 
 	if calculator.Calculated {
@@ -224,6 +315,7 @@ func (calculator *ChessMovement) calculateCandidateMoves() {
 		BlackPiece: {},
 	}
 
+	playerToMove := calculator.Position.PlayerToMove
 	for square := range calculator.Position.Board.IterateSquares() {
 		if square.IsEmpty() {
 			continue
@@ -233,9 +325,12 @@ func (calculator *ChessMovement) calculateCandidateMoves() {
 			calculator.KingLocation[square.Piece.Color] = square.Location
 		}
 
-		moves := CalculateMoves(calculator.Position, square.Location)
-
-		allMoves[square.Piece.Color] = append(allMoves[square.Piece.Color], moves...)
+		// Only generate candidate moves for the player to move; opponent moves are
+		// no longer needed because check detection now uses isSquareAttackedBy.
+		if square.Piece.Color == playerToMove {
+			moves := CalculateMoves(calculator.Position, square.Location)
+			allMoves[playerToMove] = append(allMoves[playerToMove], moves...)
+		}
 	}
 
 	calculator.CandidateMoves = allMoves
