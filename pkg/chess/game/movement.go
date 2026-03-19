@@ -94,7 +94,7 @@ func (calculator *ChessMovement) calculateCanCastle() {
 	// Check King-side castling
 	if castlingRights.KingSide {
 		kingSideClear := true
-		for file := kingLocation.File + 1; file < FileG; file++ {
+		for file := kingLocation.File + 1; file <= FileG; file++ {
 			if !calculator.Position.Board.GetSquare(ChessLocation{File: file, Rank: kingLocation.Rank}).IsEmpty() {
 				kingSideClear = false
 				break
