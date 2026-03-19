@@ -3,8 +3,10 @@ package chess
 import (
 	"testing"
 
+	"github.com/jerhon/chess/pkg/chess/fen"
 	"github.com/jerhon/chess/pkg/chess/game"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetLegalMoves_NotNilOnNewGame(t *testing.T) {
@@ -147,6 +149,66 @@ func TestGetResult_NoMoreMovesAfterGameOver(t *testing.T) {
 	ok, err := g.TrySanMove("Kg8")
 	assert.False(t, ok)
 	assert.Error(t, err)
+}
+
+// newGameFromFen is a test helper that creates a ChessGame from a FEN string.
+func newGameFromFen(t *testing.T, fenString string) *ChessGame {
+	t.Helper()
+	pos, err := fen.ParseFen(fenString)
+	require.NoError(t, err)
+	return NewGameFromPosition(&pos)
+}
+
+func TestCastleKingSide_UpdatesPosition(t *testing.T) {
+	// FEN with white able to castle kingside: king on e1, rook on h1, no pieces between.
+	g := newGameFromFen(t, "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1")
+
+	beforePos := g.GetPosition()
+	ok, err := g.TrySanMove("O-O")
+	assert.True(t, ok)
+	assert.NoError(t, err)
+
+	afterPos := g.GetPosition()
+	// Position must have changed after castling.
+	assert.NotEqual(t, beforePos, afterPos, "position should change after kingside castling")
+
+	// White king should now be on g1.
+	piece, ok := afterPos.Board.GetPiece(game.ChessLocation{File: game.FileG, Rank: game.Rank1})
+	assert.True(t, ok)
+	assert.Equal(t, game.King, piece.Piece)
+	assert.Equal(t, game.WhitePiece, piece.Color)
+
+	// White rook should now be on f1.
+	piece, ok = afterPos.Board.GetPiece(game.ChessLocation{File: game.FileF, Rank: game.Rank1})
+	assert.True(t, ok)
+	assert.Equal(t, game.Rook, piece.Piece)
+	assert.Equal(t, game.WhitePiece, piece.Color)
+}
+
+func TestCastleQueenSide_UpdatesPosition(t *testing.T) {
+	// FEN with white able to castle queenside: king on e1, rook on a1, no pieces between.
+	g := newGameFromFen(t, "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1")
+
+	beforePos := g.GetPosition()
+	ok, err := g.TrySanMove("O-O-O")
+	assert.True(t, ok)
+	assert.NoError(t, err)
+
+	afterPos := g.GetPosition()
+	// Position must have changed after castling.
+	assert.NotEqual(t, beforePos, afterPos, "position should change after queenside castling")
+
+	// White king should now be on c1.
+	piece, ok := afterPos.Board.GetPiece(game.ChessLocation{File: game.FileC, Rank: game.Rank1})
+	assert.True(t, ok)
+	assert.Equal(t, game.King, piece.Piece)
+	assert.Equal(t, game.WhitePiece, piece.Color)
+
+	// White rook should now be on d1.
+	piece, ok = afterPos.Board.GetPiece(game.ChessLocation{File: game.FileD, Rank: game.Rank1})
+	assert.True(t, ok)
+	assert.Equal(t, game.Rook, piece.Piece)
+	assert.Equal(t, game.WhitePiece, piece.Color)
 }
 
 func TestGetResult_DrawInsufficientMaterial(t *testing.T) {
