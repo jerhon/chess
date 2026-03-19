@@ -212,11 +212,7 @@ func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation Chess
 	// if this is an en passant move, need to remove the pawn
 	if fromSquare.Piece.Piece == Pawn {
 		if toLocation == position.EnPassantSquare {
-			if position.PlayerToMove == BlackPiece {
-				newBoard.SetSquare(ChessLocation{fromLocation.File, Rank7}, ChessPiece{NoPiece, NoColor})
-			} else {
-				newBoard.SetSquare(ChessLocation{fromLocation.File, Rank3}, ChessPiece{NoPiece, NoColor})
-			}
+			newBoard.SetSquare(ChessLocation{toLocation.File, fromLocation.Rank}, ChessPiece{NoPiece, NoColor})
 			halfmoveClock = 0
 		}
 	}
