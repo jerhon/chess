@@ -157,6 +157,62 @@ func TestMove_CastlingRightsPreserved(t *testing.T) {
 	}
 }
 
+// TestMove_EnPassantCapture is a regression test for the bug where en passant
+// removed the pawn from the wrong file (fromLocation.File instead of toLocation.File).
+func TestMove_EnPassantCapture(t *testing.T) {
+	t.Run("white captures en passant", func(t *testing.T) {
+		// White pawn on e5, black pawn just moved from d7 to d5 -> en passant square is d6.
+		board := NewChessBoard()
+		board.SetSquare(ChessLocation{FileE, Rank5}, ChessPiece{Pawn, WhitePiece})
+		board.SetSquare(ChessLocation{FileD, Rank5}, ChessPiece{Pawn, BlackPiece})
+
+		position := &ChessPosition{
+			Board:           board,
+			PlayerToMove:    WhitePiece,
+			EnPassantSquare: ChessLocation{FileD, Rank6},
+			CastlingRights: map[ColorType]CastlingRights{
+				WhitePiece: {},
+				BlackPiece: {},
+			},
+		}
+
+		result := position.Move(ChessLocation{FileE, Rank5}, ChessLocation{FileD, Rank6})
+
+		// White pawn should be on d6
+		assert.Equal(t, ChessPiece{Pawn, WhitePiece}, result.Board.GetSquare(ChessLocation{FileD, Rank6}).Piece)
+		// Original square should be empty
+		assert.Equal(t, ChessPiece{NoPiece, NoColor}, result.Board.GetSquare(ChessLocation{FileE, Rank5}).Piece)
+		// Captured black pawn on d5 should be removed
+		assert.Equal(t, ChessPiece{NoPiece, NoColor}, result.Board.GetSquare(ChessLocation{FileD, Rank5}).Piece)
+	})
+
+	t.Run("black captures en passant", func(t *testing.T) {
+		// Black pawn on d4, white pawn just moved from e2 to e4 -> en passant square is e3.
+		board := NewChessBoard()
+		board.SetSquare(ChessLocation{FileD, Rank4}, ChessPiece{Pawn, BlackPiece})
+		board.SetSquare(ChessLocation{FileE, Rank4}, ChessPiece{Pawn, WhitePiece})
+
+		position := &ChessPosition{
+			Board:           board,
+			PlayerToMove:    BlackPiece,
+			EnPassantSquare: ChessLocation{FileE, Rank3},
+			CastlingRights: map[ColorType]CastlingRights{
+				WhitePiece: {},
+				BlackPiece: {},
+			},
+		}
+
+		result := position.Move(ChessLocation{FileD, Rank4}, ChessLocation{FileE, Rank3})
+
+		// Black pawn should be on e3
+		assert.Equal(t, ChessPiece{Pawn, BlackPiece}, result.Board.GetSquare(ChessLocation{FileE, Rank3}).Piece)
+		// Original square should be empty
+		assert.Equal(t, ChessPiece{NoPiece, NoColor}, result.Board.GetSquare(ChessLocation{FileD, Rank4}).Piece)
+		// Captured white pawn on e4 should be removed
+		assert.Equal(t, ChessPiece{NoPiece, NoColor}, result.Board.GetSquare(ChessLocation{FileE, Rank4}).Piece)
+	})
+}
+
 // TestMove_BlackKingsideRookFix is a regression test for the bug where
 // the black kingside rook check incorrectly used FileE instead of FileH.
 func TestMove_BlackKingsideRookFix(t *testing.T) {
