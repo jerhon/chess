@@ -151,7 +151,7 @@ func TestMove_CastlingRightsPreserved(t *testing.T) {
 				CastlingRights: test.initialRights,
 			}
 
-			result := position.Move(test.from, test.to)
+			result := position.Move(test.from, test.to, NoPiece)
 			assert.Equal(t, test.expectedRights, result.CastlingRights)
 		})
 	}
@@ -172,7 +172,7 @@ func TestMove_BlackKingsideRookFix(t *testing.T) {
 		},
 	}
 
-	result := position.Move(ChessLocation{FileH, Rank8}, ChessLocation{FileH, Rank6})
+	result := position.Move(ChessLocation{FileH, Rank8}, ChessLocation{FileH, Rank6}, NoPiece)
 
 	// Kingside right must be cleared; queenside must remain
 	assert.False(t, result.CastlingRights[BlackPiece].KingSide, "black kingside castling right should be cleared after H8 rook moves")
@@ -180,4 +180,82 @@ func TestMove_BlackKingsideRookFix(t *testing.T) {
 	// White rights must be untouched
 	assert.True(t, result.CastlingRights[WhitePiece].KingSide)
 	assert.True(t, result.CastlingRights[WhitePiece].QueenSide)
+}
+
+func TestMove_PawnPromotion(t *testing.T) {
+	tests := []struct {
+		name          string
+		color         ColorType
+		from          ChessLocation
+		to            ChessLocation
+		promo         PieceType
+		expectedPiece PieceType
+	}{
+		{
+			name:          "white pawn promotes to queen",
+			color:         WhitePiece,
+			from:          ChessLocation{FileE, Rank7},
+			to:            ChessLocation{FileE, Rank8},
+			promo:         Queen,
+			expectedPiece: Queen,
+		},
+		{
+			name:          "white pawn promotes to rook",
+			color:         WhitePiece,
+			from:          ChessLocation{FileE, Rank7},
+			to:            ChessLocation{FileE, Rank8},
+			promo:         Rook,
+			expectedPiece: Rook,
+		},
+		{
+			name:          "white pawn promotes to bishop",
+			color:         WhitePiece,
+			from:          ChessLocation{FileE, Rank7},
+			to:            ChessLocation{FileE, Rank8},
+			promo:         Bishop,
+			expectedPiece: Bishop,
+		},
+		{
+			name:          "white pawn promotes to knight",
+			color:         WhitePiece,
+			from:          ChessLocation{FileE, Rank7},
+			to:            ChessLocation{FileE, Rank8},
+			promo:         Knight,
+			expectedPiece: Knight,
+		},
+		{
+			name:          "black pawn promotes to queen",
+			color:         BlackPiece,
+			from:          ChessLocation{FileD, Rank2},
+			to:            ChessLocation{FileD, Rank1},
+			promo:         Queen,
+			expectedPiece: Queen,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			board := NewChessBoard()
+			board.SetSquare(test.from, ChessPiece{Pawn, test.color})
+
+			position := &ChessPosition{
+				Board:        board,
+				PlayerToMove: test.color,
+				CastlingRights: map[ColorType]CastlingRights{
+					WhitePiece: {},
+					BlackPiece: {},
+				},
+			}
+
+			result := position.Move(test.from, test.to, test.promo)
+
+			// Source square should be empty
+			assert.True(t, result.Board.GetSquare(test.from).IsEmpty(), "source square should be empty after move")
+
+			// Destination square should have the promoted piece with the correct color
+			destSquare := result.Board.GetSquare(test.to)
+			assert.Equal(t, test.expectedPiece, destSquare.Piece.Piece, "destination should have promoted piece")
+			assert.Equal(t, test.color, destSquare.Piece.Color, "promoted piece should retain its color")
+		})
+	}
 }

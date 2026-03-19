@@ -149,6 +149,99 @@ func TestGetResult_NoMoreMovesAfterGameOver(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func TestTrySanMove_PawnPromotion(t *testing.T) {
+	tests := []struct {
+		name          string
+		boardSetup    func() *game.ChessPosition
+		san           string
+		expectOk      bool
+		expectedPiece game.PieceType
+		expectedColor game.ColorType
+		expectedLoc   game.ChessLocation
+	}{
+		{
+			name: "white pawn promotes to queen via e8=Q",
+			boardSetup: func() *game.ChessPosition {
+				board := game.NewChessBoard()
+				board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank7}, game.ChessPiece{Piece: game.Pawn, Color: game.WhitePiece})
+				board.SetSquare(game.ChessLocation{File: game.FileA, Rank: game.Rank1}, game.ChessPiece{Piece: game.King, Color: game.WhitePiece})
+				board.SetSquare(game.ChessLocation{File: game.FileA, Rank: game.Rank8}, game.ChessPiece{Piece: game.King, Color: game.BlackPiece})
+				return &game.ChessPosition{
+					Board:        board,
+					PlayerToMove: game.WhitePiece,
+					CastlingRights: map[game.ColorType]game.CastlingRights{
+						game.WhitePiece: {},
+						game.BlackPiece: {},
+					},
+				}
+			},
+			san:           "e8=Q",
+			expectOk:      true,
+			expectedPiece: game.Queen,
+			expectedColor: game.WhitePiece,
+			expectedLoc:   game.ChessLocation{File: game.FileE, Rank: game.Rank8},
+		},
+		{
+			name: "white pawn promotes to knight via e8=N",
+			boardSetup: func() *game.ChessPosition {
+				board := game.NewChessBoard()
+				board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank7}, game.ChessPiece{Piece: game.Pawn, Color: game.WhitePiece})
+				board.SetSquare(game.ChessLocation{File: game.FileA, Rank: game.Rank1}, game.ChessPiece{Piece: game.King, Color: game.WhitePiece})
+				board.SetSquare(game.ChessLocation{File: game.FileA, Rank: game.Rank8}, game.ChessPiece{Piece: game.King, Color: game.BlackPiece})
+				return &game.ChessPosition{
+					Board:        board,
+					PlayerToMove: game.WhitePiece,
+					CastlingRights: map[game.ColorType]game.CastlingRights{
+						game.WhitePiece: {},
+						game.BlackPiece: {},
+					},
+				}
+			},
+			san:           "e8=N",
+			expectOk:      true,
+			expectedPiece: game.Knight,
+			expectedColor: game.WhitePiece,
+			expectedLoc:   game.ChessLocation{File: game.FileE, Rank: game.Rank8},
+		},
+		{
+			name: "black pawn promotes to rook via e1=R",
+			boardSetup: func() *game.ChessPosition {
+				board := game.NewChessBoard()
+				board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank2}, game.ChessPiece{Piece: game.Pawn, Color: game.BlackPiece})
+				board.SetSquare(game.ChessLocation{File: game.FileA, Rank: game.Rank1}, game.ChessPiece{Piece: game.King, Color: game.WhitePiece})
+				board.SetSquare(game.ChessLocation{File: game.FileA, Rank: game.Rank8}, game.ChessPiece{Piece: game.King, Color: game.BlackPiece})
+				return &game.ChessPosition{
+					Board:        board,
+					PlayerToMove: game.BlackPiece,
+					CastlingRights: map[game.ColorType]game.CastlingRights{
+						game.WhitePiece: {},
+						game.BlackPiece: {},
+					},
+				}
+			},
+			san:           "e1=R",
+			expectOk:      true,
+			expectedPiece: game.Rook,
+			expectedColor: game.BlackPiece,
+			expectedLoc:   game.ChessLocation{File: game.FileE, Rank: game.Rank1},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			g := NewGameFromPosition(test.boardSetup())
+			ok, err := g.TrySanMove(test.san)
+			assert.Equal(t, test.expectOk, ok)
+			if test.expectOk {
+				assert.NoError(t, err)
+				square := g.GetPosition().Board.GetSquare(test.expectedLoc)
+				assert.Equal(t, test.expectedPiece, square.Piece.Piece, "promoted piece type mismatch")
+				assert.Equal(t, test.expectedColor, square.Piece.Color, "promoted piece color mismatch")
+			}
+		})
+	}
+}
+
 func TestGetResult_DrawInsufficientMaterial(t *testing.T) {
 	// Build a K vs K position directly, which is insufficient material for either side.
 	board := game.NewChessBoard()

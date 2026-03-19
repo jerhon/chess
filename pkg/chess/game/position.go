@@ -123,8 +123,9 @@ func (position *ChessPosition) CastleQueenside() *ChessPosition {
 	}
 }
 
-// Move performs a chess move, does not take into consideration whether the move is valid
-func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation ChessLocation) *ChessPosition {
+// Move performs a chess move, does not take into consideration whether the move is valid.
+// promotionPiece specifies the piece a pawn promotes to when it reaches the back rank; use NoPiece for non-promotion moves.
+func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation ChessLocation, promotionPiece PieceType) *ChessPosition {
 	fromSquare := position.Board.GetSquare(fromLocation)
 	toSquare := position.Board.GetSquare(toLocation)
 
@@ -187,7 +188,16 @@ func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation Chess
 
 	newBoard := position.Board.Clone()
 	newBoard.SetSquare(fromLocation, ChessPiece{NoPiece, NoColor})
-	newBoard.SetSquare(toLocation, fromSquare.Piece)
+
+	// Apply pawn promotion when the pawn reaches the back rank.
+	pieceToPlace := fromSquare.Piece
+	if fromSquare.Piece.Piece == Pawn && promotionPiece != NoPiece {
+		if (position.PlayerToMove == WhitePiece && toLocation.Rank == Rank8) ||
+			(position.PlayerToMove == BlackPiece && toLocation.Rank == Rank1) {
+			pieceToPlace = ChessPiece{promotionPiece, fromSquare.Piece.Color}
+		}
+	}
+	newBoard.SetSquare(toLocation, pieceToPlace)
 
 	// if this is an en passant move, need to remove the pawn
 	if fromSquare.Piece.Piece == Pawn {

@@ -102,6 +102,11 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 				continue
 			}
 
+			// Filter by promotion piece: both must agree (NoPiece or the same target piece).
+			if move.PromotionPiece != sanMove.PromotionPiece {
+				continue
+			}
+
 			fromPiece, _ := g.position.Board.GetPiece(move.From.Location)
 			if fromPiece.Color != g.position.PlayerToMove {
 				continue
@@ -115,7 +120,7 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 		}
 
 		move := actualMoves[0]
-		newPosition := g.position.Move(move.From.Location, move.To)
+		newPosition := g.position.Move(move.From.Location, move.To, move.PromotionPiece)
 
 		g.position = newPosition
 		g.calculate()
