@@ -44,12 +44,12 @@ func (g *ChessGame) calculate() {
 }
 
 func (g *ChessGame) castleKingSide() {
-	g.position.CastleKingside()
+	g.position = g.position.CastleKingside()
 	g.calculate()
 }
 
 func (g *ChessGame) castleQueenSide() {
-	g.position.CastleQueenside()
+	g.position = g.position.CastleQueenside()
 	g.calculate()
 }
 
