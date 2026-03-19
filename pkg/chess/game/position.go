@@ -171,6 +171,26 @@ func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation Chess
 		}
 	}
 
+	// Revoke castling rights when a capture lands on a corner rook square.
+	type cornerEntry struct {
+		color    ColorType
+		kingSide bool
+	}
+	cornerRookSquares := map[ChessLocation]cornerEntry{
+		{FileA, Rank1}: {WhitePiece, false},
+		{FileH, Rank1}: {WhitePiece, true},
+		{FileA, Rank8}: {BlackPiece, false},
+		{FileH, Rank8}: {BlackPiece, true},
+	}
+	if corner, ok := cornerRookSquares[toLocation]; ok {
+		rights := castlingRights[corner.color]
+		if corner.kingSide {
+			castlingRights[corner.color] = CastlingRights{KingSide: false, QueenSide: rights.QueenSide}
+		} else {
+			castlingRights[corner.color] = CastlingRights{KingSide: rights.KingSide, QueenSide: false}
+		}
+	}
+
 	enPassantTarget := ChessLocation{}
 	if fromSquare.Piece.Piece == Pawn {
 		if fromLocation.Rank == Rank2 && toLocation.Rank == Rank4 {
@@ -192,11 +212,7 @@ func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation Chess
 	// if this is an en passant move, need to remove the pawn
 	if fromSquare.Piece.Piece == Pawn {
 		if toLocation == position.EnPassantSquare {
-			if position.PlayerToMove == BlackPiece {
-				newBoard.SetSquare(ChessLocation{fromLocation.File, Rank7}, ChessPiece{NoPiece, NoColor})
-			} else {
-				newBoard.SetSquare(ChessLocation{fromLocation.File, Rank3}, ChessPiece{NoPiece, NoColor})
-			}
+			newBoard.SetSquare(ChessLocation{toLocation.File, fromLocation.Rank}, ChessPiece{NoPiece, NoColor})
 			halfmoveClock = 0
 		}
 	}
