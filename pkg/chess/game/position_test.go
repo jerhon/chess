@@ -207,7 +207,7 @@ func TestMove_CastlingRightsPreserved(t *testing.T) {
 				CastlingRights: test.initialRights,
 			}
 
-			result := position.Move(test.from, test.to)
+			result := position.Move(test.from, test.to, NoPiece)
 			assert.Equal(t, test.expectedRights, result.CastlingRights)
 		})
 	}
@@ -228,7 +228,7 @@ func TestMove_BlackKingsideRookFix(t *testing.T) {
 		},
 	}
 
-	result := position.Move(ChessLocation{FileH, Rank8}, ChessLocation{FileH, Rank6})
+	result := position.Move(ChessLocation{FileH, Rank8}, ChessLocation{FileH, Rank6}, NoPiece)
 
 	// Kingside right must be cleared; queenside must remain
 	assert.False(t, result.CastlingRights[BlackPiece].KingSide, "black kingside castling right should be cleared after H8 rook moves")
@@ -236,4 +236,145 @@ func TestMove_BlackKingsideRookFix(t *testing.T) {
 	// White rights must be untouched
 	assert.True(t, result.CastlingRights[WhitePiece].KingSide)
 	assert.True(t, result.CastlingRights[WhitePiece].QueenSide)
+}
+
+func TestMove_PawnPromotion(t *testing.T) {
+	tests := []struct {
+		name           string
+		color          ColorType
+		from           ChessLocation
+		to             ChessLocation
+		promotionPiece PieceType
+	}{
+		{
+			name:           "white pawn promotes to queen",
+			color:          WhitePiece,
+			from:           ChessLocation{FileE, Rank7},
+			to:             ChessLocation{FileE, Rank8},
+			promotionPiece: Queen,
+		},
+		{
+			name:           "white pawn promotes to rook",
+			color:          WhitePiece,
+			from:           ChessLocation{FileE, Rank7},
+			to:             ChessLocation{FileE, Rank8},
+			promotionPiece: Rook,
+		},
+		{
+			name:           "white pawn promotes to bishop",
+			color:          WhitePiece,
+			from:           ChessLocation{FileE, Rank7},
+			to:             ChessLocation{FileE, Rank8},
+			promotionPiece: Bishop,
+		},
+		{
+			name:           "white pawn promotes to knight",
+			color:          WhitePiece,
+			from:           ChessLocation{FileE, Rank7},
+			to:             ChessLocation{FileE, Rank8},
+			promotionPiece: Knight,
+		},
+		{
+			name:           "black pawn promotes to queen",
+			color:          BlackPiece,
+			from:           ChessLocation{FileD, Rank2},
+			to:             ChessLocation{FileD, Rank1},
+			promotionPiece: Queen,
+		},
+		{
+			name:           "black pawn promotes to knight",
+			color:          BlackPiece,
+			from:           ChessLocation{FileD, Rank2},
+			to:             ChessLocation{FileD, Rank1},
+			promotionPiece: Knight,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			board := NewChessBoard()
+			board.SetSquare(test.from, ChessPiece{Pawn, test.color})
+
+			position := &ChessPosition{
+				Board:        board,
+				PlayerToMove: test.color,
+				CastlingRights: map[ColorType]CastlingRights{
+					WhitePiece: {},
+					BlackPiece: {},
+				},
+			}
+
+			result := position.Move(test.from, test.to, test.promotionPiece)
+
+			// Source square must be empty
+			fromSquare := result.Board.GetSquare(test.from)
+			assert.True(t, fromSquare.IsEmpty(), "source square should be empty after promotion")
+
+			// Destination square must hold the promoted piece with the correct color
+			toSquare := result.Board.GetSquare(test.to)
+			assert.Equal(t, test.promotionPiece, toSquare.Piece.Piece, "promoted piece type should match")
+			assert.Equal(t, test.color, toSquare.Piece.Color, "promoted piece color should match")
+		})
+	}
+}
+
+func TestCalculatePawnMoves_GeneratesPromotionMoves(t *testing.T) {
+	board := NewChessBoard()
+	board.SetSquare(ChessLocation{FileE, Rank7}, ChessPiece{Pawn, WhitePiece})
+
+	position := &ChessPosition{
+		Board:        board,
+		PlayerToMove: WhitePiece,
+		CastlingRights: map[ColorType]CastlingRights{
+			WhitePiece: {},
+			BlackPiece: {},
+		},
+	}
+
+	moves := CalculateMoves(position, ChessLocation{FileE, Rank7})
+
+	// Should generate exactly 4 promotion moves (Q, R, B, N) for forward move
+	promotionMoves := []ChessMove{}
+	for _, m := range moves {
+		if m.To == (ChessLocation{FileE, Rank8}) && m.CanMove {
+			promotionMoves = append(promotionMoves, m)
+		}
+	}
+	assert.Len(t, promotionMoves, 4, "should generate 4 promotion moves for forward push")
+
+	pieces := map[PieceType]bool{}
+	for _, m := range promotionMoves {
+		pieces[m.PromotionPiece] = true
+	}
+	assert.True(t, pieces[Queen], "should have queen promotion")
+	assert.True(t, pieces[Rook], "should have rook promotion")
+	assert.True(t, pieces[Bishop], "should have bishop promotion")
+	assert.True(t, pieces[Knight], "should have knight promotion")
+}
+
+func TestCalculatePawnMoves_GeneratesCapturePromotionMoves(t *testing.T) {
+	board := NewChessBoard()
+	board.SetSquare(ChessLocation{FileE, Rank7}, ChessPiece{Pawn, WhitePiece})
+	// Place a black piece to capture on f8
+	board.SetSquare(ChessLocation{FileF, Rank8}, ChessPiece{Rook, BlackPiece})
+
+	position := &ChessPosition{
+		Board:        board,
+		PlayerToMove: WhitePiece,
+		CastlingRights: map[ColorType]CastlingRights{
+			WhitePiece: {},
+			BlackPiece: {},
+		},
+	}
+
+	moves := CalculateMoves(position, ChessLocation{FileE, Rank7})
+
+	// Should generate 4 capture-promotion moves toward f8
+	capturePromos := []ChessMove{}
+	for _, m := range moves {
+		if m.To == (ChessLocation{FileF, Rank8}) && m.CanMove {
+			capturePromos = append(capturePromos, m)
+		}
+	}
+	assert.Len(t, capturePromos, 4, "should generate 4 capture-promotion moves toward f8")
 }

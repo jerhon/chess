@@ -158,7 +158,7 @@ func (calculator *ChessMovement) calculateValidMoves() {
 		}
 
 		// cannot move into check
-		candidatePosition := calculator.Position.Move(move.From.Location, move.To)
+		candidatePosition := calculator.Position.Move(move.From.Location, move.To, move.PromotionPiece)
 
 		// Just need to calculate through check
 		checkCalculator := NewChessMovement(candidatePosition)
@@ -256,6 +256,10 @@ type ChessMove struct {
 
 	// IsCastle true if the move is a castle, if true, this will only represent the move of the king
 	IsCastle bool
+
+	// PromotionPiece holds the piece a pawn promotes to when reaching the back rank (Queen, Rook, Bishop, or Knight).
+	// NoPiece for non-promotion moves.
+	PromotionPiece PieceType
 }
 
 func (move ChessMove) String() string {
@@ -271,6 +275,11 @@ func (move ChessMove) String() string {
 
 	if move.IsCastle {
 		builder.WriteString("-")
+	}
+
+	if move.PromotionPiece != NoPiece {
+		builder.WriteString("=")
+		builder.WriteRune(rune(move.PromotionPiece))
 	}
 
 	return builder.String()
@@ -331,28 +340,38 @@ func calculatePawnMoves(position *ChessPosition, fromLocation ChessLocation) []C
 		forwardOrBack = RankType(-1)
 	}
 
+	promotionRank := Rank8
+	if fromPiece.Color == BlackPiece {
+		promotionRank = Rank1
+	}
+
 	// Pawn can move 1 square
 	toLocation := ChessLocation{Rank: fromLocation.Rank + forwardOrBack, File: fromLocation.File}
 	_, match = position.Board.GetPiece(toLocation)
 	if !match {
-		moves = append(moves, ChessMove{
+		base := ChessMove{
 			From:       fromSquare,
 			To:         toLocation,
 			CanMove:    true,
 			CanCapture: false,
-		})
+		}
+		if toLocation.Rank == promotionRank {
+			moves = append(moves, expandToPromotionMoves(base)...)
+		} else {
+			moves = append(moves, base)
 
-		// If the pawn is on a starting location, it can move 2 squares
-		if isPawnOnStartingSquare(fromLocation, fromPiece.Color) {
-			toLocation = ChessLocation{Rank: fromLocation.Rank + forwardOrBack*2, File: fromLocation.File}
-			_, match = position.Board.GetPiece(toLocation)
-			if !match {
-				moves = append(moves, ChessMove{
-					From:       fromSquare,
-					To:         toLocation,
-					CanMove:    true,
-					CanCapture: false,
-				})
+			// If the pawn is on a starting location, it can move 2 squares
+			if isPawnOnStartingSquare(fromLocation, fromPiece.Color) {
+				toLocation = ChessLocation{Rank: fromLocation.Rank + forwardOrBack*2, File: fromLocation.File}
+				_, match = position.Board.GetPiece(toLocation)
+				if !match {
+					moves = append(moves, ChessMove{
+						From:       fromSquare,
+						To:         toLocation,
+						CanMove:    true,
+						CanCapture: false,
+					})
+				}
 			}
 		}
 	}
@@ -362,23 +381,45 @@ func calculatePawnMoves(position *ChessPosition, fromLocation ChessLocation) []C
 	toLocation = ChessLocation{Rank: fromLocation.Rank + forwardOrBack, File: fromLocation.File + FileType(1)}
 	toPiece, match := position.Board.GetPiece(toLocation)
 	isCapture := (match && toPiece.Color != fromPiece.Color) || (toLocation == position.EnPassantSquare)
-	moves = append(moves, ChessMove{
+	base := ChessMove{
 		From:       fromSquare,
 		To:         toLocation,
 		CanCapture: true,
 		CanMove:    isCapture,
-	})
+	}
+	if toLocation.Rank == promotionRank {
+		moves = append(moves, expandToPromotionMoves(base)...)
+	} else {
+		moves = append(moves, base)
+	}
 
 	toLocation = ChessLocation{Rank: fromLocation.Rank + forwardOrBack, File: fromLocation.File - FileType(1)}
 	toPiece, match = position.Board.GetPiece(toLocation)
 	isCapture = (match && toPiece.Color != fromPiece.Color) || (toLocation == position.EnPassantSquare)
-	moves = append(moves, ChessMove{
+	base = ChessMove{
 		From:       fromSquare,
 		To:         toLocation,
 		CanCapture: true,
 		CanMove:    isCapture,
-	})
+	}
+	if toLocation.Rank == promotionRank {
+		moves = append(moves, expandToPromotionMoves(base)...)
+	} else {
+		moves = append(moves, base)
+	}
 
+	return moves
+}
+
+// expandToPromotionMoves returns four copies of base, one for each promotable piece type.
+func expandToPromotionMoves(base ChessMove) []ChessMove {
+	promotionPieces := []PieceType{Queen, Rook, Bishop, Knight}
+	moves := make([]ChessMove, 0, len(promotionPieces))
+	for _, piece := range promotionPieces {
+		m := base
+		m.PromotionPiece = piece
+		moves = append(moves, m)
+	}
 	return moves
 }
 

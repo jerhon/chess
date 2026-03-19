@@ -233,3 +233,121 @@ func TestGetResult_DrawInsufficientMaterial(t *testing.T) {
 	assert.Equal(t, game.DrawInsufficientMaterial, movement.Result)
 	assert.True(t, movement.Result.IsDraw())
 }
+
+func TestTrySanMove_PawnPromotion(t *testing.T) {
+	tests := []struct {
+		name           string
+		sanMove        string
+		fromFile       game.FileType
+		fromRank       game.RankType
+		toFile         game.FileType
+		toRank         game.RankType
+		color          game.ColorType
+		promotionPiece game.PieceType
+	}{
+		{
+			name:           "white pawn promotes to queen via e8=Q",
+			sanMove:        "e8=Q",
+			fromFile:       game.FileE,
+			fromRank:       game.Rank7,
+			toFile:         game.FileE,
+			toRank:         game.Rank8,
+			color:          game.WhitePiece,
+			promotionPiece: game.Queen,
+		},
+		{
+			name:           "white pawn promotes to rook via e8=R",
+			sanMove:        "e8=R",
+			fromFile:       game.FileE,
+			fromRank:       game.Rank7,
+			toFile:         game.FileE,
+			toRank:         game.Rank8,
+			color:          game.WhitePiece,
+			promotionPiece: game.Rook,
+		},
+		{
+			name:           "white pawn promotes to bishop via e8=B",
+			sanMove:        "e8=B",
+			fromFile:       game.FileE,
+			fromRank:       game.Rank7,
+			toFile:         game.FileE,
+			toRank:         game.Rank8,
+			color:          game.WhitePiece,
+			promotionPiece: game.Bishop,
+		},
+		{
+			name:           "white pawn promotes to knight via e8=N",
+			sanMove:        "e8=N",
+			fromFile:       game.FileE,
+			fromRank:       game.Rank7,
+			toFile:         game.FileE,
+			toRank:         game.Rank8,
+			color:          game.WhitePiece,
+			promotionPiece: game.Knight,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			board := game.NewChessBoard()
+			board.SetSquare(game.ChessLocation{File: test.fromFile, Rank: test.fromRank}, game.ChessPiece{Piece: game.Pawn, Color: test.color})
+
+			pos := &game.ChessPosition{
+				Board:        board,
+				PlayerToMove: test.color,
+				CastlingRights: map[game.ColorType]game.CastlingRights{
+					game.WhitePiece: {},
+					game.BlackPiece: {},
+				},
+				EnPassantSquare: game.ChessLocation{},
+				HalfmoveClock:   0,
+				FullmoveNumber:  1,
+			}
+
+			g := NewGameFromPosition(pos)
+			ok, err := g.TrySanMove(test.sanMove)
+			assert.True(t, ok)
+			assert.NoError(t, err)
+
+			// The destination square must hold the promoted piece
+			toSquare := g.GetPosition().Board.GetSquare(game.ChessLocation{File: test.toFile, Rank: test.toRank})
+			assert.Equal(t, test.promotionPiece, toSquare.Piece.Piece, "promoted piece type should match")
+			assert.Equal(t, test.color, toSquare.Piece.Color, "promoted piece color should match")
+
+			// The source square must be empty
+			fromSquare := g.GetPosition().Board.GetSquare(game.ChessLocation{File: test.fromFile, Rank: test.fromRank})
+			assert.True(t, fromSquare.IsEmpty(), "source square should be empty after promotion")
+		})
+	}
+}
+
+func TestTrySanMove_PawnPromotionWithCapture(t *testing.T) {
+	// White pawn on d7 captures black rook on e8 and promotes to queen
+	board := game.NewChessBoard()
+	board.SetSquare(game.ChessLocation{File: game.FileD, Rank: game.Rank7}, game.ChessPiece{Piece: game.Pawn, Color: game.WhitePiece})
+	board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank8}, game.ChessPiece{Piece: game.Rook, Color: game.BlackPiece})
+
+	pos := &game.ChessPosition{
+		Board:        board,
+		PlayerToMove: game.WhitePiece,
+		CastlingRights: map[game.ColorType]game.CastlingRights{
+			game.WhitePiece: {},
+			game.BlackPiece: {},
+		},
+		EnPassantSquare: game.ChessLocation{},
+		HalfmoveClock:   0,
+		FullmoveNumber:  1,
+	}
+
+	g := NewGameFromPosition(pos)
+	ok, err := g.TrySanMove("dxe8=Q")
+	assert.True(t, ok)
+	assert.NoError(t, err)
+
+	toSquare := g.GetPosition().Board.GetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank8})
+	assert.Equal(t, game.Queen, toSquare.Piece.Piece)
+	assert.Equal(t, game.WhitePiece, toSquare.Piece.Color)
+
+	fromSquare := g.GetPosition().Board.GetSquare(game.ChessLocation{File: game.FileD, Rank: game.Rank7})
+	assert.True(t, fromSquare.IsEmpty())
+}
