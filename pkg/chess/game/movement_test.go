@@ -164,60 +164,60 @@ func TestKingSideCastlingPathBlocked(t *testing.T) {
 	}
 }
 
-func TestQueenSideCastlingPathClear(t *testing.T) {
+func TestQueenSideCastlingPathBlocked(t *testing.T) {
 	tests := []struct {
-		name               string
-		boardSetup         string
-		playerToMove       ColorType
-		canCastleQueenSide bool
+		name         string
+		boardSetup   string
+		playerToMove ColorType
+		canCastle    bool
 	}{
 		{
-			name:               "white queen-side clear - castling allowed",
-			boardSetup:         "Ke1 Ra1 ke8",
-			playerToMove:       WhitePiece,
-			canCastleQueenSide: true,
+			name:         "white queen-side castling clear path",
+			boardSetup:   "Ke1 Ra1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    true,
 		},
 		{
-			name:               "white queen-side blocked at d1 - castling not allowed",
-			boardSetup:         "Ke1 Ra1 Qd1 ke8",
-			playerToMove:       WhitePiece,
-			canCastleQueenSide: false,
+			name:         "white queen-side castling blocked by piece on d1",
+			boardSetup:   "Ke1 Ra1 Qd1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    false,
 		},
 		{
-			name:               "white queen-side blocked at c1 - castling not allowed",
-			boardSetup:         "Ke1 Ra1 Bc1 ke8",
-			playerToMove:       WhitePiece,
-			canCastleQueenSide: false,
+			name:         "white queen-side castling blocked by piece on c1",
+			boardSetup:   "Ke1 Ra1 Bc1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    false,
 		},
 		{
-			name:               "white queen-side blocked at b1 - castling not allowed",
-			boardSetup:         "Ke1 Ra1 Nb1 ke8",
-			playerToMove:       WhitePiece,
-			canCastleQueenSide: false,
+			name:         "white queen-side castling blocked by piece on b1",
+			boardSetup:   "Ke1 Ra1 Nb1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    false,
 		},
 		{
-			name:               "black queen-side clear - castling allowed",
-			boardSetup:         "ke8 ra8 Ke1",
-			playerToMove:       BlackPiece,
-			canCastleQueenSide: true,
+			name:         "black queen-side castling clear path",
+			boardSetup:   "ke8 ra8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    true,
 		},
 		{
-			name:               "black queen-side blocked at d8 - castling not allowed",
-			boardSetup:         "ke8 ra8 qd8 Ke1",
-			playerToMove:       BlackPiece,
-			canCastleQueenSide: false,
+			name:         "black queen-side castling blocked by piece on d8",
+			boardSetup:   "ke8 ra8 qd8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    false,
 		},
 		{
-			name:               "black queen-side blocked at c8 - castling not allowed",
-			boardSetup:         "ke8 ra8 bc8 Ke1",
-			playerToMove:       BlackPiece,
-			canCastleQueenSide: false,
+			name:         "black queen-side castling blocked by piece on c8",
+			boardSetup:   "ke8 ra8 bc8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    false,
 		},
 		{
-			name:               "black queen-side blocked at b8 - castling not allowed",
-			boardSetup:         "ke8 ra8 nb8 Ke1",
-			playerToMove:       BlackPiece,
-			canCastleQueenSide: false,
+			name:         "black queen-side castling blocked by piece on b8",
+			boardSetup:   "ke8 ra8 nb8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    false,
 		},
 	}
 
@@ -228,16 +228,17 @@ func TestQueenSideCastlingPathClear(t *testing.T) {
 				Board:        board,
 				PlayerToMove: test.playerToMove,
 				CastlingRights: map[ColorType]CastlingRights{
-					WhitePiece: {QueenSide: true, KingSide: true},
-					BlackPiece: {QueenSide: true, KingSide: true},
+					WhitePiece: {KingSide: false, QueenSide: true},
+					BlackPiece: {KingSide: false, QueenSide: true},
 				},
 			}
 			movement := NewChessMovement(position)
 			movement.Calculate()
-			assert.Equal(t, test.canCastleQueenSide, movement.CanCastle.QueenSide)
+			assert.Equal(t, test.canCastle, movement.CanCastle.QueenSide)
 		})
 	}
 }
+
 
 func TestValidPawnMoves(t *testing.T) {
 	tests := []struct {
