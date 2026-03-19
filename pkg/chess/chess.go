@@ -2,14 +2,31 @@ package chess
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/jerhon/chess/pkg/chess/fen"
 	game "github.com/jerhon/chess/pkg/chess/game"
 	"github.com/jerhon/chess/pkg/chess/san"
 )
 
 type ChessGame struct {
-	position *game.ChessPosition
-	moves    *game.ChessMovement
+	position        *game.ChessPosition
+	moves           *game.ChessMovement
+	positionHistory map[string]int
+}
+
+// positionKey returns a string key for the given position that captures all factors
+// relevant to threefold repetition: board state, player to move, castling rights,
+// and en passant square. It uses the first four fields of the FEN string and omits
+// the halfmove clock and fullmove number, which do not affect position identity
+// for repetition purposes under standard chess rules.
+func positionKey(position *game.ChessPosition) string {
+	fenStr := fen.ToFenString(position)
+	parts := strings.Fields(fenStr)
+	if len(parts) >= 4 {
+		return strings.Join(parts[:4], " ")
+	}
+	return fenStr
 }
 
 func NewGame() *ChessGame {
@@ -20,8 +37,9 @@ func NewGame() *ChessGame {
 	moves.Calculate()
 
 	return &ChessGame{
-		position,
-		moves,
+		position:        position,
+		moves:           moves,
+		positionHistory: map[string]int{positionKey(position): 1},
 	}
 }
 
@@ -31,8 +49,9 @@ func NewGameFromPosition(position *game.ChessPosition) *ChessGame {
 	moves.Calculate()
 
 	return &ChessGame{
-		position,
-		moves,
+		position:        position,
+		moves:           moves,
+		positionHistory: map[string]int{positionKey(position): 1},
 	}
 }
 
@@ -40,6 +59,16 @@ func (g *ChessGame) calculate() {
 	if g.moves == nil || g.moves.Position != g.position {
 		g.moves = game.NewChessMovement(g.position)
 		g.moves.Calculate()
+	}
+}
+
+// recordCurrentPosition increments the visit count for the current position and
+// declares DrawRepetition when the same position has occurred three or more times.
+func (g *ChessGame) recordCurrentPosition() {
+	key := positionKey(g.position)
+	g.positionHistory[key]++
+	if g.moves.Result == game.InProgress && g.positionHistory[key] >= 3 {
+		g.moves.Result = game.DrawRepetition
 	}
 }
 
@@ -123,6 +152,7 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 		return false, fmt.Errorf("invalid SAN %s", sanText)
 	}
 
+	g.recordCurrentPosition()
 	return true, nil
 }
 
