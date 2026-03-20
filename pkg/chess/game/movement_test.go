@@ -242,11 +242,11 @@ func TestQueenSideCastlingPathBlocked(t *testing.T) {
 
 func TestValidPawnMoves(t *testing.T) {
 	tests := []struct {
-		name              string
-		boardSetup        string
-		playerToMove      ColorType
-		expectedMoves     []string
-		notExpectedMoves  []string
+		name             string
+		boardSetup       string
+		playerToMove     ColorType
+		expectedMoves    []string
+		notExpectedMoves []string
 	}{
 		{
 			name:         "white pawn no adjacent pieces - no captures in valid moves",
@@ -287,6 +287,32 @@ func TestValidPawnMoves(t *testing.T) {
 			// Starting square pawn can move 1 or 2 squares; no captures on empty diagonals
 			expectedMoves:    []string{"Pd2d3", "Pd2d4"},
 			notExpectedMoves: []string{"Pd2xe3", "Pd2xc3"},
+		},
+		{
+			name:         "white pawn on rank 7 generates one promotion move",
+			boardSetup:   "Pe7 Ke1 ka8",
+			playerToMove: WhitePiece,
+			expectedMoves: []string{
+				"Pe7e8=",
+			},
+			notExpectedMoves: []string{"Pe7e8"},
+		},
+		{
+			name:         "black pawn on rank 2 generates one promotion move",
+			boardSetup:   "pe2 ka8 Kh1",
+			playerToMove: BlackPiece,
+			expectedMoves: []string{
+				"pe2e1=",
+			},
+			notExpectedMoves: []string{"pe2e1"},
+		},
+		{
+			name:         "white pawn on rank 7 captures to promotion square generates one capture-promotion move",
+			boardSetup:   "Pe7 rd8 Ke1 ka8",
+			playerToMove: WhitePiece,
+			expectedMoves: []string{
+				"Pe7xd8=",
+			},
 		},
 	}
 
