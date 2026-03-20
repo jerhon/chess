@@ -102,8 +102,8 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 				continue
 			}
 
-			// Filter by promotion piece: both must agree (NoPiece or the same target piece).
-			if move.PromotionPiece != sanMove.PromotionPiece {
+			// A promotion move requires a promotion piece in the SAN; a non-promotion move must not have one.
+			if move.IsPromotion != (sanMove.PromotionPiece != game.NoPiece) {
 				continue
 			}
 
@@ -120,7 +120,16 @@ func (g *ChessGame) TrySanMove(sanText string) (bool, error) {
 		}
 
 		move := actualMoves[0]
-		newPosition := g.position.Move(move.From.Location, move.To, move.PromotionPiece)
+		promotionPiece := game.NoPiece
+		if move.IsPromotion {
+			switch sanMove.PromotionPiece {
+			case game.Queen, game.Rook, game.Bishop, game.Knight:
+				promotionPiece = sanMove.PromotionPiece
+			default:
+				return false, fmt.Errorf("invalid promotion piece %v in SAN %s", sanMove.PromotionPiece, sanText)
+			}
+		}
+		newPosition := g.position.Move(move.From.Location, move.To, promotionPiece)
 
 		g.position = newPosition
 		g.calculate()

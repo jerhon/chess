@@ -162,29 +162,29 @@ func TestValidPawnMoves(t *testing.T) {
 			notExpectedMoves: []string{"Pd2xe3", "Pd2xc3"},
 		},
 		{
-			name:         "white pawn on rank 7 generates four promotion moves",
+			name:         "white pawn on rank 7 generates one promotion move",
 			boardSetup:   "Pe7 Ke1 ka8",
 			playerToMove: WhitePiece,
 			expectedMoves: []string{
-				"Pe7e8=Q", "Pe7e8=R", "Pe7e8=B", "Pe7e8=N",
+				"Pe7e8=",
 			},
 			notExpectedMoves: []string{"Pe7e8"},
 		},
 		{
-			name:         "black pawn on rank 2 generates four promotion moves",
+			name:         "black pawn on rank 2 generates one promotion move",
 			boardSetup:   "pe2 ka8 Kh1",
 			playerToMove: BlackPiece,
 			expectedMoves: []string{
-				"pe2e1=Q", "pe2e1=R", "pe2e1=B", "pe2e1=N",
+				"pe2e1=",
 			},
 			notExpectedMoves: []string{"pe2e1"},
 		},
 		{
-			name:         "white pawn on rank 7 captures to promotion square generates four capture-promotion moves",
+			name:         "white pawn on rank 7 captures to promotion square generates one capture-promotion move",
 			boardSetup:   "Pe7 rd8 Ke1 ka8",
 			playerToMove: WhitePiece,
 			expectedMoves: []string{
-				"Pe7xd8=Q", "Pe7xd8=R", "Pe7xd8=B", "Pe7xd8=N",
+				"Pe7xd8=",
 			},
 		},
 	}
