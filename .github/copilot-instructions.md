@@ -10,16 +10,17 @@ This repository is a command-line chess game and engine written in Go. It includ
 - PGN (Portable Game Notation) parsing
 - A Chess.com API client for fetching game archives
 - A UCI (Universal Chess Interface) stub
-- Two CLI applications: an interactive chess game (`chess-cli`) and a Chess.com data exporter (`chessdotcom`)
+- Two CLI applications: an interactive TUI chess game (`chess-cli`) and a Chess.com data exporter (`chessdotcom`)
+- A terminal UI built with [Bubble Tea](https://github.com/charmbracelet/bubbletea) and [Lip Gloss](https://github.com/charmbracelet/lipgloss)
 
 ## Repository Layout
 
 ```
 cmd/
-  chess-cli/      # Interactive CLI chess game (reads SAN moves from stdin)
+  chess-cli/      # Interactive TUI chess game (Bubble Tea + Lip Gloss)
   chessdotcom/    # CLI tool for exporting PGNs from Chess.com
 pkg/
-  chess/          # Top-level chess game API (ChessGame, TrySanMove, GetLegalMoves)
+  chess/          # Top-level chess game API (ChessGame, TrySanMove, GetMoves)
     game/         # Core chess primitives: board, pieces, locations, positions, move generation
     san/          # SAN parser and data types
     pgn/          # PGN tokenizer and parser
@@ -50,8 +51,11 @@ Go version: `1.24`
 
 - **`ChessGame`** – High-level game controller. Create with `NewGame()`.
 - **`TrySanMove(san string) (bool, error)`** – Apply a move given in SAN notation.
-- **`GetLegalMoves() []game.ChessMove`** – Returns all legal moves for the current player.
+- **`GetMoves() []game.ChessMove`** – Returns all legal moves for the current player.
 - **`GetPosition() *game.ChessPosition`** – Returns the current position.
+- **`IsCheck() bool`** – Returns true if the current player is in check.
+- **`IsCheckmate() bool`** – Returns true if the current player is in checkmate.
+- **`IsStalemate() bool`** – Returns true if the current player is in stalemate.
 
 ## Coding Conventions
 

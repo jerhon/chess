@@ -115,11 +115,11 @@ func parseBoard(squareLayoutString string) *ChessBoard {
 
 func TestCastlingNotAllowedWhenInCheck(t *testing.T) {
 	tests := []struct {
-		name          string
-		boardSetup    string
-		playerToMove  ColorType
-		castlingRight CastlingRights
-		expectKingSide bool
+		name            string
+		boardSetup      string
+		playerToMove    ColorType
+		castlingRight   CastlingRights
+		expectKingSide  bool
 		expectQueenSide bool
 	}{
 		{
@@ -142,7 +142,7 @@ func TestCastlingNotAllowedWhenInCheck(t *testing.T) {
 		},
 		{
 			name: "white can castle kingside when not in check",
-			// King on e1, Rook on h1, no check
+			// White king on e1, white rook on h1 (kingside), black king on e8, and no checking piece
 			boardSetup:      "Ke1 Rh1 ke8",
 			playerToMove:    WhitePiece,
 			castlingRight:   CastlingRights{KingSide: true, QueenSide: false},
@@ -182,13 +182,138 @@ func TestCastlingNotAllowedWhenInCheck(t *testing.T) {
 	}
 }
 
+func TestKingSideCastlingPathBlocked(t *testing.T) {
+	tests := []struct {
+		name         string
+		boardSetup   string
+		playerToMove ColorType
+		canCastle    bool
+	}{
+		{
+			name:         "white king-side castling blocked by piece on g1",
+			boardSetup:   "Ke1 Re8 Rh1 Bg1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    false,
+		},
+		{
+			name:         "white king-side castling blocked by piece on f1",
+			boardSetup:   "Ke1 Rh1 Bf1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    false,
+		},
+		{
+			name:         "white king-side castling clear path",
+			boardSetup:   "Ke1 Rh1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    true,
+		},
+		{
+			name:         "black king-side castling blocked by piece on g8",
+			boardSetup:   "ke8 rh8 bg8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			board := parseBoard(test.boardSetup)
+			position := &ChessPosition{
+				Board:        board,
+				PlayerToMove: test.playerToMove,
+				CastlingRights: map[ColorType]CastlingRights{
+					WhitePiece: {KingSide: true, QueenSide: false},
+					BlackPiece: {KingSide: true, QueenSide: false},
+				},
+			}
+			movement := NewChessMovement(position)
+			movement.Calculate()
+			assert.Equal(t, test.canCastle, movement.CanCastle.KingSide)
+		})
+	}
+}
+
+func TestQueenSideCastlingPathBlocked(t *testing.T) {
+	tests := []struct {
+		name         string
+		boardSetup   string
+		playerToMove ColorType
+		canCastle    bool
+	}{
+		{
+			name:         "white queen-side castling clear path",
+			boardSetup:   "Ke1 Ra1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    true,
+		},
+		{
+			name:         "white queen-side castling blocked by piece on d1",
+			boardSetup:   "Ke1 Ra1 Qd1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    false,
+		},
+		{
+			name:         "white queen-side castling blocked by piece on c1",
+			boardSetup:   "Ke1 Ra1 Bc1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    false,
+		},
+		{
+			name:         "white queen-side castling blocked by piece on b1",
+			boardSetup:   "Ke1 Ra1 Nb1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    false,
+		},
+		{
+			name:         "black queen-side castling clear path",
+			boardSetup:   "ke8 ra8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    true,
+		},
+		{
+			name:         "black queen-side castling blocked by piece on d8",
+			boardSetup:   "ke8 ra8 qd8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    false,
+		},
+		{
+			name:         "black queen-side castling blocked by piece on c8",
+			boardSetup:   "ke8 ra8 bc8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    false,
+		},
+		{
+			name:         "black queen-side castling blocked by piece on b8",
+			boardSetup:   "ke8 ra8 nb8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			board := parseBoard(test.boardSetup)
+			position := &ChessPosition{
+				Board:        board,
+				PlayerToMove: test.playerToMove,
+				CastlingRights: map[ColorType]CastlingRights{
+					WhitePiece: {KingSide: false, QueenSide: true},
+					BlackPiece: {KingSide: false, QueenSide: true},
+				},
+			}
+			movement := NewChessMovement(position)
+			movement.Calculate()
+			assert.Equal(t, test.canCastle, movement.CanCastle.QueenSide)
+		})
+	}
+}
 func TestValidPawnMoves(t *testing.T) {
 	tests := []struct {
-		name              string
-		boardSetup        string
-		playerToMove      ColorType
-		expectedMoves     []string
-		notExpectedMoves  []string
+		name             string
+		boardSetup       string
+		playerToMove     ColorType
+		expectedMoves    []string
+		notExpectedMoves []string
 	}{
 		{
 			name:         "white pawn no adjacent pieces - no captures in valid moves",
@@ -229,6 +354,32 @@ func TestValidPawnMoves(t *testing.T) {
 			// Starting square pawn can move 1 or 2 squares; no captures on empty diagonals
 			expectedMoves:    []string{"Pd2d3", "Pd2d4"},
 			notExpectedMoves: []string{"Pd2xe3", "Pd2xc3"},
+		},
+		{
+			name:         "white pawn on rank 7 generates one promotion move",
+			boardSetup:   "Pe7 Ke1 ka8",
+			playerToMove: WhitePiece,
+			expectedMoves: []string{
+				"Pe7e8=",
+			},
+			notExpectedMoves: []string{"Pe7e8"},
+		},
+		{
+			name:         "black pawn on rank 2 generates one promotion move",
+			boardSetup:   "pe2 ka8 Kh1",
+			playerToMove: BlackPiece,
+			expectedMoves: []string{
+				"pe2e1=",
+			},
+			notExpectedMoves: []string{"pe2e1"},
+		},
+		{
+			name:         "white pawn on rank 7 captures to promotion square generates one capture-promotion move",
+			boardSetup:   "Pe7 rd8 Ke1 ka8",
+			playerToMove: WhitePiece,
+			expectedMoves: []string{
+				"Pe7xd8=",
+			},
 		},
 	}
 

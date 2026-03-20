@@ -123,8 +123,9 @@ func (position *ChessPosition) CastleQueenside() *ChessPosition {
 	}
 }
 
-// Move performs a chess move, does not take into consideration whether the move is valid
-func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation ChessLocation) *ChessPosition {
+// Move performs a chess move, does not take into consideration whether the move is valid.
+// promotionPiece specifies the piece a pawn promotes to when it reaches the back rank; use NoPiece for non-promotion moves.
+func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation ChessLocation, promotionPiece PieceType) *ChessPosition {
 	fromSquare := position.Board.GetSquare(fromLocation)
 	toSquare := position.Board.GetSquare(toLocation)
 
@@ -171,6 +172,26 @@ func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation Chess
 		}
 	}
 
+	// Revoke castling rights when a capture lands on a corner rook square.
+	type cornerEntry struct {
+		color    ColorType
+		kingSide bool
+	}
+	cornerRookSquares := map[ChessLocation]cornerEntry{
+		{FileA, Rank1}: {WhitePiece, false},
+		{FileH, Rank1}: {WhitePiece, true},
+		{FileA, Rank8}: {BlackPiece, false},
+		{FileH, Rank8}: {BlackPiece, true},
+	}
+	if corner, ok := cornerRookSquares[toLocation]; ok {
+		rights := castlingRights[corner.color]
+		if corner.kingSide {
+			castlingRights[corner.color] = CastlingRights{KingSide: false, QueenSide: rights.QueenSide}
+		} else {
+			castlingRights[corner.color] = CastlingRights{KingSide: rights.KingSide, QueenSide: false}
+		}
+	}
+
 	enPassantTarget := ChessLocation{}
 	if fromSquare.Piece.Piece == Pawn {
 		if fromLocation.Rank == Rank2 && toLocation.Rank == Rank4 {
@@ -187,16 +208,21 @@ func (position *ChessPosition) Move(fromLocation ChessLocation, toLocation Chess
 
 	newBoard := position.Board.Clone()
 	newBoard.SetSquare(fromLocation, ChessPiece{NoPiece, NoColor})
-	newBoard.SetSquare(toLocation, fromSquare.Piece)
+
+	// Apply pawn promotion when the pawn reaches the back rank.
+	pieceToPlace := fromSquare.Piece
+	if fromSquare.Piece.Piece == Pawn && promotionPiece != NoPiece {
+		if (position.PlayerToMove == WhitePiece && toLocation.Rank == Rank8) ||
+			(position.PlayerToMove == BlackPiece && toLocation.Rank == Rank1) {
+			pieceToPlace = ChessPiece{promotionPiece, fromSquare.Piece.Color}
+		}
+	}
+	newBoard.SetSquare(toLocation, pieceToPlace)
 
 	// if this is an en passant move, need to remove the pawn
 	if fromSquare.Piece.Piece == Pawn {
 		if toLocation == position.EnPassantSquare {
-			if position.PlayerToMove == BlackPiece {
-				newBoard.SetSquare(ChessLocation{fromLocation.File, Rank7}, ChessPiece{NoPiece, NoColor})
-			} else {
-				newBoard.SetSquare(ChessLocation{fromLocation.File, Rank3}, ChessPiece{NoPiece, NoColor})
-			}
+			newBoard.SetSquare(ChessLocation{toLocation.File, fromLocation.Rank}, ChessPiece{NoPiece, NoColor})
 			halfmoveClock = 0
 		}
 	}
