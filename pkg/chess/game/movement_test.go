@@ -452,3 +452,112 @@ func TestKnightOnCorner_AllMovesOnBoard(t *testing.T) {
 		})
 	}
 }
+
+func TestIsCapture(t *testing.T) {
+	tests := []struct {
+		name         string
+		boardSetup   string
+		playerToMove ColorType
+		fromSquare   string
+		expectCaptures    []string
+		expectNonCaptures []string
+	}{
+		{
+			name:         "pawn forward move is not a capture",
+			boardSetup:   "Pd4 Ke1 ke8",
+			playerToMove: WhitePiece,
+			fromSquare:   "d4",
+			expectNonCaptures: []string{"Pd4d5"},
+		},
+		{
+			name:         "pawn diagonal with opponent piece is a capture",
+			boardSetup:   "Pd4 pe5 Ke1 ke8",
+			playerToMove: WhitePiece,
+			fromSquare:   "d4",
+			expectCaptures:    []string{"Pd4xe5"},
+			expectNonCaptures: []string{"Pd4d5"},
+		},
+		{
+			name:         "pawn diagonal to empty square is not a capture",
+			boardSetup:   "Pd4 Ke1 ke8",
+			playerToMove: WhitePiece,
+			fromSquare:   "d4",
+			// Note: pawn diagonal moves always have CanCapture=true, so String() shows 'x',
+			// but IsCapture=false because there is no opponent piece on the target square.
+			expectNonCaptures: []string{"Pd4xe5", "Pd4xc5"},
+		},
+		{
+			name:         "knight move to empty square is not a capture",
+			boardSetup:   "Nd4",
+			playerToMove: WhitePiece,
+			fromSquare:   "d4",
+			// Note: knight moves always have CanCapture=true, so String() shows 'x',
+			// but IsCapture=false because there is no opponent piece on the target square.
+			expectNonCaptures: []string{"Nd4xf5", "Nd4xf3", "Nd4xe6", "Nd4xe2"},
+		},
+		{
+			name:         "knight move to opponent piece is a capture",
+			boardSetup:   "Nd4 pf5 pe6",
+			playerToMove: WhitePiece,
+			fromSquare:   "d4",
+			expectCaptures: []string{"Nd4xf5", "Nd4xe6"},
+		},
+		{
+			name:         "rook move to empty square is not a capture",
+			boardSetup:   "Rd4 Ke1 ke8",
+			playerToMove: WhitePiece,
+			fromSquare:   "d4",
+			expectNonCaptures: []string{"Rd4d5", "Rd4e4"},
+		},
+		{
+			name:         "rook move to opponent piece is a capture",
+			boardSetup:   "Rd4 pd7 Ke1 ke8",
+			playerToMove: WhitePiece,
+			fromSquare:   "d4",
+			expectCaptures: []string{"Rd4xd7"},
+		},
+		{
+			name:         "king move to empty square is not a capture",
+			boardSetup:   "Ke4",
+			playerToMove: WhitePiece,
+			fromSquare:   "e4",
+			expectNonCaptures: []string{"Ke4e5", "Ke4d4"},
+		},
+		{
+			name:         "king move to opponent piece is a capture",
+			boardSetup:   "Ke4 pd5 ke8",
+			playerToMove: WhitePiece,
+			fromSquare:   "e4",
+			expectCaptures: []string{"Ke4xd5"},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			board := parseBoard(test.boardSetup)
+			position := &ChessPosition{Board: board, PlayerToMove: test.playerToMove}
+			fromSquare := ParseChessLocation(test.fromSquare)
+			moves := CalculateMoves(position, fromSquare)
+
+			moveByString := map[string]ChessMove{}
+			for _, m := range moves {
+				moveByString[m.String()] = m
+			}
+
+			for _, expected := range test.expectCaptures {
+				m, ok := moveByString[expected]
+				assert.True(t, ok, "expected move %s to be generated", expected)
+				if ok {
+					assert.True(t, m.IsCapture, "expected move %s to be a capture", expected)
+				}
+			}
+			for _, expected := range test.expectNonCaptures {
+				m, ok := moveByString[expected]
+				assert.True(t, ok, "expected move %s to be generated", expected)
+				if ok {
+					assert.False(t, m.IsCapture, "expected move %s to NOT be a capture", expected)
+				}
+			}
+		})
+	}
+}
