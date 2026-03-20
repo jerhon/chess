@@ -3,8 +3,10 @@ package chess
 import (
 	"testing"
 
+	"github.com/jerhon/chess/pkg/chess/fen"
 	"github.com/jerhon/chess/pkg/chess/game"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetLegalMoves_NotNilOnNewGame(t *testing.T) {
@@ -242,8 +244,104 @@ func TestTrySanMove_PawnPromotion(t *testing.T) {
 	}
 }
 
+// newGameFromFen is a test helper that creates a ChessGame from a FEN string.
+func newGameFromFen(t *testing.T, fenString string) *ChessGame {
+	t.Helper()
+	pos, err := fen.ParseFen(fenString)
+	require.NoError(t, err)
+	return NewGameFromPosition(&pos)
+}
+
+func TestCastleKingSide_UpdatesPosition(t *testing.T) {
+	// FEN with white able to castle kingside: king on e1, rook on h1, no pieces between.
+	g := newGameFromFen(t, "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1")
+
+	beforePos := g.GetPosition()
+	ok, err := g.TrySanMove("O-O")
+	assert.True(t, ok)
+	assert.NoError(t, err)
+
+	afterPos := g.GetPosition()
+	// Position must have changed after castling.
+	assert.NotEqual(t, beforePos, afterPos, "position should change after kingside castling")
+
+	// White king should now be on g1.
+	piece, ok := afterPos.Board.GetPiece(game.ChessLocation{File: game.FileG, Rank: game.Rank1})
+	assert.True(t, ok)
+	assert.Equal(t, game.King, piece.Piece)
+	assert.Equal(t, game.WhitePiece, piece.Color)
+
+	// White rook should now be on f1.
+	piece, ok = afterPos.Board.GetPiece(game.ChessLocation{File: game.FileF, Rank: game.Rank1})
+	assert.True(t, ok)
+	assert.Equal(t, game.Rook, piece.Piece)
+	assert.Equal(t, game.WhitePiece, piece.Color)
+}
+
+func TestCastleQueenSide_UpdatesPosition(t *testing.T) {
+	// FEN with white able to castle queenside: king on e1, rook on a1, no pieces between.
+	g := newGameFromFen(t, "r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1")
+
+	beforePos := g.GetPosition()
+	ok, err := g.TrySanMove("O-O-O")
+	assert.True(t, ok)
+	assert.NoError(t, err)
+
+	afterPos := g.GetPosition()
+	// Position must have changed after castling.
+	assert.NotEqual(t, beforePos, afterPos, "position should change after queenside castling")
+
+	// White king should now be on c1.
+	piece, ok := afterPos.Board.GetPiece(game.ChessLocation{File: game.FileC, Rank: game.Rank1})
+	assert.True(t, ok)
+	assert.Equal(t, game.King, piece.Piece)
+	assert.Equal(t, game.WhitePiece, piece.Color)
+
+	// White rook should now be on d1.
+	piece, ok = afterPos.Board.GetPiece(game.ChessLocation{File: game.FileD, Rank: game.Rank1})
+	assert.True(t, ok)
+	assert.Equal(t, game.Rook, piece.Piece)
+	assert.Equal(t, game.WhitePiece, piece.Color)
+}
+
+func TestGetResult_DrawByThreefoldRepetition(t *testing.T) {
+	g := NewGame()
+
+	// Bounce both knights back and forth so positions repeat.
+	// The starting position is recorded once at construction (count=1).
+	// After 4 moves (Nc3, Nc6, Nb1, Nb8) we return to the start (count=2).
+	// After 7 moves (…, Nc3, Nc6, Nb1) no position has reached count=3 yet.
+	moves := []string{"Nc3", "Nc6", "Nb1", "Nb8", "Nc3", "Nc6", "Nb1"}
+	for _, m := range moves {
+		ok, err := g.TrySanMove(m)
+		assert.True(t, ok, "move %s should succeed", m)
+		assert.NoError(t, err)
+	}
+	assert.Equal(t, game.InProgress, g.GetResult(), "game should still be in progress after 7 moves")
+
+	// 8th move returns to the starting position for the third time.
+	ok, err := g.TrySanMove("Nb8")
+	assert.True(t, ok)
+	assert.NoError(t, err)
+	assert.Equal(t, game.DrawRepetition, g.GetResult())
+	assert.True(t, g.GetResult().IsDraw())
+	assert.True(t, g.GetResult().IsDecided())
+}
+
+func TestGetResult_NoMoreMovesAfterDrawRepetition(t *testing.T) {
+	g := NewGame()
+
+	moves := []string{"Nc3", "Nc6", "Nb1", "Nb8", "Nc3", "Nc6", "Nb1", "Nb8"}
+	for _, m := range moves {
+		_, _ = g.TrySanMove(m)
+	}
+
+	ok, err := g.TrySanMove("e4")
+	assert.False(t, ok)
+	assert.Error(t, err)
+}
+
 func TestGetResult_DrawInsufficientMaterial(t *testing.T) {
-	// Build a K vs K position directly, which is insufficient material for either side.
 	board := game.NewChessBoard()
 	board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank1}, game.ChessPiece{Piece: game.King, Color: game.WhitePiece})
 	board.SetSquare(game.ChessLocation{File: game.FileE, Rank: game.Rank8}, game.ChessPiece{Piece: game.King, Color: game.BlackPiece})

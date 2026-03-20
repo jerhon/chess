@@ -127,6 +127,62 @@ func TestMove_CastlingRightsPreserved(t *testing.T) {
 				BlackPiece: {KingSide: true, QueenSide: true},
 			},
 		},
+		{
+			name:         "capturing white kingside rook on h1 clears white kingside castling right",
+			from:         ChessLocation{FileH, Rank3},
+			to:           ChessLocation{FileH, Rank1},
+			playerToMove: BlackPiece,
+			initialRights: map[ColorType]CastlingRights{
+				WhitePiece: {KingSide: true, QueenSide: true},
+				BlackPiece: {KingSide: true, QueenSide: true},
+			},
+			expectedRights: map[ColorType]CastlingRights{
+				WhitePiece: {KingSide: false, QueenSide: true},
+				BlackPiece: {KingSide: true, QueenSide: true},
+			},
+		},
+		{
+			name:         "capturing white queenside rook on a1 clears white queenside castling right",
+			from:         ChessLocation{FileA, Rank3},
+			to:           ChessLocation{FileA, Rank1},
+			playerToMove: BlackPiece,
+			initialRights: map[ColorType]CastlingRights{
+				WhitePiece: {KingSide: true, QueenSide: true},
+				BlackPiece: {KingSide: true, QueenSide: true},
+			},
+			expectedRights: map[ColorType]CastlingRights{
+				WhitePiece: {KingSide: true, QueenSide: false},
+				BlackPiece: {KingSide: true, QueenSide: true},
+			},
+		},
+		{
+			name:         "capturing black kingside rook on h8 clears black kingside castling right",
+			from:         ChessLocation{FileH, Rank6},
+			to:           ChessLocation{FileH, Rank8},
+			playerToMove: WhitePiece,
+			initialRights: map[ColorType]CastlingRights{
+				WhitePiece: {KingSide: true, QueenSide: true},
+				BlackPiece: {KingSide: true, QueenSide: true},
+			},
+			expectedRights: map[ColorType]CastlingRights{
+				WhitePiece: {KingSide: true, QueenSide: true},
+				BlackPiece: {KingSide: false, QueenSide: true},
+			},
+		},
+		{
+			name:         "capturing black queenside rook on a8 clears black queenside castling right",
+			from:         ChessLocation{FileA, Rank6},
+			to:           ChessLocation{FileA, Rank8},
+			playerToMove: WhitePiece,
+			initialRights: map[ColorType]CastlingRights{
+				WhitePiece: {KingSide: true, QueenSide: true},
+				BlackPiece: {KingSide: true, QueenSide: true},
+			},
+			expectedRights: map[ColorType]CastlingRights{
+				WhitePiece: {KingSide: true, QueenSide: true},
+				BlackPiece: {KingSide: true, QueenSide: false},
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -155,6 +211,62 @@ func TestMove_CastlingRightsPreserved(t *testing.T) {
 			assert.Equal(t, test.expectedRights, result.CastlingRights)
 		})
 	}
+}
+
+// TestMove_EnPassantCapture is a regression test for the bug where en passant
+// removed the pawn from the wrong file (fromLocation.File instead of toLocation.File).
+func TestMove_EnPassantCapture(t *testing.T) {
+	t.Run("white captures en passant", func(t *testing.T) {
+		// White pawn on e5, black pawn just moved from d7 to d5 -> en passant square is d6.
+		board := NewChessBoard()
+		board.SetSquare(ChessLocation{FileE, Rank5}, ChessPiece{Pawn, WhitePiece})
+		board.SetSquare(ChessLocation{FileD, Rank5}, ChessPiece{Pawn, BlackPiece})
+
+		position := &ChessPosition{
+			Board:           board,
+			PlayerToMove:    WhitePiece,
+			EnPassantSquare: ChessLocation{FileD, Rank6},
+			CastlingRights: map[ColorType]CastlingRights{
+				WhitePiece: {},
+				BlackPiece: {},
+			},
+		}
+
+		result := position.Move(ChessLocation{FileE, Rank5}, ChessLocation{FileD, Rank6})
+
+		// White pawn should be on d6
+		assert.Equal(t, ChessPiece{Pawn, WhitePiece}, result.Board.GetSquare(ChessLocation{FileD, Rank6}).Piece)
+		// Original square should be empty
+		assert.Equal(t, ChessPiece{NoPiece, NoColor}, result.Board.GetSquare(ChessLocation{FileE, Rank5}).Piece)
+		// Captured black pawn on d5 should be removed
+		assert.Equal(t, ChessPiece{NoPiece, NoColor}, result.Board.GetSquare(ChessLocation{FileD, Rank5}).Piece)
+	})
+
+	t.Run("black captures en passant", func(t *testing.T) {
+		// Black pawn on d4, white pawn just moved from e2 to e4 -> en passant square is e3.
+		board := NewChessBoard()
+		board.SetSquare(ChessLocation{FileD, Rank4}, ChessPiece{Pawn, BlackPiece})
+		board.SetSquare(ChessLocation{FileE, Rank4}, ChessPiece{Pawn, WhitePiece})
+
+		position := &ChessPosition{
+			Board:           board,
+			PlayerToMove:    BlackPiece,
+			EnPassantSquare: ChessLocation{FileE, Rank3},
+			CastlingRights: map[ColorType]CastlingRights{
+				WhitePiece: {},
+				BlackPiece: {},
+			},
+		}
+
+		result := position.Move(ChessLocation{FileD, Rank4}, ChessLocation{FileE, Rank3})
+
+		// Black pawn should be on e3
+		assert.Equal(t, ChessPiece{Pawn, BlackPiece}, result.Board.GetSquare(ChessLocation{FileE, Rank3}).Piece)
+		// Original square should be empty
+		assert.Equal(t, ChessPiece{NoPiece, NoColor}, result.Board.GetSquare(ChessLocation{FileD, Rank4}).Piece)
+		// Captured white pawn on e4 should be removed
+		assert.Equal(t, ChessPiece{NoPiece, NoColor}, result.Board.GetSquare(ChessLocation{FileE, Rank4}).Piece)
+	})
 }
 
 // TestMove_BlackKingsideRookFix is a regression test for the bug where
