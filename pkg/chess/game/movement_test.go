@@ -164,6 +164,82 @@ func TestKingSideCastlingPathBlocked(t *testing.T) {
 	}
 }
 
+func TestQueenSideCastlingPathBlocked(t *testing.T) {
+	tests := []struct {
+		name         string
+		boardSetup   string
+		playerToMove ColorType
+		canCastle    bool
+	}{
+		{
+			name:         "white queen-side castling clear path",
+			boardSetup:   "Ke1 Ra1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    true,
+		},
+		{
+			name:         "white queen-side castling blocked by piece on d1",
+			boardSetup:   "Ke1 Ra1 Qd1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    false,
+		},
+		{
+			name:         "white queen-side castling blocked by piece on c1",
+			boardSetup:   "Ke1 Ra1 Bc1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    false,
+		},
+		{
+			name:         "white queen-side castling blocked by piece on b1",
+			boardSetup:   "Ke1 Ra1 Nb1 ke8",
+			playerToMove: WhitePiece,
+			canCastle:    false,
+		},
+		{
+			name:         "black queen-side castling clear path",
+			boardSetup:   "ke8 ra8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    true,
+		},
+		{
+			name:         "black queen-side castling blocked by piece on d8",
+			boardSetup:   "ke8 ra8 qd8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    false,
+		},
+		{
+			name:         "black queen-side castling blocked by piece on c8",
+			boardSetup:   "ke8 ra8 bc8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    false,
+		},
+		{
+			name:         "black queen-side castling blocked by piece on b8",
+			boardSetup:   "ke8 ra8 nb8 Ke1",
+			playerToMove: BlackPiece,
+			canCastle:    false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			board := parseBoard(test.boardSetup)
+			position := &ChessPosition{
+				Board:        board,
+				PlayerToMove: test.playerToMove,
+				CastlingRights: map[ColorType]CastlingRights{
+					WhitePiece: {KingSide: false, QueenSide: true},
+					BlackPiece: {KingSide: false, QueenSide: true},
+				},
+			}
+			movement := NewChessMovement(position)
+			movement.Calculate()
+			assert.Equal(t, test.canCastle, movement.CanCastle.QueenSide)
+		})
+	}
+}
+
+
 func TestValidPawnMoves(t *testing.T) {
 	tests := []struct {
 		name              string
