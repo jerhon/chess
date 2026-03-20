@@ -371,3 +371,8 @@ func TestMove_PawnPromotion(t *testing.T) {
 		})
 	}
 }
+
+func TestNewStandardStartingPosition_FullmoveNumberIsOne(t *testing.T) {
+	pos := NewStandardStartingPosition()
+	assert.Equal(t, 1, pos.FullmoveNumber, "standard starting position should have FullmoveNumber 1 per FEN specification")
+}

@@ -291,7 +291,7 @@ func renderGameStatus(g *chess2.ChessGame) string {
 	case g.IsCheck():
 		return checkStyle.Render(fmt.Sprintf("%s to move — CHECK!", player))
 	default:
-		return labelStyle.Render(fmt.Sprintf("%s to move   Move %d", player, pos.FullmoveNumber+1))
+		return labelStyle.Render(fmt.Sprintf("%s to move   Move %d", player, pos.FullmoveNumber))
 	}
 }
 
@@ -307,10 +307,10 @@ func oppositePlayer(color game.ColorType) string {
 func renderMoves(g *chess2.ChessGame) string {
 	moves := g.GetMoves()
 
-	// Only show moves that can actually be played: on-board and CanMove is true.
+	// Only show moves that can actually be played.
 	var valid []game.ChessMove
 	for _, mv := range moves {
-		if mv.CanMove && mv.To.IsOnBoard() {
+		if mv.CanMove {
 			valid = append(valid, mv)
 		}
 	}

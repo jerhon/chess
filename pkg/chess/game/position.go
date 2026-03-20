@@ -253,6 +253,6 @@ func NewStandardStartingPosition() *ChessPosition {
 		},
 		EnPassantSquare: ChessLocation{},
 		HalfmoveClock:   0,
-		FullmoveNumber:  0,
+		FullmoveNumber:  1,
 	}
 }

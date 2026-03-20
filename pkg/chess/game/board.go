@@ -30,7 +30,9 @@ func (b ChessBoard) IterateSquares() iter.Seq[ChessSquare] {
 	return func(yield func(square ChessSquare) bool) {
 		for rank := Rank8; rank >= Rank1; rank-- {
 			for file := FileA; file <= FileH; file++ {
-				yield(b.GetSquare(ChessLocation{file, rank}))
+				if !yield(b.GetSquare(ChessLocation{file, rank})) {
+					return
+				}
 			}
 		}
 	}
