@@ -232,7 +232,7 @@ func TestMove_EnPassantCapture(t *testing.T) {
 			},
 		}
 
-		result := position.Move(ChessLocation{FileE, Rank5}, ChessLocation{FileD, Rank6})
+		result := position.Move(ChessLocation{FileE, Rank5}, ChessLocation{FileD, Rank6}, NoPiece)
 
 		// White pawn should be on d6
 		assert.Equal(t, ChessPiece{Pawn, WhitePiece}, result.Board.GetSquare(ChessLocation{FileD, Rank6}).Piece)
@@ -258,7 +258,7 @@ func TestMove_EnPassantCapture(t *testing.T) {
 			},
 		}
 
-		result := position.Move(ChessLocation{FileD, Rank4}, ChessLocation{FileE, Rank3})
+		result := position.Move(ChessLocation{FileD, Rank4}, ChessLocation{FileE, Rank3}, NoPiece)
 
 		// Black pawn should be on e3
 		assert.Equal(t, ChessPiece{Pawn, BlackPiece}, result.Board.GetSquare(ChessLocation{FileE, Rank3}).Piece)
