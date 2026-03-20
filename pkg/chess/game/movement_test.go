@@ -399,3 +399,56 @@ func TestValidPawnMoves(t *testing.T) {
 		})
 	}
 }
+
+func TestKnightOnCorner_AllMovesOnBoard(t *testing.T) {
+	tests := []struct {
+		name         string
+		boardSetup   string
+		playerToMove ColorType
+		fromSquare   string
+		expectedMoves []string
+	}{
+		{
+			name:         "white knight on a1 generates only on-board moves",
+			boardSetup:   "Na1",
+			playerToMove: WhitePiece,
+			fromSquare:   "a1",
+			expectedMoves: []string{"Na1xb3", "Na1xc2"},
+		},
+		{
+			name:         "white knight on h8 generates only on-board moves",
+			boardSetup:   "Nh8",
+			playerToMove: WhitePiece,
+			fromSquare:   "h8",
+			expectedMoves: []string{"Nh8xg6", "Nh8xf7"},
+		},
+		{
+			name:         "white knight on a8 generates only on-board moves",
+			boardSetup:   "Na8",
+			playerToMove: WhitePiece,
+			fromSquare:   "a8",
+			expectedMoves: []string{"Na8xb6", "Na8xc7"},
+		},
+		{
+			name:         "white knight on h1 generates only on-board moves",
+			boardSetup:   "Nh1",
+			playerToMove: WhitePiece,
+			fromSquare:   "h1",
+			expectedMoves: []string{"Nh1xg3", "Nh1xf2"},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			board := parseBoard(test.boardSetup)
+			position := &ChessPosition{Board: board, PlayerToMove: test.playerToMove}
+			fromSquare := ParseChessLocation(test.fromSquare)
+			actualMoves := getMoveStrings(CalculateMoves(position, fromSquare))
+			assert.ElementsMatch(t, test.expectedMoves, actualMoves)
+			// Verify all moves target on-board squares
+			for _, move := range CalculateMoves(position, fromSquare) {
+				assert.True(t, move.To.IsOnBoard(), "knight move target %s should be on board", move.To.String())
+			}
+		})
+	}
+}

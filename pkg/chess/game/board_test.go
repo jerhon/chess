@@ -136,3 +136,19 @@ func TestChessBoard_Clone(t *testing.T) {
 	clonedBoard = board.Clone()
 	assert.Equal(t, board, clonedBoard)
 }
+
+func TestChessBoard_IterateSquares_EarlyBreak(t *testing.T) {
+	// Verify that breaking from a for-range loop over IterateSquares
+	// does not panic. Before the fix, the iterator did not check
+	// the return value of yield, which violates the Go iterator contract
+	// and would cause a panic on break.
+	board := NewStandardChessBoard()
+	count := 0
+	for range board.IterateSquares() {
+		count++
+		if count == 3 {
+			break
+		}
+	}
+	assert.Equal(t, 3, count)
+}

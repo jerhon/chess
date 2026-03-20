@@ -94,6 +94,13 @@ func TestGetLegalMoves_AfterMove_SwitchesToOpponent(t *testing.T) {
 }
 
 
+func TestNewGame_FenHasFullmoveNumberOne(t *testing.T) {
+	g := NewGame()
+	fenStr := fen.ToFenString(g.GetPosition())
+	assert.Equal(t, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", fenStr,
+		"FEN of new game should have fullmove number 1")
+}
+
 func TestGetResult_InProgressAtStart(t *testing.T) {
 	g := NewGame()
 	assert.Equal(t, game.InProgress, g.GetResult())

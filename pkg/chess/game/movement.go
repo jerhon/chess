@@ -450,14 +450,18 @@ func calculateKnightMoves(position *ChessPosition, fromLocation ChessLocation) [
 func canAppendKnightMove(position *ChessPosition, fromSquare ChessSquare, rankOffset int, fileOffset int) (ChessMove, bool) {
 	fromLocation := fromSquare.Location
 	fromPiece := fromSquare.Piece
-	toPiece, match := position.Board.GetPiece(ChessLocation{File: fromLocation.File + FileType(fileOffset), Rank: fromLocation.Rank + RankType(rankOffset)})
+	toLocation := ChessLocation{File: fromLocation.File + FileType(fileOffset), Rank: fromLocation.Rank + RankType(rankOffset)}
+	if !toLocation.IsOnBoard() {
+		return ChessMove{}, false
+	}
+	toPiece, match := position.Board.GetPiece(toLocation)
 	if match && toPiece.Color == fromPiece.Color {
 		return ChessMove{}, false
 	}
 
 	return ChessMove{
 		From:       fromSquare,
-		To:         ChessLocation{File: fromLocation.File + FileType(fileOffset), Rank: fromLocation.Rank + RankType(rankOffset)},
+		To:         toLocation,
 		CanCapture: true,
 		CanMove:    true,
 	}, true
