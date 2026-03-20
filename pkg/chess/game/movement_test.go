@@ -124,7 +124,7 @@ func TestCastlingNotAllowedWhenInCheck(t *testing.T) {
 	}{
 		{
 			name: "white cannot castle kingside while in check",
-			// King on e1, Rook on h1, black rook giving check on e8->e1
+			// White king on e1, white rook on h1 (kingside), black king on e8, black rook on e4 giving check
 			boardSetup:      "Ke1 Rh1 ke8 re4",
 			playerToMove:    WhitePiece,
 			castlingRight:   CastlingRights{KingSide: true, QueenSide: false},
@@ -133,7 +133,7 @@ func TestCastlingNotAllowedWhenInCheck(t *testing.T) {
 		},
 		{
 			name: "white cannot castle queenside while in check",
-			// King on e1, Rook on a1, black rook giving check on e8->e1
+			// White king on e1, white rook on a1 (queenside), black king on e8, black rook on e4 giving check
 			boardSetup:      "Ke1 Ra1 ke8 re4",
 			playerToMove:    WhitePiece,
 			castlingRight:   CastlingRights{KingSide: false, QueenSide: true},
@@ -151,7 +151,7 @@ func TestCastlingNotAllowedWhenInCheck(t *testing.T) {
 		},
 		{
 			name: "black cannot castle kingside while in check",
-			// Black king on e8, Rook on h8, white rook giving check on e1->e8
+			// Black king on e8, black rook on h8 (kingside), white king on e1, white rook on e5 giving check
 			boardSetup:      "ke8 rh8 Ke1 Re5",
 			playerToMove:    BlackPiece,
 			castlingRight:   CastlingRights{KingSide: true, QueenSide: false},
