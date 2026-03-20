@@ -113,6 +113,75 @@ func parseBoard(squareLayoutString string) *ChessBoard {
 	return board
 }
 
+func TestCastlingNotAllowedWhenInCheck(t *testing.T) {
+	tests := []struct {
+		name            string
+		boardSetup      string
+		playerToMove    ColorType
+		castlingRight   CastlingRights
+		expectKingSide  bool
+		expectQueenSide bool
+	}{
+		{
+			name: "white cannot castle kingside while in check",
+			// White king on e1, white rook on h1 (kingside), black king on e8, black rook on e4 giving check
+			boardSetup:      "Ke1 Rh1 ke8 re4",
+			playerToMove:    WhitePiece,
+			castlingRight:   CastlingRights{KingSide: true, QueenSide: false},
+			expectKingSide:  false,
+			expectQueenSide: false,
+		},
+		{
+			name: "white cannot castle queenside while in check",
+			// White king on e1, white rook on a1 (queenside), black king on e8, black rook on e4 giving check
+			boardSetup:      "Ke1 Ra1 ke8 re4",
+			playerToMove:    WhitePiece,
+			castlingRight:   CastlingRights{KingSide: false, QueenSide: true},
+			expectKingSide:  false,
+			expectQueenSide: false,
+		},
+		{
+			name: "white can castle kingside when not in check",
+			// White king on e1, white rook on h1 (kingside), black king on e8, and no checking piece
+			boardSetup:      "Ke1 Rh1 ke8",
+			playerToMove:    WhitePiece,
+			castlingRight:   CastlingRights{KingSide: true, QueenSide: false},
+			expectKingSide:  true,
+			expectQueenSide: false,
+		},
+		{
+			name: "black cannot castle kingside while in check",
+			// Black king on e8, black rook on h8 (kingside), white king on e1, white rook on e5 giving check
+			boardSetup:      "ke8 rh8 Ke1 Re5",
+			playerToMove:    BlackPiece,
+			castlingRight:   CastlingRights{KingSide: true, QueenSide: false},
+			expectKingSide:  false,
+			expectQueenSide: false,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			board := parseBoard(test.boardSetup)
+			position := &ChessPosition{
+				Board:        board,
+				PlayerToMove: test.playerToMove,
+				CastlingRights: map[ColorType]CastlingRights{
+					WhitePiece: {},
+					BlackPiece: {},
+				},
+			}
+			position.CastlingRights[test.playerToMove] = test.castlingRight
+
+			movement := NewChessMovement(position)
+			movement.Calculate()
+
+			assert.Equal(t, test.expectKingSide, movement.CanCastle.KingSide)
+			assert.Equal(t, test.expectQueenSide, movement.CanCastle.QueenSide)
+		})
+	}
+}
+
 func TestKingSideCastlingPathBlocked(t *testing.T) {
 	tests := []struct {
 		name         string
@@ -238,8 +307,6 @@ func TestQueenSideCastlingPathBlocked(t *testing.T) {
 		})
 	}
 }
-
-
 func TestValidPawnMoves(t *testing.T) {
 	tests := []struct {
 		name             string
