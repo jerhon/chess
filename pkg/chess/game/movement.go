@@ -264,6 +264,11 @@ type ChessMove struct {
 	// IsPromotion true if the move results in a pawn promotion.
 	// The caller supplies the desired promotion piece (via SAN or otherwise) when applying the move.
 	IsPromotion bool
+
+	// IsCapture true if the move results in capturing an opponent's piece.
+	// Unlike CanCapture (which indicates the move type can capture), IsCapture is true only when
+	// there is actually an opponent piece on the target square (or for en passant).
+	IsCapture bool
 }
 
 func (move ChessMove) String() string {
@@ -341,6 +346,7 @@ func appendPawnMove(moves []ChessMove, from ChessSquare, to ChessLocation, canMo
 		To:          to,
 		CanMove:     canMove,
 		CanCapture:  canCapture,
+		IsCapture:   canMove && canCapture,
 		IsPromotion: isPromotionRank(to.Rank, from.Piece.Color),
 	})
 }
@@ -464,6 +470,7 @@ func canAppendKnightMove(position *ChessPosition, fromSquare ChessSquare, rankOf
 		To:         toLocation,
 		CanCapture: true,
 		CanMove:    true,
+		IsCapture:  match,
 	}, true
 }
 
@@ -497,6 +504,7 @@ func calculateKingMoves(position *ChessPosition, fromLocation ChessLocation) []C
 				To:         toLocation,
 				CanMove:    true,
 				CanCapture: hasPiece,
+				IsCapture:  hasPiece,
 			})
 		}
 	}
@@ -544,6 +552,7 @@ func tryAppendRayMove(moves []ChessMove, fromSquare ChessSquare, toSquare ChessS
 		To:         toSquare.Location,
 		CanMove:    true,
 		CanCapture: true,
+		IsCapture:  true,
 	}), true
 }
 
